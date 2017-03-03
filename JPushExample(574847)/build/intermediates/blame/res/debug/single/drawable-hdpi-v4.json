@@ -1,0 +1,18 @@
+[
+    {
+        "merged": "D:\\SecAndroidApp\\JPushExample(574847)\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi-v4\\tiledstripes.xml",
+        "source": "D:\\SecAndroidApp\\JPushExample(574847)\\res\\drawable-hdpi\\tiledstripes.xml"
+    },
+    {
+        "merged": "D:\\SecAndroidApp\\JPushExample(574847)\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi-v4\\richpush_progressbar.xml",
+        "source": "D:\\SecAndroidApp\\JPushExample(574847)\\res\\drawable-hdpi\\richpush_progressbar.xml"
+    },
+    {
+        "merged": "D:\\SecAndroidApp\\JPushExample(574847)\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi-v4\\richpush_btn_selector.xml",
+        "source": "D:\\SecAndroidApp\\JPushExample(574847)\\res\\drawable-hdpi\\richpush_btn_selector.xml"
+    },
+    {
+        "merged": "D:\\SecAndroidApp\\JPushExample(574847)\\build\\intermediates\\res\\merged\\debug\\drawable-hdpi-v4\\corners_bg.xml",
+        "source": "D:\\SecAndroidApp\\JPushExample(574847)\\res\\drawable-hdpi\\corners_bg.xml"
+    }
+]

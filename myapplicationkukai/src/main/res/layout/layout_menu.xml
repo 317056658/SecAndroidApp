@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:id="@+id/id_pop_layout"
+    android:background="#FDDE81"
+    android:padding="5dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <Button
+        android:id="@+id/window_home"
+      android:paddingTop="38dp"
+        android:textAllCaps="false"
+        android:text="Home"
+        android:background="@drawable/btnhomeimage2"
+        android:layout_width="95px"
+        android:layout_height="95px" />
+    <Button
+        android:id="@+id/btn_info"
+        android:paddingTop="38dp"
+        android:textAllCaps="false"
+        android:text="info"
+        android:layout_marginLeft="6dp"
+        android:background="@drawable/btnkeyinfoimage"
+        android:layout_width="95px"
+        android:layout_height="95px" />
+    <Button
+        android:paddingTop="38dp"
+        android:text="Favorite"
+        android:textAllCaps="false"
+        android:layout_marginLeft="6dp"
+        android:background="@drawable/btnsaveasfavoriteimage"
+        android:layout_width="95px"
+        android:layout_height="95px" />
+    <Button
+        android:id="@+id/btn_calibration"
+        android:paddingTop="38dp"
+        android:text="Calibrate"
+        android:textAllCaps="false"
+        android:layout_marginLeft="6dp"
+        android:background="@drawable/btncalibrateimage"
+        android:layout_width="95px"
+        android:layout_height="95px" />
+
+    <Button
+        android:id="@+id/pop_Measure"
+        android:paddingTop="38dp"
+        android:text="Measure"
+        android:textAllCaps="false"
+        android:layout_marginLeft="6dp"
+        android:background="@drawable/btntoolchangeimage"
+        android:layout_width="95px"
+        android:layout_height="95px" />
+
+    <Button
+        android:paddingTop="38dp"
+        android:text="Move"
+        android:textAllCaps="false"
+        android:layout_marginLeft="6dp"
+        android:background="@drawable/btnclampchangeimage"
+
+        android:layout_width="95px"
+        android:layout_height="95px" />
+    <Button
+        android:paddingTop="38dp"
+        android:text="Save"
+        android:textAllCaps="false"
+        android:layout_marginLeft="6dp"
+        android:background="@drawable/btnsavecutimage"
+        android:layout_width="95px"
+        android:layout_height="95px" />
+
+    <Button
+        android:id="@+id/pop_stop"
+        android:paddingTop="38dp"
+        android:text="Stop"
+        android:textAllCaps="false"
+        android:background="@drawable/btnstopimage"
+        android:layout_marginLeft="50dp"
+        android:layout_width="95px"
+        android:layout_height="95px" />
+
+
+</LinearLayout>

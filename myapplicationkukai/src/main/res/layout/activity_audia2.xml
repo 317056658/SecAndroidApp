@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_auto1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.kkkcut.www.myapplicationkukai.AutoType.frmKeyCut_Main"
+
+    >
+    <LinearLayout
+        android:background="#16A4FA"
+        android:layout_width="match_parent"
+        android:layout_height="40dp">
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textStyle="bold"
+            android:gravity="right|center|"
+            android:paddingRight="5dp"
+            android:text="Back"
+            android:background="@drawable/btnlistbacktostep1image"
+            android:onClick="retreat"
+            />
+
+        <TextView
+            android:id="@+id/tv"
+            android:layout_width="0dp"
+            android:layout_height="40dp"
+            android:text="Acura>cl>1976"
+            android:layout_weight="1"
+            android:gravity="center"
+            />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/flll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <Button
+            android:id="@+id/imgbut"
+            android:layout_gravity="left|bottom"
+            android:background="@drawable/btnshowhidetoolimage"
+            android:textAllCaps="false"
+            android:gravity="bottom|center"
+            android:paddingBottom="5dp"
+            android:text="Menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <LinearLayout
+              android:layout_marginRight="6dp"
+              android:id="@+id/lllll"
+            android:orientation="vertical"
+            android:layout_gravity="right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <!--   android:textAllCaps="false"  由于5.0的特性把button的字体全部变为大写 所以要设置false变为可以大小写兼容 -->
+            <Button
+                android:id="@+id/btnInput"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btninputimage"
+                android:gravity="bottom|center"
+                android:paddingBottom="5dp"
+                android:textAllCaps="false"
+                android:textSize="8sp"
+                android:text="Input"
+                android:layout_width="128px"
+                android:layout_height="90px" />
+
+            <Button
+                android:id="@+id/btnCode"
+                android:textSize="8sp"
+                android:gravity="bottom|center"
+                android:paddingBottom="5dp"
+                android:text="Code"
+                android:textAllCaps="false"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btncodeimage"
+                android:layout_width="128px"
+                android:layout_height="90px" />
+
+            <Button
+                android:id="@+id/btnDecode"
+                android:textSize="8sp"
+                android:gravity="bottom|center"
+                android:paddingBottom="5dp"
+                android:text="Decode"
+                android:textAllCaps="false"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btndecodeimage"
+                android:layout_width="128px"
+                android:layout_height="90px" />
+            <Button
+                android:id="@+id/btnInCode"
+                android:textSize="8sp"
+                android:gravity="bottom|center"
+                android:paddingBottom="5dp"
+                android:text="InCode"
+                android:textAllCaps="false"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/incodenormal"
+                android:layout_width="128px"
+                android:layout_height="90px" />
+            <Button
+                android:id="@+id/btnLackTooth"
+                android:textSize="8sp"
+                android:gravity="bottom|center"
+                android:paddingBottom="5dp"
+                android:text="Lack Tooth"
+                android:textAllCaps="false"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btnlacktoothimagelost"
+                android:layout_width="128px"
+                android:layout_height="90px" />
+            <Button
+                android:id="@+id/btnNext"
+                android:textSize="8sp"
+                android:gravity="bottom|center"
+                android:paddingBottom="5dp"
+                android:text="Cut"
+                android:textAllCaps="false"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btncutimage"
+                android:layout_width="128px"
+                android:layout_height="90px" />
+        </LinearLayout>
+    </FrameLayout>
+
+
+</LinearLayout>

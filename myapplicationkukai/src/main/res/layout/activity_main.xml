@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.kkkcut.www.myapplicationkukai.MainActivity">
+
+    <LinearLayout
+        android:background="#FDC002"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        >
+        <ImageView
+            android:id="@+id/logo12"
+            android:src="@drawable/kukailogo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:gravity="center|right"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:textColor="#FBFCFA"
+                android:textStyle="bold"
+                android:textSize="30sp"
+                android:text="SEC-E9"
+                android:layout_marginRight="50dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+
+                android:textColor="#6E927B"
+                android:layout_marginRight="20dp"
+                android:textSize="18sp"
+                android:text="Fully Automated Key Machine"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+    <LinearLayout
+        android:gravity="center"
+        android:layout_weight="1"
+        android:layout_width="match_parent"
+        android:layout_height="0dp">
+        <GridLayout
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:columnCount="6"
+            android:rowCount="3">
+            <!-- 去掉边框 android:background="#00ffffff"-->
+                  />
+            <Button
+                android:background="@drawable/car_image_switching"
+                android:id="@+id/btnAutomobileKeyCut"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_columnSpan="2"
+                android:layout_gravity="fill"
+                android:gravity="bottom|center"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:paddingBottom="3dp"
+                android:text="Automobile"
+                />
+
+            <Button
+                android:id="@+id/btnMotorcycleKeyCut"
+                android:layout_marginLeft="15dp"
+                android:background="@drawable/motorcycle_image_switching"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom|center"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:paddingBottom="3dp"
+                android:text="Motorcycle"
+                />
+
+            <Button
+                android:id="@+id/btnEdgeKeyCut"
+                android:layout_marginLeft="15dp"
+                android:background="@drawable/civil_key_image_switching"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom|center"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:paddingBottom="3dp"
+                android:text="Standard"
+               />
+
+            <Button
+                android:id="@+id/btnDimpleKeyCut"
+                android:layout_marginLeft="15dp"
+                android:background="@drawable/concave_key_image_switching"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingBottom="3dp"
+                android:gravity="bottom|center"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:text="Dimple"
+                />
+
+            <Button
+                android:id="@+id/btnTubularKeyCut"
+                android:layout_marginLeft="15dp"
+                android:background="@drawable/tubular_key_image_switching"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom|center"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:paddingBottom="3dp"
+                android:text="Tubular"
+                 />
+
+            <Button
+                android:id="@+id/btnSearch"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/search_image_switching"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom|center"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:paddingBottom="3dp"
+                android:text="Search"
+                 />
+
+            <Button
+                android:id="@+id/btnCutHistory"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="15dp"
+                android:background="@drawable/cut_history_image_switching"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom|center"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:paddingBottom="3dp"
+                android:text="Cut History"
+                />
+
+            <Button
+                android:id="@+id/btnCopy"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="15dp"
+                android:background="@drawable/duplicating_key_image_switching"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom|center"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:paddingBottom="3dp"
+                android:text="Duplicating Key"
+             />
+
+            <Button
+                android:id="@+id/btnUserDB"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="15dp"
+                android:background="@drawable/my_key_info_image_switching"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom|center"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:paddingBottom="3dp"
+                android:text="My Key Info"
+                 />
+
+            <Button
+                android:id="@+id/btnLastCutKey"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="15dp"
+                android:background="@drawable/lats_key_image_switching"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom|center"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:paddingBottom="3dp"
+                android:text="Last Key"
+          />
+
+            <Button
+                android:paddingBottom="3dp"
+                android:id="@+id/btnFavorite"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="15dp"
+                android:background="@drawable/favorite_image_switching"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom|center"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:text="Favorite"
+             />
+
+            <Button
+                android:id="@+id/btnCutHistoryMgr"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/cut_history_mar_image_switching"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom|center"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:paddingBottom="3dp"
+                android:text="Key Marking Mgr"
+                 />
+
+            <Button
+                android:id="@+id/btnEngrave"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="15dp"
+                android:background="@drawable/key_marking_image_switching"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom|center"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:paddingBottom="3dp"
+                android:text="key Marking"
+             />
+            <Button
+                android:id="@+id/btnMaintenance"
+                android:background="@drawable/setup_image_switching"
+                android:layout_marginTop="15dp"
+                android:layout_marginLeft="15dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom|center"
+                android:textAllCaps="false"
+                android:textSize="12sp"
+                android:paddingBottom="3dp"
+                android:text="Setup"
+                />
+
+        </GridLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:background="#16A4FA"
+        android:layout_width="match_parent"
+        android:layout_height="80dp">
+        <LinearLayout
+            android:layout_gravity="center_vertical"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <TextView
+                android:textSize="20sp"
+                android:text="www.kkkcut.com"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:textSize="20sp"
+                android:text="Copyright(c) 2016 SEC. All rights reserved."
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:layout_gravity="center_vertical"
+            android:orientation="vertical"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_marginRight="30dp"
+                android:layout_gravity="right"
+                android:textSize="16sp"
+                android:text="SN:EP15061001"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_marginRight="22dp"
+                android:layout_gravity="right"
+                android:textSize="16sp"
+                android:text="Software:13.0.01"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:layout_marginRight="34dp"
+                android:layout_gravity="right"
+                android:textSize="16sp"
+                android:text="Firmware:12.00"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+
+</LinearLayout>

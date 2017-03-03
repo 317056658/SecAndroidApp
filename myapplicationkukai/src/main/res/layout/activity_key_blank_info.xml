@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_key_blank_info"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.kkkcut.www.myapplicationkukai.MenuModule.KeyBlankInfoActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#16A4FA">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Key Blank Information"
+            android:textColor="#03060C"
+            android:textSize="24sp" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:gravity="center"
+                android:padding="5dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Align:"
+                    android:textColor="#030401"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <RadioGroup
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RadioButton
+                        android:id="@+id/btn_Shoulder"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Shoulder" />
+
+                    <RadioButton
+                        android:id="@+id/btn_Tip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Tip" />
+                </RadioGroup>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Width:"
+                    android:textColor="#030401"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/text_width"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="700"
+                    android:textColor="#030401"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Thick:"
+                    android:textColor="#030401"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/text_thick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="700"
+                    android:textColor="#030401"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp">
+
+                <TextView
+                    android:layout_width="58dp"
+                    android:layout_height="wrap_content"
+                    android:text="Spaces:"
+                    android:textColor="#030401"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+                <!--设置滑动到顶部或者底部 不会出现阴影图片  android:overScrollMode="never"-->
+                <ScrollView
+                    android:fillViewport="true"
+                    android:layout_width="140dp"
+                    android:layout_height="205dp"
+                    android:background="@drawable/edit_shape"
+                    android:fadeScrollbars="false"
+                    android:overScrollMode="never">
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:fadeScrollbars="false"
+                        android:overScrollMode="never">
+                        <LinearLayout
+                            android:id="@+id/sum_ll"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:id="@+id/ll_1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:layout_width="30dp"
+                                    android:layout_height="20dp"
+                                    android:background="@drawable/edit_shape" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </HorizontalScrollView>
+                </ScrollView>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+                    android:text="Depths:"
+                    android:textColor="#030401"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <ScrollView
+                    android:fillViewport="true"
+                    android:layout_width="140dp"
+                    android:layout_height="205dp"
+                    android:background="@drawable/edit_shape"
+                    android:fadeScrollbars="false"
+                    android:overScrollMode="never">
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:scrollbars="horizontal"
+                        android:fadeScrollbars="false"
+                        android:overScrollMode="never">
+                        <LinearLayout
+                            android:id="@+id/Depthssum_ll"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical">
+                            <LinearLayout
+                                android:id="@+id/Depthssum_ll1"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+
+                                <TextView
+                                    android:layout_width="30dp"
+                                    android:layout_height="20dp"
+                                    android:background="@drawable/edit_shape" />
+                            </LinearLayout>
+                        </LinearLayout>
+                    </HorizontalScrollView>
+                </ScrollView>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_marginTop="10dp"
+                android:layout_width="403dp"
+                android:layout_height="100dp">
+                <TextView
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#030401"
+                    android:text="Desc:"
+                    android:layout_width="58dp"
+                    android:layout_height="50dp" />
+                  <TextView
+                      android:id="@+id/tv_desc"
+                      android:text="1aaa"
+                      android:layout_width="match_parent"
+                      android:layout_height="match_parent"
+                      android:background="@drawable/edit_shape"
+                      />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_marginLeft="20dp"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent">
+            <TextView
+                android:padding="10dp"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#030401"
+                android:text="Key Blanks:"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:text="adsasdsadsadasdasdsadasdasdasdasdasdasdasdasdsadasdasdasdasdasdasdasdas"
+                android:background="@drawable/edit_shape"
+                android:layout_width="200dp"
+                android:layout_height="400dp" />
+        </LinearLayout>
+        <Button
+            android:id="@+id/closeUI"
+            android:gravity="center|bottom"
+            android:text="Close"
+            android:textAllCaps="false"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="380dp"
+            android:background="@drawable/close_imge_switching"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</LinearLayout>
+

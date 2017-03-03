@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_clamp_calibration"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.kkkcut.www.myapplicationkukai.ClampCalibration.frmCalibration">
+
+    <RelativeLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#16A4FA">
+
+        <ImageView
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:background="@drawable/picturebox2image_frmmaintenanceres" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Clamp Calibration"
+            android:textColor="#010103"
+            android:textSize="26sp"
+            android:textStyle="bold" />
+    </RelativeLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="5dp">
+
+        <LinearLayout
+            android:layout_width="800dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#FDDE81"
+                    android:padding="5dp">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="#0"
+                            android:textColor="#010103"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:text="Decoder-Cutter Distance please Use #! Clamp"
+                            android:textColor="#010103"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:text="After distance test,please press corresponding button for calibration\naccording to the used clamp."
+                            android:textColor="#FD150C" />
+
+                    </LinearLayout>
+
+                    <Button
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:background="@drawable/start_img_switching" />
+                </RelativeLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:gravity="center_vertical"
+                android:layout_marginTop="5dp"
+                android:padding="6dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#FDDE81">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="#1"
+                        android:textColor="#010103"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:textColor="#010103"
+                        android:text="Automobile key\nClamp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+                <ImageView
+                    android:id="@+id/btnCalibLeftClamp1"
+                    android:layout_marginLeft="5dp"
+                    android:src="@drawable/picturebox1image_frmmaintenanceres"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <ImageView
+                    android:id="@+id/btnCalibRightClamp1"
+                    android:layout_marginLeft="20dp"
+                    android:background="@drawable/btncalibleftclamp1image_switching"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+            <LinearLayout
+                android:gravity="center_vertical"
+                android:layout_marginTop="5dp"
+                android:padding="6dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#FDDE81">
+
+                <LinearLayout
+
+                    android:orientation="vertical"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="#2"
+                        android:textColor="#010103"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:textColor="#010103"
+                        android:text="Dimple key\nClamp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/btnCalibLeftClamp2"
+                    android:layout_marginLeft="5dp"
+                    android:background="@drawable/picturebox3image_frmcalibrationres"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <ImageView
+                    android:id="@+id/btnCalibRightClamp2"
+                    android:layout_marginLeft="20dp"
+                    android:background="@drawable/btncalibleftclamp1image_switching"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_marginTop="5dp"
+                android:padding="6dp"
+                android:gravity="center_vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#FDDE81">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="#3"
+                        android:textColor="#010103"
+                        android:textStyle="bold" />
+                    <TextView
+                        android:textColor="#010103"
+                        android:text="Single-Side\nStandard Key Cl"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+
+                <ImageView
+                    android:id="@+id/btnCalibLeftClamp3"
+                    android:layout_marginLeft="5dp"
+                    android:src="@drawable/picturebox4image_frmcalibrationres"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <ImageView
+                    android:id="@+id/btnCalibRightClamp3"
+                    android:layout_marginLeft="20dp"
+                    android:background="@drawable/btncalibleftclamp1image_switching"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+            <LinearLayout
+             android:gravity="center_vertical"
+                android:layout_marginTop="5dp"
+                android:padding="6dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#FDDE81">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="100dp"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="#4"
+                        android:textColor="#010103"
+                        android:textStyle="bold" />
+
+                    <TextView
+
+                        android:textColor="#010103"
+                        android:text="Dimple Key \nClamp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+                <ImageView
+                    android:id="@+id/btnCalibLeftClamp4"
+                    android:layout_marginLeft="5dp"
+                    android:src="@drawable/picturebox5image_frmcalibrationres"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <ImageView
+                    android:id="@+id/btnCalibRightClamp4"
+                    android:layout_marginLeft="20dp"
+                    android:background="@drawable/btncalibleftclamp1image_switching"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_gravity="right"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/btn_move"
+                android:gravity="right|bottom"
+                android:textAllCaps="false"
+                android:background="@drawable/move_img_switching"
+                android:text="Move"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <Button
+                android:id="@+id/btnManualSet"
+                android:gravity="bottom|center"
+                android:layout_marginTop="15dp"
+                android:background="@drawable/manual_img_switching"
+                android:textAllCaps="false"
+                android:text="Manual"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnClose"
+            android:gravity="bottom|center"
+            android:textAllCaps="false"
+            android:text="Close"
+            android:layout_gravity="right|bottom"
+            android:background="@drawable/close_imge_switching"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </FrameLayout>
+</LinearLayout>

@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_setup"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.kkkcut.www.myapplicationkukai.setup.frmMaintenance">
+    <RelativeLayout
+        android:id="@+id/rl1"
+        android:background="#16A4FA"
+        android:layout_width="match_parent"
+        android:layout_height="54dp">
+        <TextView
+            android:layout_centerInParent="true"
+            android:text="Device Setup"
+           android:layout_centerVertical="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/btnAbout"
+            android:layout_alignParentRight="true"
+          android:textAllCaps="false"
+            android:paddingRight="5dp"
+            android:text="About"
+            android:gravity="right|center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/frmmaintenance_aboutimage"
+            />
+    </RelativeLayout>
+
+    <GridLayout
+        android:layout_marginTop="20dp"
+        android:layout_gravity="left|center"
+        android:rowCount="2"
+        android:columnCount="2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:id="@+id/llyout"
+            android:background="#FDDE81"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            >
+
+            <TextView
+                android:padding="5dp"
+                 android:layout_gravity="center"
+                android:text="Clamp Calibration"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:background="@drawable/picturebox2image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/btnCalibDetachableClamp"
+                android:onClick="onClick"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="center"
+                android:textAllCaps="false"
+                android:gravity="bottom|right"
+                android:paddingRight="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/first_next_image_switching"
+                android:text="First Next"
+                android:layout_marginBottom="10dp"
+                />
+        </LinearLayout>
+        <LinearLayout
+
+            android:layout_marginLeft="10dp"
+            android:background="#FDDE81"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            >
+
+            <TextView
+                android:padding="5dp"
+                android:layout_gravity="center"
+                android:text="Tool Length Measurement"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <ImageView
+                android:background="@drawable/picturebox1image"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <Button
+                    android:id="@+id/btnStartDecoderMeasure"
+                    android:layout_marginRight="30dp"
+                    android:textAllCaps="false"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/decoder_image_switching"
+                    android:text="Decoder"
+                    />
+                <Button
+                    android:textAllCaps="false"
+                    android:id="@+id/btnStartToolMeasure"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/cutter_image_switching"
+                    android:text="Cutter"
+                    />
+            </LinearLayout>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_marginTop="10dp"
+            android:padding="10dp"
+            android:layout_gravity = "fill"
+            android:background="#FDDE81"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_columnSpan="2"
+            android:orientation="vertical"
+
+            >
+                <LinearLayout
+
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <Button
+                        android:id="@+id/btnSelectLanguage"
+                        android:gravity="bottom|center"
+                        android:textAllCaps="false"
+                        android:text="Language"
+                        android:background="@drawable/language"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <Button
+                        android:id="@+id/btnPassword"
+                        android:layout_marginLeft="15dp"
+                        android:text="Password"
+                        android:gravity="bottom|center"
+                        android:textAllCaps="false"
+                        android:background="@drawable/password"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <Button
+                        android:id="@+id/btnSpindle"
+                        android:layout_marginLeft="104dp"
+                        android:text="ON"
+                        android:gravity="bottom|center"
+                        android:textAllCaps="false"
+                        android:background="@drawable/on_image_switching"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <Button
+                        android:id="@+id/searth_switch"
+                        android:layout_marginLeft="31dp"
+                        android:text="Password"
+                        android:gravity="bottom|center"
+                        android:textAllCaps="false"
+                        android:background="@drawable/reset_image_switching"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_marginTop="15dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <Button
+                        android:id="@+id/btnUnitMM"
+                        android:gravity="bottom|center"
+                        android:textAllCaps="false"
+                        android:text="mm"
+                        android:background="@drawable/mm_image_switching"
+                        android:layout_width="58dp"
+                        android:layout_height="wrap_content" />
+
+                    <Button
+                        android:id="@+id/btnUnitInch"
+                        android:gravity="bottom|center"
+                        android:layout_marginLeft="3dp"
+                        android:textAllCaps="false"
+                        android:text="Inch"
+                        android:background="@drawable/inch_image_switching"
+                        android:layout_width="58dp"
+                        android:layout_height="wrap_content" />
+                    <Button
+                        android:id="@+id/btnUSBupgrade"
+                        android:layout_marginLeft="15dp"
+                        android:gravity="bottom|center"
+                         android:textAllCaps="false"
+                        android:text="USB upgrade"
+                        android:background="@drawable/usb_upgrade"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                </LinearLayout>
+        </LinearLayout>
+    </GridLayout>
+    <Button
+        android:id="@+id/btn_close"
+        android:gravity="bottom|center"
+        android:textAllCaps="false"
+        android:text="Close"
+        android:layout_gravity="right|bottom"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="2dp"
+        android:background="@drawable/close_imge_switching"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+
+</FrameLayout>

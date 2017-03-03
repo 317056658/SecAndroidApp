@@ -1,0 +1,30 @@
+[
+    {
+        "merged": "D:\\SecAndroidApp\\JPushExample(574847)\\build\\intermediates\\res\\merged\\debug\\layout\\set_push_time.xml",
+        "source": "D:\\SecAndroidApp\\JPushExample(574847)\\res\\layout\\set_push_time.xml"
+    },
+    {
+        "merged": "D:\\SecAndroidApp\\JPushExample(574847)\\build\\intermediates\\res\\merged\\debug\\layout\\customer_notitfication_layout_one.xml",
+        "source": "D:\\SecAndroidApp\\JPushExample(574847)\\res\\layout\\customer_notitfication_layout_one.xml"
+    },
+    {
+        "merged": "D:\\SecAndroidApp\\JPushExample(574847)\\build\\intermediates\\res\\merged\\debug\\layout\\main.xml",
+        "source": "D:\\SecAndroidApp\\JPushExample(574847)\\res\\layout\\main.xml"
+    },
+    {
+        "merged": "D:\\SecAndroidApp\\JPushExample(574847)\\build\\intermediates\\res\\merged\\debug\\layout\\customer_notitfication_layout.xml",
+        "source": "D:\\SecAndroidApp\\JPushExample(574847)\\res\\layout\\customer_notitfication_layout.xml"
+    },
+    {
+        "merged": "D:\\SecAndroidApp\\JPushExample(574847)\\build\\intermediates\\res\\merged\\debug\\layout\\jpush_webview_layout.xml",
+        "source": "D:\\SecAndroidApp\\JPushExample(574847)\\res\\layout\\jpush_webview_layout.xml"
+    },
+    {
+        "merged": "D:\\SecAndroidApp\\JPushExample(574847)\\build\\intermediates\\res\\merged\\debug\\layout\\jpush_popwin_layout.xml",
+        "source": "D:\\SecAndroidApp\\JPushExample(574847)\\res\\layout\\jpush_popwin_layout.xml"
+    },
+    {
+        "merged": "D:\\SecAndroidApp\\JPushExample(574847)\\build\\intermediates\\res\\merged\\debug\\layout\\push_set_dialog.xml",
+        "source": "D:\\SecAndroidApp\\JPushExample(574847)\\res\\layout\\push_set_dialog.xml"
+    }
+]

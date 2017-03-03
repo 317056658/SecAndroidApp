@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/BooleanTeethDemo/BooleanTeethDemo.iml" filepath="$PROJECT_DIR$/BooleanTeethDemo/BooleanTeethDemo.iml" />
+      <module fileurl="file://$PROJECT_DIR$/JPushExample(574847)/JPushExample(574847).iml" filepath="$PROJECT_DIR$/JPushExample(574847)/JPushExample(574847).iml" />
+      <module fileurl="file://$PROJECT_DIR$/SecAndroidApp.iml" filepath="$PROJECT_DIR$/SecAndroidApp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/myapplicationkukai/myapplicationkukai.iml" filepath="$PROJECT_DIR$/myapplicationkukai/myapplicationkukai.iml" />
+    </modules>
+  </component>
+</project>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="#FCFCFC"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+  <FrameLayout
+
+      android:layout_width="440dp"
+      android:layout_height="240dp">
+    <GridLayout
+         android:rowCount="2"
+         android:columnCount="2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btnAutomobileClamp"
+            android:layout_margin="5dp"
+            android:textSize="12sp"
+            android:gravity="bottom|center"
+            android:textAllCaps="false"
+            android:background="@drawable/a9_vise_automobile_img_switching"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Atuomobile Key Clamp"
+            />
+
+        <Button
+            android:id="@+id/btnDimpleClamp"
+            android:layout_marginTop="5dp"
+            android:textSize="12sp"
+            android:gravity="bottom|center"
+            android:textAllCaps="false"
+            android:background="@drawable/a9_vise_dimple"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dimple Key Clamp"
+            />
+        <Button
+            android:id="@+id/btnSingleSidedClamp"
+            android:layout_marginLeft="5dp"
+            android:textSize="12sp"
+            android:gravity="bottom|center"
+            android:textAllCaps="false"
+            android:background="@drawable/a9_vise_single_standard_img_switching"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Single-Sided Key Clamp"
+            />
+        <Button
+            android:id="@+id/btnTubularClamp"
+            android:textSize="12sp"
+            android:gravity="bottom|center"
+            android:textAllCaps="false"
+            android:background="@drawable/a9_vise_tubular_img_switching"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tubular Key Clamp"
+            />
+    </GridLayout>
+    <Button
+        android:layout_marginBottom="10dp"
+        android:id="@+id/btn_close"
+        android:gravity="bottom|center"
+        android:layout_gravity="right|bottom"
+        android:background="@drawable/close_imge_switching"
+        android:textAllCaps="false"
+        android:text="Close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+  </FrameLayout>
+</FrameLayout>

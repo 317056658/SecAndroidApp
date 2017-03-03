@@ -1,0 +1,59 @@
+apply plugin: 'com.android.application'
+
+android {
+    signingConfigs {
+        release {
+            keyAlias 'kukaikeyA2'
+            keyPassword '13341334585'
+            storeFile file('F:/key.store2.jks')
+            storePassword '13341334585'
+        }
+    }
+    compileSdkVersion 25
+    buildToolsVersion "25.0.0"
+    aaptOptions.cruncherEnabled = false
+    aaptOptions.useNewCruncher = false
+    defaultConfig {
+        applicationId "com.kkkcut.www.myapplicationkukai"
+        minSdkVersion 16
+        targetSdkVersion 25
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+
+            signingConfig signingConfigs.release
+        }
+        debug{
+            signingConfig signingConfigs.release
+        }
+    }
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+}
+repositories {
+    flatDir { dirs 'libs' }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:25.0.1'
+    testCompile 'junit:junit:4.12'
+    compile 'com.google.code.gson:gson:2.2.4'
+    compile(name: 'sliding_menu_lib', ext: 'aar')
+    compile files('libs/okhttp-3.1.2.jar')
+    compile files('libs/okio-1.6.0_okhttp_reference_jar.jar')
+    compile 'com.android.support:recyclerview-v7:25.1.0'
+    compile 'com.google.android.gms:play-services-appindexing:8.4.0'
+}
