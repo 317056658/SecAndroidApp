@@ -55,7 +55,7 @@ public class InputMainActivity extends AppCompatActivity {
                     public void onClick(View view) {
                         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
                         Editable editable = et.getText();
-                          Selection.setSelection(editable,et.getSelectionStart()-1,et.getSelectionStart());
+                        //  Selection.setSelection(editable,et.getSelectionStart()-1,et.getSelectionStart());
                         imm.hideSoftInputFromWindow(et.getWindowToken(),0);
                         //Selection.setSelection(et.getText(),0,3);
                         et.setHighlightColor(Color.BLUE);
