@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:padding="3dp"
+        android:background="#BFEFFF"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:clickable="true"
+            android:id="@+id/ib_no_detect"
+            android:layout_width="75dp"
+            android:layout_height="75dp" />
+       <ImageView
+           android:layout_marginLeft="3dp"
+           android:clickable="true"
+           android:id="@+id/ib_up_down_location"
+           android:layout_width="75dp"
+           android:layout_height="75dp" />
+        <ImageView
+            android:layout_marginLeft="3dp"
+            android:clickable="true"
+            android:id="@+id/ib_bilateral_location"
+            android:layout_width="75dp"
+            android:layout_height="75dp" />
+        <ImageView
+            android:layout_marginLeft="3dp"
+            android:clickable="true"
+            android:id="@+id/ib_cusp_location"
+            android:layout_width="75dp"
+            android:layout_height="75dp" />
+        <ImageView
+            android:layout_marginLeft="3dp"
+            android:clickable="true"
+            android:id="@+id/ib_three_terminal_location"
+            android:layout_width="75dp"
+            android:layout_height="75dp" />
+    </LinearLayout>
+</LinearLayout>

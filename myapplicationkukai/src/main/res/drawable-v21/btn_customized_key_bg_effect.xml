@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--自定义钥匙的背景和水波纹效果-->
+<ripple xmlns:android="http://schemas.android.com/apk/res/android"
+    android:color="#FF21272B">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="#FFFFFF" />
+            <corners android:radius="4dp" />
+        </shape>
+    </item>
+    <item android:drawable="@drawable/my_key_info"></item>
+</ripple>

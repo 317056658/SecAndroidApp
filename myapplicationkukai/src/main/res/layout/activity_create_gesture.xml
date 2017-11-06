@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#FFFFFF"
+    tools:context="com.kkkcut.www.myapplicationkukai.publicActivity.CreateGestureActivity">
+    <RelativeLayout
+        android:background="#16A4FA"
+        android:padding="1dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:layout_centerVertical="true"
+            android:id="@+id/btn_back"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:gravity="right|center|"
+            android:paddingRight="5dp"
+            android:text="Back"
+            android:background="@drawable/btn_back_previous_bg_effect"/>
+        <TextView
+            android:background="#16A4FA"
+            android:id="@+id/tv_title"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:textColor="#020701"
+            android:layout_centerInParent="true"
+            android:text="Setting Gesture Password"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </RelativeLayout>
+
+    <com.kkkcut.www.myapplicationkukai.view.LockPatternIndicator
+        android:id="@+id/lockPatterIndicator"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="50dp" />
+    <TextView
+        android:id="@+id/tv_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:text="绘制解锁图案"
+        android:textColor="@color/grey_a5a5a5"
+        android:textSize="16sp" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="20dp"
+        android:orientation="vertical">
+        <com.kkkcut.www.myapplicationkukai.view.LockPatternView
+            android:id="@+id/lockPatternView"
+            android:layout_width="270dp"
+            android:layout_height="270dp" />
+        <TextView
+            android:gravity="center"
+            android:id="@+id/tv_reset_pwd"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/tv_reset_pwd_bg_effect"
+            android:text="重新设置"
+            android:textColor="@color/grey_a5a5a5"
+            android:textSize="16sp" />
+    </LinearLayout>
+</LinearLayout>

@@ -26,7 +26,6 @@ public class SQLiteDao1 {
         SQLiteDatabase db = sqliteOpenHelper.getWritableDatabase();
         db.execSQL("insert into Message(MSG_id,Title,introduce,State,Type,Content,Time) values(?,?,?,?,?,?,?)", new Object[]{id,title,introduce,Stata,type,text,time});
         db.close();
-
     }
     public List<JMessage> queryAll() {
         List<JMessage> list = new ArrayList();
@@ -78,6 +77,8 @@ public class SQLiteDao1 {
         String strSql = "select * from  Message where State=0";
         Cursor cursor =db.rawQuery(strSql,null);
          int  num= cursor.getCount();
+        cursor.close();
+        db.close();
         if(num>0){
             return true;
         }else {

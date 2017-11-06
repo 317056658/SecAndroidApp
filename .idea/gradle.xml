@@ -5,13 +5,11 @@
       <GradleProjectSettings>
         <option name="distributionType" value="LOCAL" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="D:\studio\Android Studio\gradle\gradle-2.14.1" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/BooleanTeethDemo" />
-            <option value="$PROJECT_DIR$/JPushExample(574847)" />
             <option value="$PROJECT_DIR$/myapplicationkukai" />
+            <option value="$PROJECT_DIR$/xiemin.test" />
           </set>
         </option>
         <option name="resolveModulePerSourceSet" value="false" />

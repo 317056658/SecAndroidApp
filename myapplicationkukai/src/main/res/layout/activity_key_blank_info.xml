@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.kkkcut.www.myapplicationkukai.MenuModule.KeyBlankInfoActivity">
+    tools:context="com.kkkcut.www.myapplicationkukai.MenuModule.KeyBaseInfoActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -46,6 +46,7 @@
                     android:textStyle="bold" />
 
                 <RadioGroup
+                    android:id="@+id/rg_group"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
@@ -78,7 +79,7 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/text_width"
+                    android:id="@+id/tv_width"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="700"
@@ -100,7 +101,7 @@
                     android:textStyle="bold" />
 
                 <TextView
-                    android:id="@+id/text_thick"
+                    android:id="@+id/tv_thick"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="700"
@@ -136,17 +137,15 @@
                         android:fadeScrollbars="false"
                         android:overScrollMode="never">
                         <LinearLayout
-                            android:id="@+id/sum_ll"
+                            android:id="@+id/ll_spaces_group"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
-
                             <LinearLayout
-                                android:id="@+id/ll_1"
+                                android:id="@+id/ll_spaces_column"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal">
-
                                 <TextView
                                     android:layout_width="30dp"
                                     android:layout_height="20dp"
@@ -179,12 +178,12 @@
                         android:fadeScrollbars="false"
                         android:overScrollMode="never">
                         <LinearLayout
-                            android:id="@+id/Depthssum_ll"
+                            android:id="@+id/ll_depth_data"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:orientation="vertical">
                             <LinearLayout
-                                android:id="@+id/Depthssum_ll1"
+                                android:id="@+id/ll_depth_group_number"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:orientation="horizontal">
@@ -232,19 +231,29 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
             <TextView
-                android:text="adsasdsadsadasdasdsadasdasdasdasdasdasdasdasdsadasdasdasdasdasdasdasdas"
-                android:background="@drawable/edit_shape"
-                android:layout_width="200dp"
-                android:layout_height="400dp" />
+                android:paddingLeft="10dp"
+                android:id="@+id/tv_code_series"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:textColor="#030401"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content" />
+             <ExpandableListView
+                 android:groupIndicator="@null"
+                 android:background="@drawable/edit_shape"
+                 android:id="@+id/elv"
+                 android:layout_width="300dp"
+                 android:layout_height="400dp">
+             </ExpandableListView>
         </LinearLayout>
         <Button
-            android:id="@+id/closeUI"
+            android:id="@+id/btn_close"
             android:gravity="center|bottom"
             android:text="Close"
             android:textAllCaps="false"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="380dp"
-            android:background="@drawable/close_imge_switching"
+            android:background="@drawable/btn_close_bg_effect"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/decode_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.kkkcut.www.myapplicationkukai.publicActivity.DecodeActivity">
+    <RelativeLayout
+        android:background="#16A4FA"
+        android:layout_width="match_parent"
+        android:layout_height="80px">
+        <Button
+            android:id="@+id/btn_back"
+            android:textAllCaps="false"
+            android:text="Back"
+            android:gravity="center|right"
+            android:padding="3dp"
+            android:background="@drawable/btnlistbacktostep1image"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+        <TextView
+            android:gravity="center_vertical"
+            android:layout_marginLeft="20dp"
+            android:textColor="#020701"
+            android:textStyle="bold"
+            android:textSize="40sp"
+            android:layout_toRightOf="@+id/btn_back"
+            android:text="Decoding"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+        <TextView
+            android:textStyle="bold"
+            android:id="@+id/tv_step_title"
+            android:textSize="20sp"
+            android:textColor="#020701"
+            android:text="IC Card 10 >"
+            android:layout_alignParentRight="true"
+            android:gravity="center_vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent" />
+    </RelativeLayout>
+    <RelativeLayout
+        android:padding="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btn_probe"
+            android:background="@drawable/picturebox1image_frmkeydecode_dodecoderes"
+            android:layout_width="109px"
+            android:layout_height="115px" />
+        <TextView
+            android:id="@+id/tv_hint"
+            android:layout_marginLeft="20dp"
+            android:textSize="20sp"
+            android:layout_toRightOf="@+id/btn_probe"
+            android:textStyle="bold"
+            android:textColor="#020701"
+            android:text="Place a key blank as shown in the below figure."
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:gravity="center|bottom"
+            android:background="@drawable/btndecodeimage"
+            android:textColor="#020701"
+            android:textAllCaps="false"
+            android:text="Decode"
+            android:id="@+id/btn_decode"
+            android:layout_alignParentRight="true"
+            android:layout_width="128px"
+            android:layout_height="90px" />
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <ImageView
+                android:clickable="true"
+                android:id="@+id/btn_locate_mode"
+                android:layout_width="95px"
+                android:layout_height="95px" />
+            <CheckBox
+                android:id="@+id/cb_round"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Round Off"
+                android:textColor="#000000"
+                android:textSize="12sp" />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ll_img_add"
+            android:layout_width="0dp"
+            android:layout_height="250dp"
+            android:layout_weight="1"
+            android:background="@drawable/edit_shape"
+            android:orientation="vertical">
+            <ImageView
+                android:id="@+id/lv_clamp_location_select"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                android:clickable="true"
+                android:src="@drawable/a9_aux_single_std_1" />
+        </LinearLayout>
+
+        <Button
+            android:visibility="invisible"
+            android:textAllCaps="false"
+            android:gravity="center|bottom"
+            android:text="Stop"
+            android:paddingBottom="3dp"
+            android:id="@+id/btn_stop_decode"
+            android:layout_width="wrap_content"
+            android:layout_height="95px"
+            android:background="@drawable/btnstopimage"
+            />
+    </LinearLayout>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="3dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_clamp_hint"
+                android:layout_width="300dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="#cc0000"
+                android:gravity="center"
+                android:textColor="#ffd700"
+                android:textSize="20sp"
+                android:visibility="invisible" />
+
+            <TextView
+                android:id="@+id/tv_guide"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="130px"
+                android:text="* Tap the image to change stop guide."
+                android:textColor="#000000"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/rl_menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left|bottom"
+            android:background="@drawable/btn_menu_bg_effect"
+            android:gravity="center|bottom"
+            android:paddingBottom="5dp"
+            android:text="Menu"
+            android:textAllCaps="false" />
+    </FrameLayout>
+</LinearLayout>

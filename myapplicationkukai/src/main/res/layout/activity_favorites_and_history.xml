@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_favorite"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.kkkcut.www.myapplicationkukai.DataCollect.KeyInformationBoxroomActivity">
+    <LinearLayout
+        android:background="#16A4FA"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+          <TextView
+              android:id="@+id/tv_title"
+              android:textSize="30sp"
+              android:textStyle="bold"
+              android:textColor="#020701"
+              android:text="Cut History"
+              android:layout_width="wrap_content"
+              android:layout_height="wrap_content" />
+    </LinearLayout>
+    <TextView
+        android:paddingLeft="6dp"
+        android:id="@+id/tv_list_size"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:textColor="#020701"
+        android:text="dsadas"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:padding="6dp"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+            <android.support.v7.widget.RecyclerView
+                android:padding="2dp"
+                android:background="@drawable/view_border"
+                android:id="@+id/recycler_boxroom"
+                android:layout_weight="0.7"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                />
+        <FrameLayout
+            android:layout_weight="0.3"
+            android:layout_width="0dp"
+            android:layout_height="match_parent">
+            <Button
+                android:textAllCaps="false"
+                android:text="Delete All"
+                android:gravity="bottom|center_horizontal"
+                android:id="@+id/btn_delete_all"
+                android:layout_gravity="right"
+                android:paddingBottom="4dp"
+                android:background="@drawable/btn_delete_all_bg_effect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <Button
+                android:layout_gravity="right|bottom"
+                android:background="@drawable/close_img_switching"
+                android:id="@+id/btn_close_activity"
+                android:textAllCaps="false"
+                android:text="Close"
+                android:gravity="center|bottom"
+                android:paddingBottom="4dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </FrameLayout>
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="#16A4FA"
+    android:padding="3dp"
+    >
+    <TextView
+        android:id="@+id/tv_cut_depth_value"
+        android:layout_gravity="center_vertical"
+        android:gravity="center_vertical"
+        android:background="#ffffff"
+        android:textStyle="bold"
+        android:textSize="30sp"
+        android:text="1mm"
+        android:layout_width="110dp"
+        android:layout_height="45dp" />
+    <Button
+        android:layout_gravity="center_vertical"
+        android:id="@+id/btn_reduce"
+        android:layout_marginLeft="4px"
+        android:background="@drawable/btndepthdownimage_frmkeycut_docutres"
+        android:layout_width="80dp"
+        android:layout_height="45dp" />
+    <Button
+        android:layout_gravity="center_vertical"
+        android:id="@+id/btn_increase"
+        android:background="@drawable/btnscrolllistupdisabledimage_frmbarcoderes"
+        android:layout_width="80dp"
+        android:layout_height="45dp" />
+
+</LinearLayout>

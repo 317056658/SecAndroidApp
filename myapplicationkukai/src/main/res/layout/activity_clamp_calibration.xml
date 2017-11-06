@@ -5,10 +5,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.kkkcut.www.myapplicationkukai.ClampCalibration.frmCalibration">
+    tools:context="com.kkkcut.www.myapplicationkukai.setup.FrmCalibrationActivity">
 
     <RelativeLayout
-
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="#16A4FA">
@@ -48,16 +47,15 @@
                 android:orientation="horizontal">
 
                 <RelativeLayout
+                    android:id="@+id/rl_0"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="#FDDE81"
                     android:padding="5dp">
-
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
-
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -83,15 +81,20 @@
                     </LinearLayout>
 
                     <Button
+                        android:gravity="center|bottom"
+                        android:textAllCaps="false"
+                        android:text="Start"
+                        android:id="@+id/btn_start"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_alignParentRight="true"
-                        android:layout_centerVertical="true"
-                        android:background="@drawable/start_img_switching" />
+                        android:background="@drawable/start_img_switching"
+                        android:layout_alignParentTop="true" />
                 </RelativeLayout>
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/ll_fixture1"
                 android:gravity="center_vertical"
                 android:layout_marginTop="5dp"
                 android:padding="6dp"
@@ -117,19 +120,20 @@
                         android:layout_height="wrap_content" />
                 </LinearLayout>
                 <ImageView
-                    android:id="@+id/btnCalibLeftClamp1"
                     android:layout_marginLeft="5dp"
-                    android:src="@drawable/picturebox1image_frmmaintenanceres"
+                    android:src="@drawable/picturebox1image_frmcalibrationres"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
                 <ImageView
-                    android:id="@+id/btnCalibRightClamp1"
+                    android:clickable="true"
+                    android:id="@+id/iv_calibrate_fixture1"
                     android:layout_marginLeft="20dp"
-                    android:background="@drawable/btncalibleftclamp1image_switching"
+                    android:src="@drawable/btncalibleftclamp1image_switching"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>
             <LinearLayout
+                android:id="@+id/ll_fixture2"
                 android:gravity="center_vertical"
                 android:layout_marginTop="5dp"
                 android:padding="6dp"
@@ -164,14 +168,16 @@
                     android:layout_height="wrap_content" />
 
                 <ImageView
-                    android:id="@+id/btnCalibRightClamp2"
+                    android:clickable="true"
+                    android:id="@+id/iv_calibrate_fixture2"
                     android:layout_marginLeft="20dp"
-                    android:background="@drawable/btncalibleftclamp1image_switching"
+                    android:src="@drawable/btncalibleftclamp1image_switching"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/ll_fixture3"
                 android:layout_marginTop="5dp"
                 android:padding="6dp"
                 android:gravity="center_vertical"
@@ -198,21 +204,23 @@
                 </LinearLayout>
 
                 <ImageView
-                    android:id="@+id/btnCalibLeftClamp3"
+
                     android:layout_marginLeft="5dp"
                     android:src="@drawable/picturebox4image_frmcalibrationres"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
                 <ImageView
-                    android:id="@+id/btnCalibRightClamp3"
+                    android:clickable="true"
+                    android:id="@+id/iv_calibrate_fixture3"
                     android:layout_marginLeft="20dp"
-                    android:background="@drawable/btncalibleftclamp1image_switching"
+                    android:src="@drawable/btncalibleftclamp1image_switching"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>
 
             <LinearLayout
-             android:gravity="center_vertical"
+                android:id="@+id/ll_fixture4"
+                android:gravity="center_vertical"
                 android:layout_marginTop="5dp"
                 android:padding="6dp"
                 android:layout_width="match_parent"
@@ -244,19 +252,32 @@
                     android:src="@drawable/picturebox5image_frmcalibrationres"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
+
                 <ImageView
-                    android:id="@+id/btnCalibRightClamp4"
+                    android:clickable="true"
+                    android:id="@+id/iv_calibrate_fixture4"
                     android:layout_marginLeft="20dp"
-                    android:background="@drawable/btncalibleftclamp1image_switching"
+                    android:src="@drawable/btncalibleftclamp1image"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>
+            <TextView
+                android:id="@+id/tv_calibration_wait"
+                android:layout_marginTop="5dp"
+                android:textStyle="bold"
+                android:textColor="#010103"
+                android:textSize="20sp"
+                android:text="Clamp Calibration Please wait......"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_gravity="right"
             android:orientation="vertical"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
+
             <Button
                 android:id="@+id/btn_move"
                 android:gravity="right|bottom"
@@ -265,8 +286,9 @@
                 android:text="Move"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
+
             <Button
-                android:id="@+id/btnManualSet"
+                android:id="@+id/btn_manual_set"
                 android:gravity="bottom|center"
                 android:layout_marginTop="15dp"
                 android:background="@drawable/manual_img_switching"
@@ -275,16 +297,24 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
 
-        </LinearLayout>
+            <Button
+                android:id="@+id/btn_stop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="80dp"
+                android:background="@drawable/btnstopimage"
+                android:gravity="bottom|center"
+                android:text="Stop"
+                android:textAllCaps="false" />
 
+        </LinearLayout>
         <Button
-            android:id="@+id/btnClose"
+            android:id="@+id/btn_close"
             android:gravity="bottom|center"
             android:textAllCaps="false"
             android:text="Close"
             android:layout_gravity="right|bottom"
-            android:background="@drawable/close_imge_switching"
-
+            android:background="@drawable/close_img_switching"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </FrameLayout>

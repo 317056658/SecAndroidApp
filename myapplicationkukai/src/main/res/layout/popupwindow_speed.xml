@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:id="@+id/ll_speed"
+        android:background="#CDC9C9"
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+       <Button
+           android:id="@+id/btn_steel"
+           android:textSize="12sp"
+           android:gravity="center|bottom"
+           android:textAllCaps="false"
+            android:background="@drawable/btnspeed1image_frmkeycut_docutres"
+           android:text="Steel"
+           android:textColor="#3A5FCD"
+           android:layout_width="95px"
+           android:layout_height="95px" />
+        <Button
+            android:id="@+id/btn_silver"
+            android:textSize="12sp"
+            android:layout_marginLeft="4dp"
+            android:gravity="center|bottom"
+            android:background="@drawable/btnspeed2image_frmkeycut_docutres"
+            android:textAllCaps="false"
+            android:textColor="#3A5FCD"
+            android:text="Nkl-Silver"
+            android:layout_width="95px"
+            android:layout_height="95px" />
+        <Button
+            android:id="@+id/btn_brass"
+            android:textSize="12sp"
+            android:background="@drawable/btnspeed3pressedimage_frmkeycut_docutres"
+            android:gravity="center|bottom"
+            android:textColor="#3A5FCD"
+            android:textAllCaps="false"
+            android:layout_marginLeft="4dp"
+            android:text="Brass"
+            android:layout_width="95px"
+            android:layout_height="95px" />
+        <Button
+            android:id="@+id/btn_high_speed"
+            android:layout_marginLeft="4dp"
+            android:background="@drawable/btnspeed4image_frmkeycut_docutres"
+            android:gravity="center|bottom"
+            android:textColor="#3A5FCD"
+            android:textAllCaps="false"
+            android:textSize="12sp"
+            android:text="High Speed"
+            android:layout_width="95px"
+            android:layout_height="95px" />
+    </LinearLayout>
+</LinearLayout>

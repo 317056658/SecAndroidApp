@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="314dp"
+    android:background="#808080"
+    android:orientation="vertical"
+    tools:context="com.kkkcut.www.myapplicationkukai.dialogActivity.ExceptionActivity">
+    <ImageView
+        android:id="@+id/iv_tips"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/eusercancelled"
+        android:clickable="true" />
+    <TextView
+        android:id="@+id/tv_text_hint"
+        android:textColor="#000000"
+        android:layout_width="220dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="3dp"
+        android:background="#C4C4C4"
+        android:gravity="center"
+        android:text="Operation is canceled." />
+</LinearLayout>

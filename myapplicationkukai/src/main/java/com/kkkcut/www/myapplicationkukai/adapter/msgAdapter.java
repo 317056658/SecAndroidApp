@@ -56,12 +56,9 @@ public class msgAdapter extends BaseAdapter {
             view.setTag(vh);
         }else{
             vh=(ViewHolder)view.getTag();
-
         }
         //给子视图中的控件赋值
         JMessage jm =list.get(i);
-
-
         if(jm.getState()==0){
             vh.tv1.setText(jm.getTitle());
             vh.tv2.setText(jm.getIntroduce());
@@ -79,7 +76,6 @@ public class msgAdapter extends BaseAdapter {
         }
         return view;
     }
-
     class ViewHolder{
         TextView tv1,tv2,tv3;
         ImageView img;

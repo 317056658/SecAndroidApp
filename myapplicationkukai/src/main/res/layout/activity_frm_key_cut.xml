@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_auto1"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.kkkcut.www.myapplicationkukai.publicKeyCut.FrmKeyCutMainActivity"
+    >
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:background="#16A4FA"
+        android:layout_width="match_parent"
+        android:layout_height="60dp">
+        <Button
+            android:id="@+id/btnBack"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:textStyle="bold"
+            android:textAllCaps="false"
+            android:gravity="right|center|"
+            android:paddingRight="5dp"
+            android:text="Back"
+            android:background="@drawable/btn_back_previous_bg_effect"
+            />
+        <TextView
+            android:padding="4dp"
+            android:id="@+id/tv_text"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="Acura>cl>1976"
+            android:textColor="#020701"
+            android:textSize="24sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <FrameLayout
+        android:id="@+id/flll"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <!--   1 .-->
+            <LinearLayout
+                android:background="@drawable/edit_shape"
+                android:orientation="vertical"
+                android:id="@+id/ll_put_image"
+                android:layout_width="750dp"
+                android:layout_height="340dp">
+                <TextView
+                    android:visibility="gone"
+                    android:layout_marginTop="16dp"
+                    android:layout_gravity="right"
+                    android:text="dsadadsadddddddddddd"
+                    android:textStyle="bold"
+                    android:textColor="#020701"
+                    android:id="@+id/tv_hint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+            <!--   2 .-->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:textStyle="bold"
+                    android:textColor="#003399"
+                    android:text="Key Blanks:"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:textStyle="bold"
+                    android:textSize="12sp"
+                    android:id="@+id/tv_key_blanks_content"
+                    android:textColor="#3366CC"
+                    android:layout_width="wrap_content"
+                    android:layout_height="104dp" />
+            </LinearLayout>
+        </LinearLayout>
+        <Button
+            android:layout_gravity="left|bottom"
+            android:id="@+id/btn_cut_menu"
+            android:background="@drawable/btn_menu_bg_effect"
+            android:textAllCaps="false"
+            android:gravity="bottom|center"
+            android:paddingBottom="3dp"
+            android:text="Menu"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <LinearLayout
+              android:layout_marginRight="6dp"
+              android:id="@+id/lllll"
+            android:orientation="vertical"
+            android:layout_gravity="right"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+            <!--   android:textAllCaps="false"  由于5.0的特性把button的字体全部变为大写 所以要设置false变为可以大小写兼容 -->
+            <Button
+                android:id="@+id/btnInput"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btn_input_bg_effect"
+                android:gravity="bottom|center"
+                android:paddingBottom="3dp"
+                android:textAllCaps="false"
+                android:text="Input"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/btnCode"
+                android:gravity="bottom|center"
+                android:paddingBottom="3dp"
+                android:text="Code"
+                android:textAllCaps="false"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btn_code_query_tooth_bg_effect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:id="@+id/btn_decode"
+                android:gravity="bottom|center"
+                android:paddingBottom="3dp"
+                android:text="Decode"
+                android:textAllCaps="false"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btn_decode_bg_effect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <Button
+                android:id="@+id/btnInCode"
+                android:gravity="bottom|center"
+                android:paddingBottom="3dp"
+                android:text="InCode"
+                android:textAllCaps="false"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btn_tooth_query_code_bg_effect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <Button
+                android:id="@+id/btnLackTooth"
+                android:gravity="bottom|center"
+                android:paddingBottom="3dp"
+                android:text="Lack Tooth"
+                android:textAllCaps="false"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btn_lack_tooth_query_bg_effect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <Button
+                android:id="@+id/btn_cut"
+                android:gravity="bottom|center"
+                android:paddingBottom="3dp"
+                android:text="Cut"
+                android:textAllCaps="false"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/btn_cut_bg_effect"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </FrameLayout>
+</LinearLayout>

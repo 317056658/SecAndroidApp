@@ -20,7 +20,7 @@ public class Main2Activity extends AppCompatActivity {
 //        tv.setTextColor(Color.RED);
 //        tv.setText(Html.fromHtml("<div style=color:red;><h3>"+skew+"</h3></div>" ));
 //
-//        tv.setMovementMethod(LinkMovementMethod.getInstance());
+//        tv.setMovementMethod(LinkMovementMethod.initInstance());
 
 
     }

@@ -4,11 +4,10 @@
     android:id="@+id/id_pop_layout"
     android:background="#FDDE81"
     android:padding="5dp"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content">
-
+    android:layout_width="wrap_content"
+    android:layout_height="105dp">
     <Button
-        android:id="@+id/window_home"
+        android:id="@+id/btn_home"
       android:paddingTop="38dp"
         android:textAllCaps="false"
         android:text="Home"
@@ -25,6 +24,7 @@
         android:layout_width="95px"
         android:layout_height="95px" />
     <Button
+        android:id="@+id/btn_favorite"
         android:paddingTop="38dp"
         android:text="Favorite"
         android:textAllCaps="false"
@@ -43,7 +43,7 @@
         android:layout_height="95px" />
 
     <Button
-        android:id="@+id/pop_Measure"
+        android:id="@+id/btn_measure"
         android:paddingTop="38dp"
         android:text="Measure"
         android:textAllCaps="false"
@@ -53,15 +53,16 @@
         android:layout_height="95px" />
 
     <Button
+        android:id="@+id/btn_move"
         android:paddingTop="38dp"
         android:text="Move"
         android:textAllCaps="false"
         android:layout_marginLeft="6dp"
         android:background="@drawable/btnclampchangeimage"
-
         android:layout_width="95px"
         android:layout_height="95px" />
     <Button
+        android:id="@+id/btn_save"
         android:paddingTop="38dp"
         android:text="Save"
         android:textAllCaps="false"
@@ -71,7 +72,7 @@
         android:layout_height="95px" />
 
     <Button
-        android:id="@+id/pop_stop"
+        android:id="@+id/btn_stop"
         android:paddingTop="38dp"
         android:text="Stop"
         android:textAllCaps="false"

@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.kkkcut.www.myapplicationkukai.PubulicKey.ToothCheckCodeActivity">
+    tools:context="com.kkkcut.www.myapplicationkukai.publicActivity.ToothCheckCodeActivity">
 
     <LinearLayout
 
@@ -14,6 +14,7 @@
         android:background="#16A4FA">
 
         <TextView
+            android:id="@+id/Ttv_title"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
@@ -271,16 +272,17 @@
                 <TextView
                     android:layout_width="180dp"
                     android:layout_height="25dp"
-                    android:background="@drawable/et_border"
+                    android:background="@drawable/view_border"
                     android:focusable="false" />
             </LinearLayout>
             <Button
+                android:id="@+id/Tbtn_colse"
                 android:gravity="bottom|center"
                 android:textColor="#090100"
                 android:textAllCaps="false"
                 android:text="Colse"
                 android:layout_gravity="bottom|right"
-                android:background="@drawable/close_imge_switching"
+                android:background="@drawable/close_img_switching"
                 android:layout_width="128px"
                 android:layout_height="90px" />
 

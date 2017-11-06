@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:padding="5dp"
+    android:background="#FDDE81"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <Button
+        android:gravity="center|bottom"
+        android:paddingBottom="4dp"
+        android:id="@+id/menu_home"
+        android:textAllCaps="false"
+        android:text="Home"
+        android:background="@drawable/btnhomeimage2"
+        android:layout_width="95px"
+        android:layout_height="95px" />
+    <Button
+        android:gravity="center|bottom"
+        android:paddingBottom="4dp"
+        android:id="@+id/menu_calibration"
+        android:text="Calibrate"
+        android:textAllCaps="false"
+        android:layout_marginLeft="6dp"
+        android:background="@drawable/btncalibrateimage"
+        android:layout_width="95px"
+        android:layout_height="95px" />
+    <Button
+        android:gravity="center|bottom"
+        android:paddingBottom="4dp"
+        android:id="@+id/menu_measure"
+        android:text="Measure"
+        android:textAllCaps="false"
+        android:layout_marginLeft="6dp"
+        android:background="@drawable/btntoolchangeimage"
+        android:layout_width="95px"
+        android:layout_height="95px" />
+    <Button
+        android:gravity="center|bottom"
+        android:paddingBottom="4dp"
+        android:text="Move"
+        android:textAllCaps="false"
+        android:layout_marginLeft="6dp"
+        android:background="@drawable/btnclampchangeimage"
+        android:id="@+id/menu_clamp_move"
+        android:layout_width="95px"
+        android:layout_height="95px" />
+    <Button
+        android:id="@+id/menu_stop"
+        android:gravity="center|bottom"
+        android:text="Stop"
+        android:paddingBottom="4dp"
+        android:textAllCaps="false"
+        android:background="@drawable/btnstopimage"
+        android:layout_marginLeft="360dp"
+        android:layout_width="95px"
+        android:layout_height="95px" />
+
+</LinearLayout>

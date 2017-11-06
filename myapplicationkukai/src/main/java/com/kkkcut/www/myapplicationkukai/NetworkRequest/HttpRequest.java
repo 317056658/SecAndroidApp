@@ -12,6 +12,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -75,7 +76,8 @@ public class HttpRequest {
             @Override
             //当后台操作结束时，此方法将会被调用，计算结果将做为参数传递到此方法中，直接将结果显示到UI组件上。
             protected void onPostExecute(Object o) {
-                if(o==null){
+
+                if(TextUtils.isEmpty(o+"")){
                     Toast.makeText(context1,"连接服务器失败",Toast.LENGTH_SHORT).show();
                     return;
                 }

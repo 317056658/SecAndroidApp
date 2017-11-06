@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 默认的图片 必须放在最后面-->
+    <item android:drawable="@drawable/motorcycle2"  android:state_pressed="true" ></item>
+    <item android:drawable="@drawable/motorcycle1" ></item>
+</selector>

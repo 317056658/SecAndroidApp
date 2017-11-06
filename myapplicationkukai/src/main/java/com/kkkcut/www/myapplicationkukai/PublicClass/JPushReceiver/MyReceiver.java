@@ -90,7 +90,7 @@ public class MyReceiver extends BroadcastReceiver {
             introduce=null;
             if(TempInfo.start){
                 SQLiteDao1 sqll=new SQLiteDao1(context);
-                msgActivity.list  =sqll.queryAllsort();;
+                msgActivity.list  =sqll.queryAllsort();
                 msgActivity.adapter=new msgAdapter(context,msgActivity.list);
                 msgActivity.lv.setAdapter(msgActivity.adapter);
                 }else  if(TempInfo.bool){

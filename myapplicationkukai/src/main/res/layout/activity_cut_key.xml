@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.kkkcut.www.myapplicationkukai.publicActivity.CutKeyActivity">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#16A4FA">
+        <Button
+            android:id="@+id/btn_back_close"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/btnlistbacktostep1image"
+            android:gravity="center|right"
+            android:paddingRight="3dp"
+            android:text="Back"
+            android:textAllCaps="false" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/btn_back_close"
+            android:text="Cutting"
+            android:textColor="#020701"
+            android:textSize="32sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_query_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:textStyle="bold"
+            android:text="IC Card 17>"
+            android:textColor="#020701"
+            android:textSize="20sp" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="7dp"
+        android:layout_weight="1"
+        android:padding="3dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/iv_speed"
+                        android:layout_width="95px"
+                        android:layout_height="95px"
+                        android:clickable="true"
+                        android:src="@drawable/btnspeed3image_frmkeycut_docutres" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
+                        android:gravity="center"
+                        android:text="Speed"
+                        android:textColor="#EE3B3B"
+                        android:textStyle="bold" />
+
+                    <ImageView
+                        android:id="@+id/iv_key_cut_location"
+                        android:layout_width="95px"
+                        android:layout_height="95px"
+                        android:src="@drawable/btnautosensenoimage_frmkeycut_docutres" />
+
+                    <Button
+                        android:id="@+id/btn_cut_knife_diameter"
+                        android:layout_width="95px"
+                        android:layout_height="95px"
+                        android:layout_marginTop="10dp"
+                        android:background="@drawable/resource123_frmkeycut_docutres"
+                        android:gravity="right|bottom"
+                        android:padding="3dp"
+                        android:text="2mm"
+                        android:textAllCaps="false"
+                        android:textSize="10sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ll_put_key"
+                    android:layout_width="0dp"
+                    android:layout_height="250dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/edit_shape"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:id="@+id/iv_clamp_location_select"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="100dp"
+                        android:layout_marginTop="34dp"
+                        android:src="@drawable/a9_standard_stop_1" />
+
+                    <TextView
+                        android:id="@+id/tv_clamp_peculiarity"
+                        android:layout_width="300px"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="180dp"
+                        android:background="#cc0000"
+                        android:gravity="center"
+                        android:textColor="#ffff00"
+                        android:textStyle="bold"
+                        android:visibility="invisible" />
+                </LinearLayout>
+
+                <RelativeLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <Button
+                        android:id="@+id/btn_first_cut"
+                        android:layout_width="wrap_content"
+                        android:layout_height="54dp"
+                        android:background="@drawable/btntopdisabledimage_frmkeycut_docutres"
+                        android:gravity="right|bottom"
+                        android:paddingRight="2dp"
+                        android:textAllCaps="false"
+                        android:visibility="invisible" />
+
+                    <Button
+                        android:id="@+id/btn_second_cut"
+                        android:layout_width="wrap_content"
+                        android:layout_height="54dp"
+                        android:layout_below="@+id/btn_first_cut"
+                        android:layout_marginTop="15dp"
+                        android:background="@drawable/btnbottomimage_frmkeycut_docutres"
+                        android:gravity="right|bottom"
+                        android:paddingRight="2dp"
+                        android:textAllCaps="false"
+                        android:visibility="invisible" />
+
+                    <Button
+                        android:id="@+id/btn_pass_cut"
+                        android:layout_width="75dp"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="right"
+                        android:layout_marginLeft="20dp"
+                        android:layout_toRightOf="@+id/btn_first_cut"
+                        android:background="@drawable/btn1passcutimage_frmkeycut_docutres"
+                        android:gravity="center|bottom"
+                        android:text="1 Pass Cut"
+                        android:textAllCaps="false"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/btn_cut_key"
+                        android:layout_width="90dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignRight="@+id/btn_pass_cut"
+                        android:layout_below="@+id/btn_pass_cut"
+                        android:layout_marginTop="20dp"
+                        android:background="@drawable/btncutimage1_frmkeycut_docutres"
+                        android:gravity="center|bottom"
+                        android:text="Cut"
+                        android:textAllCaps="false" />
+
+                    <Button
+                        android:id="@+id/btn_stop_cut"
+                        android:layout_width="90dp"
+                        android:layout_height="wrap_content"
+                        android:layout_alignRight="@+id/btn_cut_key"
+                        android:layout_below="@+id/btn_cut_key"
+                        android:layout_marginTop="20dp"
+                        android:background="@drawable/btncancelimage"
+                        android:gravity="center|bottom"
+                        android:text="Stop"
+                        android:textAllCaps="false"
+                        android:visibility="invisible" />
+                </RelativeLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="97px"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/tv_hint1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:text="Prepare the key as shown in the above figure. "
+                    android:textColor="#020701"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/tv_cut_hint"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Key cutting is now in process. Please wait..."
+                    android:textColor="#020701"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:visibility="invisible" />
+
+                <TextView
+                    android:id="@+id/tv_hint2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="* Tap the image to change stop guide."
+                    android:textColor="#020701"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <RelativeLayout
+                android:id="@+id/rl_progress_bar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="97px"
+                android:background="#16A4FA"
+                android:orientation="vertical"
+                android:padding="6dp"
+                android:visibility="invisible">
+
+                <TextView
+                    android:id="@+id/tv_progress_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Progress:"
+                    android:textColor="#020701"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:text="0"
+                    android:id="@+id/tv_progress"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toRightOf="@+id/tv_progress_name" />
+
+                <ProgressBar
+                    android:id="@+id/pb_loading"
+                    style="@android:style/Widget.ProgressBar.Horizontal"
+                    android:layout_width="600dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignLeft="@+id/tv_progress_name"
+                    android:layout_below="@+id/tv_progress_name"
+                    android:max="100" />
+            </RelativeLayout>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_cut_menu"
+            android:layout_width="135px"
+            android:layout_height="95px"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/btn_menu_bg_effect"
+            android:gravity="bottom|right"
+            android:padding="4dp"
+            android:text="Menu"
+            android:textAllCaps="false" />
+
+        <LinearLayout
+            android:id="@+id/ll_z_cut_hierarchy_select"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_above="@+id/btn_z_cut_hierarchy"
+            android:layout_alignRight="@+id/btn_z_cut_hierarchy"
+            android:background="@drawable/ll_z_cut_shape_bg"
+            android:orientation="horizontal"
+            android:padding="2dp"
+            android:visibility="invisible">
+
+            <Button
+                android:id="@+id/btn_z_cut_hierarchy1"
+                android:layout_width="55dp"
+                android:layout_height="32dp"
+                android:background="@drawable/btnzpitch1image_frmkeycut_docutres"
+                android:gravity="center|bottom"
+                android:text="Z Pitch: 1"
+                android:textAllCaps="false"
+                android:textSize="10sp" />
+
+            <Button
+                android:id="@+id/btn_z_cut_hierarchy2"
+                android:layout_width="55dp"
+                android:layout_height="32dp"
+                android:background="@drawable/btnzpitch2pressedimage_frmkeycut_docutres"
+                android:gravity="center|bottom"
+                android:text="Z Pitch: 2"
+                android:textAllCaps="false"
+                android:textSize="10sp" />
+
+            <Button
+                android:id="@+id/btn_z_cut_hierarchy3"
+                android:layout_width="55dp"
+                android:layout_height="32dp"
+                android:background="@drawable/btnzpitch3image_frmkeycut_docutres"
+                android:gravity="center|bottom"
+                android:text="Z Pitch: 3"
+                android:textAllCaps="false"
+                android:textSize="10sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btn_z_cut_hierarchy"
+            android:layout_width="55dp"
+            android:layout_height="32dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="50dp"
+            android:layout_marginRight="210dp"
+            android:background="@drawable/btnzpitch2image_frmkeycut_docutres"
+            android:gravity="center|bottom"
+            android:text="Z Pitch:2"
+            android:textAllCaps="false"
+            android:textSize="10sp"
+            android:visibility="invisible" />
+
+        <Button
+            android:id="@+id/btn_cut_depth"
+            android:layout_width="55dp"
+            android:layout_height="32dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginBottom="50dp"
+            android:layout_marginRight="145dp"
+            android:background="@drawable/btndepthimage_frmkeycut_docutres"
+            android:gravity="center|bottom"
+            android:textAllCaps="false"
+            android:textSize="10sp"
+            android:visibility="invisible" />
+    </RelativeLayout>
+
+
+
+</LinearLayout>

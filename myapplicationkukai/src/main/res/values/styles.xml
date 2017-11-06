@@ -1,22 +1,28 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="android:windowFullscreen">true</item>
         <item name="windowNoTitle">true</item>
-
+        <item name="android:windowActionBar">false</item>
+        <!-- 窗口的背景颜色 -->
+        <!--<item tableName="android:windowBackground">@android:color/white</item>-->
+        <item name="windowActionBar">false</item>
     </style>
-    <!-- 动画效果 -->
-    <style name="PopupAnimation" parent="Theme.AppCompat.Light.DarkActionBar">
-        <item name="android:windowEnterAnimation">@anim/anim1</item>
-       <item name="android:windowExitAnimation">@anim/ainm2</item>
+    <style name="dialog_warn"  parent="@android:style/Theme.Light.NoTitleBar.Fullscreen">
+        <item name="android:background">#4CAF50</item>
+    </style>
+    <!-- PopupWindow动画效果 -->
+    <style name="PopupAnimation" parent="@android:style/Animation.Activity">
+        <item name="android:windowEnterAnimation">@anim/popup_in</item>
+        <item name="android:windowExitAnimation">@anim/popup_out</item>
     </style>
     <!--版本更新的activity   设置为Dialog-->
-    <style name="dialog" parent="Theme.AppCompat.Dialog">
+    <style name="dialog" parent="Theme.AppCompat.Light.Dialog">
         <!-- 去黑边 -->
         <item name="android:windowFrame">@null</item>
         <!-- 设置是否可滑动 -->
@@ -24,16 +30,34 @@
         <!-- 设置是否透明 -->
         <item name="android:windowIsTranslucent">false</item>
         <!-- 无标题 -->
-        <item name="android:windowNoTitle">true</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
         <!-- 背景 -->
         <item name="android:background">@null</item>
         <!-- 窗口背景 -->
-        <item name="android:windowBackground">@android:color/background_dark</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
         <!-- 是否变暗 -->
         <item name="android:backgroundDimEnabled">false</item>
         <!-- 点击空白部分activity不消失 -->
         <item name="android:windowCloseOnTouchOutside">false</item>
     </style>
-
+    <style name="progressDialog" parent="Theme.AppCompat.Light.Dialog">
+        <!-- 去黑边 -->
+        <item name="android:windowFrame">@null</item>
+        <!-- 设置是否可滑动 -->
+        <item name="android:windowIsFloating">true</item>
+        <!-- 设置是否透明 -->
+        <item name="android:windowIsTranslucent">false</item>
+        <!-- 无标题 -->
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <!-- 背景 -->
+        <item name="android:background">@null</item>
+        <!-- 是否变暗 -->
+        <item name="android:backgroundDimEnabled">true</item>
+        <!-- 点击空白部分activity不消失 -->
+        <item name="android:windowCloseOnTouchOutside">false</item>
+        <item name="android:textSize">25sp</item>
+    </style>
 
 </resources>
