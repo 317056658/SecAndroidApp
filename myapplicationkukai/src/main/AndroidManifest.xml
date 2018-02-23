@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.kkkcut.www.myapplicationkukai">
-
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.kkkcut.www.myapplicationkukai"
+    >
     <!-- 关机权限 -->
-
     <permission
         android:name="${applicationId}.permission.JPUSH_MESSAGE"
         android:protectionLevel="signature" />
@@ -29,6 +29,7 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <!-- 允许应用读写系统设置项。 -->
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <!-- 允许程序访问Wi-Fi网络状态信息 -->
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
 
@@ -56,8 +57,9 @@
 
     <!-- 关闭硬件加速，以免引起不必要的问题！   android:hardwareAccelerated="false" -->
     <application
+        tools:replace="android:icon, android:theme"
         android:name=".application.MyApplication"
-        android:allowBackup="false"
+        android:allowBackup="true"
         android:icon="@mipmap/pic01"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -67,7 +69,6 @@
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
             <intent-filter>
@@ -101,7 +102,7 @@
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".DataCollect.KeyInformationBoxroomActivity"
+            android:name=".saveData.KeyInformationBoxroomActivity"
             android:screenOrientation="landscape" />
         <!-- Required SDK 核心功能 -->
         <!-- 可配置android:process参数将PushService放在其他进程中 -->
@@ -174,7 +175,7 @@
         <receiver android:name="cn.jpush.android.service.AlarmReceiver" />
         <!-- User defined. 用户自定义的广播接收器 -->
         <receiver
-            android:name=".PublicClass.JPushReceiver.MyReceiver"
+            android:name=".publicClass.JPushReceiver.MyReceiver"
             android:enabled="true">
             <intent-filter>
 
@@ -207,7 +208,7 @@
             android:value="a142ee9a7da989872683142c" />
 
         <activity
-            android:name=".PublicClass.JPushReceiver.TextActivity"
+            android:name=".publicClass.JPushReceiver.TextActivity"
             android:screenOrientation="landscape" />
         <activity
             android:name=".Main2Activity"
@@ -227,19 +228,19 @@
             android:name=".MenuModule.KeyBaseInfoActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".publicActivity.CodeCheckToothActivity"
+            android:name=".publicActivity.CodeFindToothActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".publicActivity.ToothCheckCodeActivity"
+            android:name=".publicActivity.ToothFindCodeActivity"
             android:screenOrientation="landscape" />
         <activity
             android:name=".publicActivity.InputMainActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".publicActivity.LackToothActivity"
+            android:name=".publicActivity.LackToothFindActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".publicActivity.DecodeActivity"
+            android:name=".publicActivity.DecodeKeyActivity"
             android:screenOrientation="landscape" />
         <activity
             android:name=".dialogActivity.MessageTipsActivity"
@@ -254,7 +255,7 @@
             android:screenOrientation="landscape"
             android:theme="@style/dialog" />
         <activity
-            android:name=".dialogActivity.MeasureToolActivity"
+            android:name=".dialogActivity.ProbeAndCutterMeasurementActivity"
             android:screenOrientation="landscape"
             android:theme="@style/dialog" />
         <activity
@@ -266,7 +267,7 @@
             android:screenOrientation="landscape"
             android:theme="@style/dialog" />
         <activity
-            android:name=".dialogActivity.KeyCutOperationTipsActivity"
+            android:name=".dialogActivity.OperateTipsActivity"
             android:screenOrientation="landscape"
             android:theme="@style/dialog" />
         <activity
@@ -276,7 +277,23 @@
             android:name=".publicActivity.LanguageChoiceActivity"
             android:screenOrientation="landscape" />
         <activity android:name=".publicActivity.CreateGestureActivity" />
-        <activity android:name=".publicActivity.GestureLoginActivity"></activity>
+        <activity android:name=".publicActivity.GestureLoginActivity" />
+        <!-- 更新apk的服务 -->
+        <service android:name="com.kkkcut.www.myapplicationkukai.service.AppDownloadService" />
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="com.kkkcut.www.myapplicationkukai"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/checkupdatelibrary_uri_grant" />
+        </provider>
+          <!--正常更新-->
+        <activity android:name=".dialogActivity.UpdateAppActivity"
+            android:theme="@style/AppUpdateDialog"
+            ></activity>
     </application>
 
 </manifest>

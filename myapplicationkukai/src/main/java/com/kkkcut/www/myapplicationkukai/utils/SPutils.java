@@ -116,7 +116,7 @@ public class SPutils {
      * 保存任何对象
      * @param context
      * @param KEY
-     * @param obj 只能保存实现Serializable接口的类  list 或者 map 都行
+     * @param obj 只能保存实现Serializable接口的类  mList 或者 map 都行
      */
     public static void saveObject(Context context, String KEY, Object obj) {
         try {

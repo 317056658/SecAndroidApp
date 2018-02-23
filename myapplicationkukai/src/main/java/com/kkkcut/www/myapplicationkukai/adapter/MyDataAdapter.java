@@ -5,7 +5,7 @@ import android.animation.Animator;
 import com.chad.library.adapter.base.BaseItemDraggableAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.kkkcut.www.myapplicationkukai.R;
-import com.kkkcut.www.myapplicationkukai.entity.CollectCutHistory;
+import com.kkkcut.www.myapplicationkukai.entity.KeyInfo;
 
 import java.util.List;
 /**
@@ -13,8 +13,8 @@ import java.util.List;
  * Created by Administrator on 2016/11/22.
  */
 
-public class MyDataAdapter extends BaseItemDraggableAdapter<CollectCutHistory,BaseViewHolder>{
-    public MyDataAdapter(List<CollectCutHistory> dataSet) {
+public class MyDataAdapter extends BaseItemDraggableAdapter<KeyInfo,BaseViewHolder>{
+    public MyDataAdapter(List<KeyInfo> dataSet) {
           super(R.layout.recycler_item__content,dataSet);
     }
 
@@ -24,9 +24,11 @@ public class MyDataAdapter extends BaseItemDraggableAdapter<CollectCutHistory,Ba
     }
 
     @Override
-    protected void convert(BaseViewHolder helper, CollectCutHistory item) {
+    protected void convert(BaseViewHolder helper, KeyInfo item) {
         helper.setText(R.id.tv_content_title,item.getStep());
     }
+
+
 
 
 }

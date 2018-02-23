@@ -6,6 +6,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.PowerManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Gravity;
@@ -19,13 +20,13 @@ import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.kkkcut.www.myapplicationkukai.MainActivity;
 import com.kkkcut.www.myapplicationkukai.R;
-import com.kkkcut.www.myapplicationkukai.serialDriverCommunication.ProlificSerialDriver;
 import com.kkkcut.www.myapplicationkukai.dialogActivity.ExceptionActivity;
 import com.kkkcut.www.myapplicationkukai.dialogActivity.TransformProbeActivity;
 import com.kkkcut.www.myapplicationkukai.entity.Instruction;
 import com.kkkcut.www.myapplicationkukai.entity.MicyocoEvent;
+import com.kkkcut.www.myapplicationkukai.serialDriverCommunication.ProlificSerialDriver;
+import com.kkkcut.www.myapplicationkukai.utils.ActivityWindowUtils;
 import com.kkkcut.www.myapplicationkukai.utils.Tools;
 
 import java.lang.ref.WeakReference;
@@ -50,7 +51,7 @@ public class ClampCalibrationActivity extends AppCompatActivity implements View.
     private ImageView mIvCalibrateClamp1, mIvCalibrateClamp2, mIvCalibrateClamp3, mIvCalibrateClamp4;
     private TextView mTvCalibrationWait;
     private RelativeLayout mRlCutterDistance;
-    private int token;
+    private int token;  //令牌
     private MyHandler mHandler = new MyHandler(this);
     private static class MyHandler extends Handler {
         private WeakReference<Context> reference;
@@ -284,37 +285,54 @@ public class ClampCalibrationActivity extends AppCompatActivity implements View.
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mDecorView =getWindow().getDecorView();
+        //保健当前屏幕永不休眠
+        ActivityWindowUtils.setScreenNoDormant(getWindow());
         setContentView(R.layout.activity_clamp_calibration);
+        mDecorView =getWindow().getDecorView();
         initViews();//初始化按键
         initPopupWindow();//初始化PopupWindow窗口
-        Log.d("FrmCalibrationActivity", "onCreate()");
-        serialDriver=ProlificSerialDriver.getInstance();
+        serialDriver=ProlificSerialDriver.getInstance(getApplicationContext());
     }
     @Override
     protected void onPause() {
         super.onPause();
-        Log.d("FrmCalibrationActivity", "onPause()");
     }
     @Override
     protected void onStart() {
         super.onStart();
-
         if(serialDriver!=null){
             serialDriver.setHandler(mHandler);
+        }
+    }
+    private PowerManager.WakeLock mWakeLock;
+    private void acquireWakeLock() {
+        if(mWakeLock == null) {
+            PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+            mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK | PowerManager.ACQUIRE_CAUSES_WAKEUP,
+                    this.getClass().getCanonicalName());
+            mWakeLock.acquire();
+
         }
 
     }
 
+    private void releaseWakeLock() {
+        if(mWakeLock != null) {
+            mWakeLock.release();
+            mWakeLock = null;
+        }
+    }
+
+
     private  void  initViews(){
         mBtnClampMove =(Button)findViewById(R.id.btn_move);
         mBtnClampMove.setOnClickListener(this);
-        mBtnStopOperate =(Button)findViewById(R.id.btn_stop);
+        mBtnStopOperate =(Button)findViewById(R.id.btn_stop_operate);
         mBtnStopOperate.setVisibility(View.INVISIBLE);
         mBtnStopOperate.setOnClickListener(this);
         mBtnManualSet =(Button)findViewById(R.id.btn_manual_set);
 
-        mBtnCloseActivity =(Button)findViewById(R.id.btn_close);
+        mBtnCloseActivity =(Button)findViewById(R.id.btn_close_activity);
         mBtnCloseActivity.setOnClickListener(this);
         mBtnStart =(Button)findViewById(R.id.btn_start);
         mBtnStart.setOnClickListener(this);
@@ -440,12 +458,10 @@ public class ClampCalibrationActivity extends AppCompatActivity implements View.
                       mIvCalibrateClamp4.setClickable(false);
                       pw.showAtLocation(rootView, Gravity.CENTER,0,0);//显示PopupWindow
                   break;
-              case R.id.btn_close:  //关闭当前Activity，回到主Activity
-                  Intent intent=new Intent(ClampCalibrationActivity.this, MainActivity.class);
-                  intent.setFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
-                  startActivity(intent);
+              case R.id.btn_close_activity:  //关闭当前Activity，回到主Activity
+                     finish();
                   break;
-              case R.id.btn_stop:  //取消操作
+              case R.id.btn_stop_operate:  //取消操作
                   serialDriver.write(STOP_OPERATE.getBytes(),STOP_OPERATE.length());
                   break;
               case R.id.iv_calibrate_fixture1:  //一号夹具开始校准事件
@@ -457,6 +473,7 @@ public class ClampCalibrationActivity extends AppCompatActivity implements View.
                   mBtnStart.setClickable(false);
                   mBtnClampMove.setClickable(false);
                   mBtnManualSet.setClickable(false);
+                  mBtnCloseActivity.setClickable(false);
                   pw1.showAtLocation(rootView, Gravity.CENTER,0,0);
                   token=1;
                   break;
@@ -470,6 +487,7 @@ public class ClampCalibrationActivity extends AppCompatActivity implements View.
                   mBtnClampMove.setClickable(false);
                   mBtnCloseActivity.setClickable(false);
                   mBtnManualSet.setClickable(false);
+                  mBtnCloseActivity.setClickable(false);
                   pw2.showAtLocation(rootView,Gravity.CENTER,0,0);
                   token=2;
                   break;
@@ -545,6 +563,11 @@ public class ClampCalibrationActivity extends AppCompatActivity implements View.
                   mBtnStopOperate.setVisibility(View.VISIBLE);
                   break;
           }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 
     @Override

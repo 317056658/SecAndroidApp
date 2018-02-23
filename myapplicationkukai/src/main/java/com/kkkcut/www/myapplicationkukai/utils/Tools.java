@@ -66,7 +66,6 @@ public class Tools {
                             | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                                     |View.SYSTEM_UI_FLAG_IMMERSIVE;
             decorView.setSystemUiVisibility(uiOptions);
-
         }
 
     }

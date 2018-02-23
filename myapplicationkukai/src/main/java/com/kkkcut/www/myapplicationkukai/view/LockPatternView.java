@@ -81,6 +81,7 @@ public class LockPatternView extends View {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        Log.d(TAG, "onDraw: ");
         this.drawToCanvas(canvas);
     }
 
@@ -90,6 +91,7 @@ public class LockPatternView extends View {
          width = MeasureSpec.getSize(widthMeasureSpec);
          height = MeasureSpec.getSize(heightMeasureSpec);
         Log.d(TAG, "onMeasure: ");
+                 
         //Log.e(TAG, "(width: " + width + "  ,  height" + height + ")");
 //        if (width != height) {
 //            throw new IllegalArgumentException("the width must be equals height");

@@ -80,7 +80,7 @@ public class EventBusUtils {
     }
 
     /**
-     * 取消事件传送
+     * 取消事件传递
      *  在能在默认线程中使用
      * @param event 事件对象
      */

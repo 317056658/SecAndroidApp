@@ -9,7 +9,6 @@ import android.graphics.Path;
 import android.graphics.PathEffect;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import com.kkkcut.www.myapplicationkukai.entity.KeyInfo;
 
@@ -27,38 +26,42 @@ public class BilateralKey extends Key {
     private Path mPath;//画点
     private Paint mBorderPaint;//画点线的笔
     private Paint mDashedPaint; //画虚线的笔
-    private Paint mTextColorPaint;//画蓝色字体的笔
-    private Paint p4; //画红色字体的笔
+    private Paint mColorTextPaint;//画蓝色字体的笔
     private Paint mArrowsPaint;//画箭头
     private Paint mKeyAppearanceColorPaint;//画钥匙身体颜色
     public  String[] allToothDepthName = null;//齿号的别名  代表深度
     private KeyInfo ki;
     private String[] spaceGroup;
     private String[] depthGroup,depthNameGroup;
-    private ArrayList<String[]> toothNameGroupList;  //保存齿组名字数据的集合
-    private int maxToothPosition;  // 最大齿位
-    private int[] toothDistancesOne, toothDistancesTwo;  //存储齿位的数据数据
+    private ArrayList<String[]> toothCodeList;  //保存齿组名字数据的集合
+    private int maxToothDistance,minToothDistance;  // 最大齿位 最小齿位
     private List<Integer>  toothDistancesListOne;
     private List<Integer>  toothDistancesListTwo;
     private String[] toothDepthNameOne, toothDepthNameTwo;  //第一组齿名，第二组齿名。
-    private int toothWidth = 14;
-    private   Map<String, Integer> depthMap1;
-   private Map<String, Integer> depthMap2;
-    private int[] depthPositionArray1, depthPositionArray2;  //画深度位子用的数组
-    private int keyHalfWidthY;
-    private float spacesScaleValue,depthScaleRatio;
-    private float keyBodyWidth;
-    private float keyWidthY, keySumY;
-    private int depthStartY1, depthEndY1, depthStartY2, depthEndY2;
-    int excessX;
-    int excessY=60;
-    private List<Integer> spaceDataList1;  //定义一个保存int类型的space集合1
-    private List<Integer> spaceDataList2;  //定义一个保
-    private int[]  spaceDataArray1,spaceDataArray2;//存int类型的space集合 12
-    private  int surplusX;
+    private int halfToothWidth = 14;
+    // key  value  保存深度解析好的深度位置
+    private Map<String, Integer> depthPositionMapOne,depthPositionMapTwo;
+
+    private int[] depthPositionOne, depthPositionTwo;  //画深度位子用的数组
+
+    private float spacesScaleValue, depthScaleValue;
+    private int depthPositionStartYOne, depthPositionEndYOne, depthPositionStartYTwo, depthPositionEndYTwo;
+    private int excessX;
+    private int[] saveSpacesDataOne;  //定义一个保存第一组int类型的spaces数组
+    private int[] saveSpacesDataTwo;  //定义一个保存第二组int类型的spaces数组
     private boolean isShowArrows=true;
     private int patternWidth,patternHeight;
-    private  final int  AGROUP=1 ;
+    private float patternBodyWidth,patternBodyHeight;
+    private int patternShoulderHeightA,patternShoulderHeightB;  //肩部的宽度 和高度
+    private int patternShoulderWidthA,patternShoulderWidthB;
+    private int patternCuspWidth;
+    private int patternExtraWidth;
+    private int extraTopY;
+    private int patternBodyMaxY;
+    private String[] depthNameOne,depthNameTwo;  //存放深度名的数组
+    private int lastToothDistanceWidth;
+    private boolean isDraw=true;  //默认可以绘制
+
 
 
     public BilateralKey(Context context,KeyInfo ki) {
@@ -75,294 +78,207 @@ public class BilateralKey extends Key {
         this.initPaintAndPath();  //初始化画笔和路径
         toothDistancesListOne=new ArrayList<>();
         toothDistancesListTwo=new ArrayList<>();
+        toothCodeList =new ArrayList<>();
     }
 
-    public void setNeededDrawAttribute(KeyInfo p){
-        initPaintAndPath();//初始化画笔属性和路径
-        spaceDataList1=new ArrayList<>();
-        spaceDataList2=new ArrayList<>();
-        keyBodyWidth=487f;
-        this.ki = p;
-        toothNameGroupList = new ArrayList<>();
-        //分割数据得到齿组
-        spaceGroup = p.getSpace().split(";");
-        depthMap1 = new HashMap<>();
-        depthMap2 = new HashMap<>();
-        //分割深度数据得到深度数据的组数
-        depthGroup = p.getDepth().split(";");
-        //分割深度名
-        depthNameGroup=p.getDepth_name().split(";");
 
-        if (p.getAlign() == 0) {
-            //获得肩部定位的最大齿位数据
-            if (spaceGroup.length > 1) {
-                String[] Spaces1 = spaceGroup[0].split(",");
-                String[] Spaces2 = spaceGroup[1].split(",");
-                toothDepthNameOne =new String[Spaces1.length];
-                toothDepthNameTwo =new String[Spaces2.length];
-                toothDistancesOne =new int[Spaces1.length];
-                toothDistancesTwo =new int[Spaces2.length];
-                if (Integer.parseInt(Spaces1[Spaces1.length - 1]) > Integer.parseInt(Spaces2[Spaces2.length - 1])) {
-                    maxToothPosition = Integer.parseInt(Spaces1[Spaces1.length - 1]);
-                } else {
-                    maxToothPosition = Integer.parseInt(Spaces2[Spaces2.length - 1]);
-                }
-                for (int i = 0; i < Spaces1.length; i++) {
-                    // 把齿位数据转为int
-                    toothDistancesOne[i] = Integer.parseInt(Spaces1[i]);
-                    spaceDataList1.add(Integer.parseInt(Spaces1[i]));
-                    toothDepthNameOne[i]="X";
-                }
-                for (int i = 0; i < Spaces2.length; i++) {
-                    // 把齿位数据转为int
-                    toothDistancesTwo[i] = Integer.parseInt(Spaces2[i]);
-                    spaceDataList2.add(Integer.parseInt(Spaces2[i]));
-                    toothDepthNameTwo[i]="X";
-                }
-
-            } else {
-                String[] Spaces = spaceGroup[0].split(",");
-                toothDistancesOne = new int[Spaces.length];
-                toothDistancesTwo = new int[Spaces.length];
-                toothDepthNameOne =new String[Spaces.length];
-                toothDepthNameTwo =new String[Spaces.length];
-
-                for (int i = 0; i < Spaces.length; i++) {
-                    toothDepthNameOne[i]="X";
-                    toothDepthNameTwo[i]="X";
-                    // 把齿位数据转为int
-                    toothDistancesOne[i] = Integer.parseInt(Spaces[i]);
-                    toothDistancesTwo[i] = Integer.parseInt(Spaces[i]);
-                    spaceDataList1.add(Integer.parseInt(Spaces[i]));
-                    spaceDataList2.add(Integer.parseInt(Spaces[i]));
-                }
-                maxToothPosition = spaceDataList1.get(spaceDataList1.size()-1);
-            }
-        } else if (p.getAlign() == 1) {
-            //获得尖端定位的最大齿位数据
-            if (spaceGroup.length > 1) {
-                String[] Spaces1 = spaceGroup[0].split(",");
-                String[] Spaces2 = spaceGroup[1].split(",");
-                toothDepthNameOne =new String[Spaces1.length];
-                toothDepthNameTwo =new String[Spaces2.length];
-                toothDistancesOne =new int[Spaces1.length];
-                toothDistancesTwo =new int[Spaces2.length];
-                if (Integer.parseInt(Spaces1[0]) > Integer.parseInt(Spaces2[0])) {
-                    maxToothPosition = Integer.parseInt(Spaces1[0]);
-                } else {
-                    maxToothPosition = Integer.parseInt(Spaces2[0]);
-                }
-                for (int i = 0; i < Spaces1.length; i++) {
-                    spaceDataList1.add(Integer.parseInt(Spaces1[i]));
-                    // 把齿位数据转为int
-                    toothDistancesOne[i] = Integer.parseInt(Spaces1[i]);
-                    //初始化每个齿的深度名
-                    toothDepthNameOne[i]="X";
-                }
-                for (int i = 0; i < Spaces2.length; i++) {
-                    spaceDataList2.add(Integer.parseInt(Spaces2[i]));
-                    // 把齿位数据转为int
-                    toothDistancesTwo[i] = Integer.parseInt(Spaces2[i]);
-                    toothDepthNameTwo[i]="X";
-                }
-            } else {
-                String[] Spaces = spaceGroup[0].split(",");
-                maxToothPosition = Integer.parseInt(Spaces[0]);
-
-                toothDepthNameOne =new String[Spaces.length];
-                toothDepthNameTwo =new String[Spaces.length];
-
-
-                toothDistancesOne = new int[Spaces.length];
-                toothDistancesTwo = new int[Spaces.length];
-                for (int i = 0; i < Spaces.length; i++) {
-                    toothDepthNameOne[i]="X";
-                    toothDepthNameTwo[i]="X";
-                    // 把齿位数据转为int
-                    toothDistancesOne[i] = Integer.parseInt(Spaces[i]);
-                    toothDistancesTwo[i] = Integer.parseInt(Spaces[i]);
-                    spaceDataList1.add(Integer.parseInt(Spaces[i]));
-                    spaceDataList2.add(Integer.parseInt(Spaces[i]));
-                }
-            }
-        }
-        //计算space数据的比例值
-        spacesScaleValue = keyBodyWidth/maxToothPosition;
-        if(p.getAlign()==0){
-            //换算第一组齿位的数据
-            for (int i = 0; i < toothDistancesOne.length; i++) {
-                int toothPosition= (int)(toothDistancesOne[i]*spacesScaleValue)+132;
-                //一组的换算好的齿位
-                toothDistancesOne[i]= toothPosition;
-            }
-            //换算第二组的所有齿位的数据
-            for (int i = 0; i < toothDistancesTwo.length ; i++) {
-                int toothPosition= (int)(toothDistancesTwo[i]*spacesScaleValue)+132;
-                //存储第二组的换算好的齿位
-                toothDistancesTwo[i]=toothPosition;
-            }
-        }else if(p.getAlign()==1){
-            int keySumX=(int)(keyBodyWidth+132);
-            int minToothPosition=0;
-
-            if(toothDistancesOne[toothDistancesOne.length-1]< toothDistancesTwo[toothDistancesTwo.length-1]){
-                minToothPosition= toothDistancesOne[toothDistancesOne.length-1];
-            }else {
-                minToothPosition= toothDistancesTwo[toothDistancesTwo.length-1];
-            }
-            surplusX=keySumX- (keySumX- (int)(spacesScaleValue* minToothPosition));
-            //换算第一组齿位的数据
-            for (int i = 0; i < toothDistancesOne.length; i++) {
-                int toothPosition= (keySumX-(int)(toothDistancesOne[i]*spacesScaleValue))+surplusX;
-                //存储第一组的换算好的齿位
-                toothDistancesOne[i]= toothPosition;
-            }
-            //换算第二组的所有齿位的数据
-            for (int i = 0; i < toothDistancesTwo.length ; i++) {
-                int toothPosition=(keySumX-(int)(toothDistancesTwo[i]*spacesScaleValue))+surplusX;
-                //存储第二组的换算好的齿位
-                toothDistancesTwo[i]=toothPosition;
-            }
-
-        }
-
-        //计算钥匙深度比例值
-        depthScaleRatio=210f/p.getWidth();
-        //计算钥匙的宽度
-        keyWidthY =p.getWidth()*depthScaleRatio;
-        //钥匙的总宽度
-        keySumY=keyWidthY+excessY;
-        //计算钥匙的一半宽度
-        keyHalfWidthY =(int)(keyWidthY /2)+excessY;
-
-        if (depthGroup.length == 1) {
-            //分割深度得到具体数据
-            String[] depths = depthGroup[0].split(",");
-            //分割深度名，得到深度名
-            String[] depthNameArray = depthNameGroup[0].split(",");
-            depthPositionArray1 = new int[depths.length];
-            depthPositionArray2 = new int[depths.length];
-            int eachDepth=0;
-            for (int i = 0; i < depths.length; i++) {
-                //换算每个深度的位子
-                eachDepth = (int) (Integer.parseInt(depths[i]) * depthScaleRatio);
-                //保存第二组深度的位子
-                depthPositionArray2[i] = eachDepth + 60;
-                depthMap2.put(depthNameArray[i], eachDepth + 60);
-                //保存第一组深度的位子
-                eachDepth = (int) keySumY - eachDepth;
-                depthMap1.put(depthNameArray[i], eachDepth);
-                depthPositionArray1[i] = eachDepth;
-            }
-        } else if (depthGroup.length == 2) {
-            //分割第一组深度名，得到深度第一组所有的深度名
-            String[] depthNameArray1 = depthNameGroup[0].split(",");
-            //分割第一组深度数据
-            String[] depths1 = depthGroup[0].split(",");
-            depthPositionArray1 = new int[depths1.length];
-            //换算第一组齿的深度
-            int eachDepth = 0;
-            for (int i = 0; i < depthPositionArray1.length; i++) {
-                eachDepth = (int) (Integer.parseInt(depths1[i]) * depthScaleRatio);
-                //保存第一组深度的位子
-                eachDepth = (int) keySumY - eachDepth;
-                depthPositionArray1[i] = eachDepth;
-                depthMap1.put(depthNameArray1[i], eachDepth);
-            }
-            //分割第二组深度名，得到深度第一组所有的深度名
-            String[] depthNameArray2 = depthNameGroup[1].split(",");
-            //分割第二组深度数据
-            String[] depths2 =depthGroup[1].split(",");
-            depthPositionArray2=new int[depths2.length];
-            //换算第二组齿的深度
-            for (int i = 0; i < depthPositionArray2.length; i++) {
-                //换算每个深度的位子
-                eachDepth= (int)(Integer.parseInt(depths2[i]) * depthScaleRatio);
-                //保存第二组齿的深度的位子
-                depthPositionArray2[i] = eachDepth + 60;
-                depthMap2.put(depthNameArray2[i], eachDepth + 60);
-            }
-        }
-        //得到每组深度的第一个位子和最一个位子的数据
-        depthStartY1 = depthPositionArray1[0];
-        depthEndY1 = depthPositionArray1[depthPositionArray1.length - 1];
-        depthStartY2 = depthPositionArray2[0];
-        depthEndY2 = depthPositionArray2[depthPositionArray2.length - 1];
-
-    }
-
-    public BilateralKey(Context context, AttributeSet attrs) {
-        super(context, attrs);
-    }
-
-    @Override
-    public void setDrawPatternSize(int width, int height) {
+    public void setDrawPatternSize(int width,int height) {
         this.patternWidth=width;
         this.patternHeight=height;
-
+        patternBodyWidth=(int)(patternWidth*0.73);
+        patternShoulderWidthA=(int)(patternWidth*0.1);  //百分之10
+        patternShoulderWidthB=(int)(patternWidth*0.1);
+        patternCuspWidth=(int)(patternWidth*0.12);   //百分之12
+        patternExtraWidth =(int)(patternWidth*0.05); //百分之5
+        patternBodyHeight=(int) (patternHeight*0.74);  //百分之82;
+        patternShoulderHeightA=(int)(patternHeight*0.13);
+        patternShoulderHeightB=(int)(patternHeight*0.13);
+        extraTopY =patternShoulderHeightA+4;   //上部百分之12
+        patternBodyMaxY=(int)patternBodyHeight+extraTopY;
+        this.analysisSpace();
+        this.analysisDepthAndDepthName();
     }
 
     /**
-     * 解析spase到绘制的齿距
+     * 解析spase
+     *
      */
-    private  void analysisToothDistances(){
+    private  void analysisSpace(){
        spaceGroup =ki.getSpace().split(";");
         String[] spacesOne;
         String[] spacesTwo;
-                if(spaceGroup.length==AGROUP){   //齿距只有一组
-                    spacesOne= spaceGroup[0].split(",");
-                    spacesTwo= spaceGroup[0].split(",");
-                    //转为int类型
-                    for (int i = 0; i <spacesOne.length ; i++) {
-                         toothDistancesListOne.add(Integer.parseInt(spacesOne[i]));
-                          toothDistancesListTwo.add(Integer.parseInt(spacesTwo[i]));
-                    }
-                    toothDepthNameOne=new String[spacesOne.length];  //第一组
-                    toothDepthNameTwo=new String[spacesTwo.length];   //第二组
-                    drawToothCode();
-                }else {
-
-                }
-    }
-
-    @Override
-    public void setShowDrawDepthAndDepthName(boolean isDraw) {
-
+             if(ki.getAlign()==KeyInfo.SHOULDERS_ALIGN){
+                 if(spaceGroup.length==1){   //齿距只有一组
+                     spacesOne= spaceGroup[0].split(",");
+                     spacesTwo= spaceGroup[0].split(",");
+                     saveSpacesDataOne =new int[spacesOne.length];
+                     saveSpacesDataTwo =new int[spacesTwo.length];
+                     toothDepthNameOne=new String[spacesOne.length];  //第一组齿的深度名
+                     toothDepthNameTwo=new String[spacesTwo.length];   //第二组齿的深度名
+                     //转为int
+                     for (int i = 0; i < saveSpacesDataOne.length ; i++) {
+                         saveSpacesDataOne[i]=Integer.parseInt(spacesOne[i]);
+                     }
+                     for (int i = 0; i < saveSpacesDataTwo.length ; i++) {
+                         saveSpacesDataTwo[i]=Integer.parseInt(spacesTwo[i]);
+                     }
+                     maxToothDistance= saveSpacesDataOne[saveSpacesDataOne.length-1];
+                 }else {  //2组space
+                     spacesOne =spaceGroup[0].split(",");
+                     spacesTwo=spaceGroup[1].split(",");
+                     saveSpacesDataOne =new int[spacesOne.length];
+                     saveSpacesDataTwo =new int[spacesTwo.length];
+                     toothDepthNameOne=new String[spacesOne.length];  //第一组齿的深度名
+                     toothDepthNameTwo=new String[spacesTwo.length];   //第二组齿的深度名
+                     //转为int
+                     for (int i = 0; i < saveSpacesDataOne.length ; i++) {
+                         saveSpacesDataOne[i]=Integer.parseInt(spacesOne[i]);
+                     }
+                     for (int i = 0; i < saveSpacesDataTwo.length ; i++) {
+                         saveSpacesDataTwo[i]=Integer.parseInt(spacesTwo[i]);
+                     }
+                     if(saveSpacesDataOne[saveSpacesDataOne.length-1]>= saveSpacesDataTwo[saveSpacesDataTwo.length-1]){
+                         maxToothDistance= saveSpacesDataOne[saveSpacesDataOne.length-1];
+                     }else {
+                         maxToothDistance= saveSpacesDataTwo[saveSpacesDataTwo.length-1];
+                     }
+                 }
+             }else {  //前端定位
+                 if(spaceGroup.length==1){   //齿距只有一组
+                     spacesOne= spaceGroup[0].split(",");
+                     spacesTwo= spaceGroup[0].split(",");
+                     saveSpacesDataOne =new int[spacesOne.length];
+                     saveSpacesDataTwo =new int[spacesTwo.length];
+                     toothDepthNameOne=new String[spacesOne.length];  //第一组齿的深度名
+                     toothDepthNameTwo=new String[spacesTwo.length];   //第二组齿的深度名
+                     //转为int
+                     for (int i = 0; i < saveSpacesDataOne.length ; i++) {
+                         saveSpacesDataOne[i]=Integer.parseInt(spacesOne[i]);
+                     }
+                     for (int i = 0; i < saveSpacesDataTwo.length ; i++) {
+                         saveSpacesDataTwo[i]=Integer.parseInt(spacesTwo[i]);
+                     }
+                     maxToothDistance= saveSpacesDataOne[0];
+                     minToothDistance= saveSpacesDataOne[saveSpacesDataOne.length-1];
+                 }else {  //齿距有2组space
+                     spacesOne =spaceGroup[0].split(",");
+                     spacesTwo=spaceGroup[1].split(",");
+                     saveSpacesDataOne =new int[spacesOne.length];
+                     saveSpacesDataTwo =new int[spacesTwo.length];
+                     toothDepthNameOne=new String[spacesOne.length];  //第一组齿的深度名
+                     toothDepthNameTwo=new String[spacesTwo.length];   //第二组齿的深度名
+                     //转为int
+                     for (int i = 0; i < saveSpacesDataOne.length ; i++) {
+                         saveSpacesDataOne[i]=Integer.parseInt(spacesOne[i]);
+                     }
+                     for (int i = 0; i < saveSpacesDataTwo.length ; i++) {
+                         saveSpacesDataTwo[i]=Integer.parseInt(spacesTwo[i]);
+                     }
+                     if(saveSpacesDataOne[0]>= saveSpacesDataTwo[0]){
+                         maxToothDistance= saveSpacesDataOne[0];
+                     }else {
+                         maxToothDistance= saveSpacesDataTwo[0];
+                     }
+                     //获得最小的齿距
+                     if(saveSpacesDataOne[saveSpacesDataOne.length-1]<= saveSpacesDataTwo[saveSpacesDataTwo.length-1]){
+                         minToothDistance= saveSpacesDataOne[saveSpacesDataOne.length-1];
+                     }else {
+                         minToothDistance= saveSpacesDataTwo[saveSpacesDataTwo.length-1];
+                     }
+                 }
+             }
+        this.calculateDrawToothDistances(spacesOne.length,spacesTwo.length);
     }
 
     /**
-     * 绘制的齿码
+     * 传入第一组合第二组的齿距的数量
+     * 计算绘制的齿距
+     * @param oneGroupCount
+     * @param twoGroupCount
      */
-    private void  drawToothCode(){
-        if(TextUtils.isEmpty(ki.getKeyToothCode())){
-                for (int i = 0; i <toothDepthNameOne.length ; i++) {   // 第一组
-                    toothDepthNameOne[i]="X";
-                }
-                for (int i = 0; i <toothDepthNameTwo.length ; i++) {    //第二组
-                    toothDepthNameTwo[i]="X";
-                }
-        }else {
-         String[]   toothCode = ki.getKeyToothCode().split(",");
-            if(spaceGroup.length==AGROUP){  //只有一组
-                for (int i = 0; i <toothDepthNameOne.length ; i++) {   // 第一组
-                    toothDepthNameOne[i]=toothCode[i];
-                }
-                for (int i = 0; i <toothDepthNameTwo.length ; i++) {    //第二组
-                    toothDepthNameTwo[i]=toothCode[i];
-                }
-            }else {     //有2组
-                int j=0;
-                for (int i = 0; i <toothDepthNameOne.length ; i++) {   //
-                    toothDepthNameOne[i]=toothCode[j];
-                    j++;
-                }
-                for (int i = 0; i <toothDepthNameTwo.length; i++) {
-                    toothDepthNameTwo[i]=toothCode[j];
-                    j++;
-                }
-            }
-        }
+     private void calculateDrawToothDistances(int oneGroupCount,int twoGroupCount){
+         //肩部定位
+         if(ki.getAlign()==KeyInfo.SHOULDERS_ALIGN){
+             spacesScaleValue=patternBodyWidth/maxToothDistance;
+             for (int i = 0; i <oneGroupCount; i++) {
+                 toothDistancesListOne.add((int)(saveSpacesDataOne[i]*spacesScaleValue+ patternExtraWidth)+patternShoulderWidthA);
+             }
+             for (int i = 0; i <twoGroupCount; i++) {
+                 toothDistancesListTwo.add((int)(saveSpacesDataTwo[i]*spacesScaleValue+ patternExtraWidth)+patternShoulderWidthB);
+             }
+         }else {  //前端定位
+             int sumX =(int)(this.patternBodyWidth +patternShoulderWidthA)+ patternExtraWidth;
+             spacesScaleValue=patternBodyWidth/maxToothDistance;
+             int surplusX= sumX-(sumX - (int)(minToothDistance* spacesScaleValue));
+             for (int i = 0; i <oneGroupCount; i++) {
+                 toothDistancesListOne.add(sumX-(int)(saveSpacesDataOne[i]*spacesScaleValue)+surplusX);
+             }
+             for (int i = 0; i <twoGroupCount; i++) {
+                 toothDistancesListTwo.add(sumX-(int)(saveSpacesDataTwo[i]*spacesScaleValue)+surplusX);
+             }
+         }
+     }
+
+    /**
+     * 解析深度和深度名到绘制的深度和深度名
+     */
+    private  void   analysisDepthAndDepthName(){
+        depthGroup = ki.getDepth().split(";");  //分割深度
+        depthNameGroup=ki.getDepth_name().split(";");
+        depthScaleValue =patternBodyHeight/ki.getWidth();
+        depthPositionMapOne=new HashMap<>();
+        depthPositionMapTwo=new HashMap<>();
+        this.calculateDrawDepth();
     }
+    /**
+     * 计算绘制的深度
+     */
+    private  void calculateDrawDepth(){
+        if(depthGroup.length==1){
+            String[] depths=depthGroup[0].split(",");
+            depthNameOne=depthNameGroup[0].split(",");
+            depthNameTwo=depthNameGroup[0].split(",");
+            depthPositionOne=new int[depths.length];
+            depthPositionTwo=new int[depths.length];
+            for (int i = 0; i < depths.length; i++) {
+                depthPositionOne[i]=patternBodyMaxY-(int)(Integer.parseInt(depths[i])* depthScaleValue);
+                depthPositionMapOne.put(depthNameOne[i], depthPositionOne[i]);
+                //第二组深度
+                depthPositionTwo[i]=(int)(Integer.parseInt(depths[i])* depthScaleValue)+extraTopY;
+                depthPositionMapTwo.put(depthNameTwo[i],depthPositionTwo[i]);
+            }
+        }else if(depthGroup.length==2){
+            //深度
+            String[] depthsOneGroup=depthGroup[0].split(",");
+            String[] depthsTwoGroup=depthGroup[1].split(",");
+            //深度名
+            depthNameOne=depthNameGroup[0].split(",");
+            depthNameTwo=depthNameGroup[1].split(",");
+            depthPositionOne=new int[depthsOneGroup.length];
+            depthPositionTwo=new int[depthsTwoGroup.length];
+            for (int i = 0; i < depthsOneGroup.length; i++) {
+                depthPositionOne[i]=patternBodyMaxY-(int)(Integer.parseInt(depthsOneGroup[i])* depthScaleValue);
+                depthPositionMapOne.put(depthNameOne[i], depthPositionOne[i]);
+            }
+            for (int i = 0; i < depthsTwoGroup.length; i++) {
+                //第二组深度
+                depthPositionTwo[i]=(int)(Integer.parseInt(depthsTwoGroup[i])* depthScaleValue)+extraTopY;
+                depthPositionMapTwo.put(depthNameTwo[i],depthPositionTwo[i]);
+            }
+
+        }
+        //得到每组深度的第一个位子和最一个位子的数据
+        depthPositionStartYOne = depthPositionOne[0];
+        depthPositionEndYOne = depthPositionOne[depthPositionOne.length - 1];
+        depthPositionStartYTwo = depthPositionTwo[0];
+        depthPositionEndYTwo = depthPositionTwo[depthPositionTwo.length - 1];
+    }
+
+    @Override
+    public void setDrawDepthPatternAndToothCode(boolean isDraw) {
+        this.isDraw=isDraw;
+    }
+
 
 
     @Override
@@ -370,24 +286,501 @@ public class BilateralKey extends Key {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         int heightSize = MeasureSpec.getSize(heightMeasureSpec);
-        Log.d("固定宽度", "onMeasure: " + widthSize);
-        Log.d("固定高度", "onMeasure: " + heightSize);
         setMeasuredDimension(widthSize,heightSize);
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        bilateralKey(canvas);
+        this.drawKeyPattern(canvas);
+    }
+
+
+    /**
+     * 绘制钥匙图像
+     * @param canvas
+     */
+    private void drawKeyPattern(Canvas canvas){
+        if(ki.getAlign()==KeyInfo.SHOULDERS_ALIGN){   //肩部
+           mPath.moveTo(0, 4);
+           int sA =(int)(patternShoulderHeightA*0.25f);
+           mPath.lineTo(patternShoulderWidthA- sA,4);
+           mPath.quadTo(patternShoulderWidthA,4, patternShoulderWidthA, sA +4);
+           mPath.lineTo(patternShoulderWidthA,extraTopY);
+           mPath.lineTo(patternShoulderWidthA+ patternExtraWidth,extraTopY);
+           //根据齿深度名画图
+           for (int i = 0; i < toothDepthNameOne.length; i++) {
+              if(toothDepthNameOne[i].contains(".")){
+                   //分割齿的深度名
+                   String[] newStr = toothDepthNameOne[i].split("\\.");
+                   Integer depthValue=depthPositionMapOne.get(newStr[0]);
+                   float decimals=Float.parseFloat("0."+ newStr[1]);
+                   float valueY;
+                   int distanceY;
+                   if(depthValue==null){
+                       if(newStr[0].equals("X")||newStr.equals("0")){
+                           depthValue=depthPositionMapOne.get(depthNameOne[0]);
+                           distanceY =depthValue-extraTopY;
+                           valueY =distanceY*decimals;
+                           mPath.lineTo(toothDistancesListOne.get(i)- halfToothWidth,depthValue- valueY);
+                           mPath.lineTo(toothDistancesListOne.get(i)+ halfToothWidth,depthValue- valueY);
+                       }
+                   }else {
+                       valueY =0;
+                       if(depthValue == depthPositionOne[depthPositionOne.length-1]){
+                           //等于最后一个深度位置不计算。
+                       }else {
+                           for(int j = 0; j< depthPositionOne.length; j++){
+                               if(depthValue ==depthPositionOne[j]){
+                                   distanceY = depthPositionOne[j+1]- depthValue;
+                                   valueY =distanceY*decimals;
+                                   break;
+                               }
+                           }
+                       }
+                       mPath.lineTo(toothDistancesListOne.get(i)- halfToothWidth, depthValue + valueY);
+                       mPath.lineTo(toothDistancesListOne.get(i)+ halfToothWidth, depthValue + valueY);
+                   }
+               }else {
+                  Integer  depthValue=depthPositionMapOne.get(toothDepthNameOne[i]);
+                   mPath.lineTo(toothDistancesListOne.get(i)- halfToothWidth, depthValue==null?extraTopY: depthPositionMapOne.get(toothDepthNameOne[i]));
+                   mPath.lineTo(toothDistancesListOne.get(i)+ halfToothWidth, depthValue==null?extraTopY: depthPositionMapOne.get(toothDepthNameOne[i]));
+               }
+           }
+           //第一组的最后一个齿距宽度
+         lastToothDistanceWidth = toothDistancesListOne.get(toothDistancesListOne.size()-1)+ halfToothWidth;
+           //加上多出的宽度
+           if ((toothDistancesListOne.get(toothDistancesListOne.size()-1) + halfToothWidth) < (toothDistancesListTwo.get(toothDistancesListTwo.size()-1) + halfToothWidth)) {
+               excessX = (toothDistancesListTwo.get(toothDistancesListTwo.size()-1) + halfToothWidth) - (toothDistancesListOne.get(toothDistancesListOne.size()-1) + halfToothWidth);
+               lastToothDistanceWidth = lastToothDistanceWidth + excessX;
+              mPath.lineTo(lastToothDistanceWidth,extraTopY);
+           }
+           int patternBodyHeightPercent46Y =(int)(patternBodyHeight*0.46)+extraTopY;
+           mPath.lineTo(lastToothDistanceWidth +(patternCuspWidth*0.93f), patternBodyHeightPercent46Y);
+           int patternBodyHeightPercent50Y =(int)(patternBodyHeight*0.5)+extraTopY;
+           int patternBodyHeightPercent54Y =(int)(patternBodyHeight*0.54)+extraTopY;
+           mPath.quadTo(lastToothDistanceWidth +patternCuspWidth, patternBodyHeightPercent50Y, lastToothDistanceWidth +(patternCuspWidth*0.93f), patternBodyHeightPercent54Y);
+           mPath.lineTo(lastToothDistanceWidth,patternBodyMaxY);
+
+           for (int i = toothDepthNameTwo.length-1; i >=0; i--) {
+            if (toothDepthNameTwo[i].contains(".")) {
+                   String[] newStr = toothDepthNameTwo[i].split("\\.");
+                   Integer depthValue=depthPositionMapTwo.get(newStr[0]);
+                   float decimals=Float.parseFloat("0."+ newStr[1]);
+                   float valueY;
+                   int distanceY;
+                   if(depthValue==null){
+                       if(newStr[0].equals("X")||newStr.equals("0")){
+                           depthValue=depthPositionMapTwo.get(depthNameTwo[0]);
+                           distanceY =depthValue-patternBodyMaxY;
+                           valueY =distanceY*decimals;
+                           //i==最后一个长度 说明 i 里面有东西
+                           if(i== toothDistancesListTwo.size()-1){
+                               if(toothDistancesListTwo.get(i)+ halfToothWidth< lastToothDistanceWidth){
+                                   mPath.lineTo(toothDistancesListTwo.get(i)+ halfToothWidth,depthValue-valueY);
+                                   mPath.lineTo(toothDistancesListTwo.get(i)- halfToothWidth,depthValue-valueY);
+                               }else{
+                                   mPath.setLastPoint(lastToothDistanceWidth,depthValue-valueY);
+                                   mPath.lineTo(toothDistancesListTwo.get(i)- halfToothWidth,depthValue-valueY);
+                               }
+                           }else {
+                               mPath.lineTo(toothDistancesListTwo.get(i)+ halfToothWidth,depthValue-valueY);
+                               mPath.lineTo(toothDistancesListTwo.get(i)- halfToothWidth,depthValue-valueY);
+                           }
+                       }
+                   }else {
+                       valueY =0;
+                       if(depthValue == depthPositionTwo[depthPositionTwo.length-1]){
+                           //等于最后一个深度位置不计算。
+                       }else {
+                           for(int j = 0; j< depthPositionTwo.length; j++){
+                               if(depthValue ==depthPositionTwo[j]){
+                                   distanceY = depthValue- depthPositionTwo[j+1];
+                                   valueY =distanceY*decimals;
+                                   break;
+                               }
+                           }
+                       }
+                       //i==最后一个长度 说明 i 里面有东西
+                       if(i== toothDistancesListTwo.size()-1){
+                           if(toothDistancesListTwo.get(i)+ halfToothWidth< lastToothDistanceWidth){
+                               mPath.lineTo(toothDistancesListTwo.get(i)+ halfToothWidth,depthValue-valueY);
+                               mPath.lineTo(toothDistancesListTwo.get(i)- halfToothWidth,depthValue-valueY);
+                           }else{
+                               mPath.setLastPoint(lastToothDistanceWidth,depthValue-valueY);
+                               mPath.lineTo(toothDistancesListTwo.get(i)- halfToothWidth,depthValue-valueY);
+                           }
+                       }else {
+                           mPath.lineTo(toothDistancesListTwo.get(i)+ halfToothWidth,depthValue-valueY);
+                           mPath.lineTo(toothDistancesListTwo.get(i)- halfToothWidth,depthValue-valueY);
+                       }
+                   }
+               }else {
+               Integer depthValue=depthPositionMapTwo.get(toothDepthNameTwo[i]);
+                   if(i== toothDistancesListTwo.size()-1) {
+                       if(toothDistancesListTwo.get(i)+ halfToothWidth< lastToothDistanceWidth){
+                           mPath.lineTo(toothDistancesListTwo.get(i) + halfToothWidth, depthValue == null ? patternBodyMaxY : depthPositionMapTwo.get(toothDepthNameTwo[i]));
+                           mPath.lineTo(toothDistancesListTwo.get(i) - halfToothWidth, depthValue == null ?patternBodyMaxY : depthPositionMapTwo.get(toothDepthNameTwo[i]));
+                       }else{
+                           mPath.setLastPoint(lastToothDistanceWidth, depthValue == null ? patternBodyMaxY: depthPositionMapTwo.get(toothDepthNameTwo[i]));
+                           mPath.lineTo(toothDistancesListTwo.get(i) - halfToothWidth, depthValue == null ?patternBodyMaxY : depthPositionMapTwo.get(toothDepthNameTwo[i]));
+                       }
+                   }else {
+                       mPath.lineTo(toothDistancesListTwo.get(i) + halfToothWidth, depthValue == null ? patternBodyMaxY : depthPositionMapTwo.get(toothDepthNameTwo[i]));
+                       mPath.lineTo(toothDistancesListTwo.get(i)- halfToothWidth, depthValue == null ? patternBodyMaxY : depthPositionMapTwo.get(toothDepthNameTwo[i]));
+                   }
+               }
+           }
+            mPath.lineTo(patternShoulderWidthB+ patternExtraWidth,patternBodyMaxY);
+            int sB =(int)(patternShoulderHeightB*0.25f);
+            mPath.lineTo(patternShoulderWidthB,patternBodyMaxY);
+            mPath.lineTo(patternShoulderWidthB,(patternBodyMaxY+patternShoulderHeightB)-sB);
+            mPath.quadTo(patternShoulderWidthB,patternShoulderHeightB+patternBodyMaxY,patternShoulderWidthB-sB,patternShoulderHeightB+patternBodyMaxY);
+            mPath.lineTo(0,patternShoulderHeightB+patternBodyMaxY);
+            canvas.drawPath(mPath,mBorderPaint);
+            canvas.drawPath(mPath,mKeyAppearanceColorPaint);
+            mPath.reset(); //重置
+
+       }else if(ki.getAlign()==KeyInfo.FRONTEND_ALIGN){  //前端
+            mPath.moveTo(0, extraTopY);
+            mPath.lineTo(patternShoulderWidthA+ patternExtraWidth,extraTopY);
+            //根据齿深度名画图
+            for (int i = 0; i < toothDepthNameOne.length; i++) {
+                if(toothDepthNameOne[i].contains(".")){
+                    //分割齿的深度名
+                    String[] newStr = toothDepthNameOne[i].split("\\.");
+                    Integer depthValue=depthPositionMapOne.get(newStr[0]);
+                    float decimals=Float.parseFloat("0."+ newStr[1]);
+                    float valueY;
+                    int distanceY;
+                    if(depthValue==null){
+                        if(newStr[0].equals("X")||newStr.equals("0")){
+                            depthValue=depthPositionMapOne.get(depthNameOne[0]);
+                            distanceY =depthValue-extraTopY;
+                            valueY =distanceY*decimals;
+                            mPath.lineTo(toothDistancesListOne.get(i)- halfToothWidth,depthValue- valueY);
+                            mPath.lineTo(toothDistancesListOne.get(i)+ halfToothWidth,depthValue- valueY);
+                        }
+                    }else {
+                        valueY =0;
+                        if(depthValue == depthPositionOne[depthPositionOne.length-1]){
+                            //等于最后一个深度位置不计算。
+                        }else {
+                            for(int j = 0; j< depthPositionOne.length; j++){
+                                if(depthValue ==depthPositionOne[j]){
+                                    distanceY = depthPositionOne[j+1]- depthValue;
+                                    valueY =distanceY*decimals;
+                                    break;
+                                }
+                            }
+                        }
+                        mPath.lineTo(toothDistancesListOne.get(i)- halfToothWidth, depthValue + valueY);
+                        mPath.lineTo(toothDistancesListOne.get(i)+ halfToothWidth, depthValue + valueY);
+                    }
+                }else {
+                    Integer  depthValue=depthPositionMapOne.get(toothDepthNameOne[i]);
+                    mPath.lineTo(toothDistancesListOne.get(i)- halfToothWidth, depthValue==null?extraTopY: depthPositionMapOne.get(toothDepthNameOne[i]));
+                    mPath.lineTo(toothDistancesListOne.get(i)+ halfToothWidth, depthValue==null?extraTopY: depthPositionMapOne.get(toothDepthNameOne[i]));
+                }
+            }
+            //第一组的最后一个齿距宽度
+            lastToothDistanceWidth = toothDistancesListOne.get(toothDistancesListOne.size()-1)+ halfToothWidth;
+            //加上多出的宽度
+            if ((toothDistancesListOne.get(toothDistancesListOne.size()-1) + halfToothWidth) < (toothDistancesListTwo.get(toothDistancesListOne.size()-1) + halfToothWidth)) {
+                excessX = (toothDistancesListTwo.get(toothDistancesListOne.size()-1) + halfToothWidth) - (toothDistancesListOne.get(toothDistancesListOne.size()-1) + halfToothWidth);
+                lastToothDistanceWidth = lastToothDistanceWidth + excessX;
+                mPath.lineTo(lastToothDistanceWidth,extraTopY);
+            }
+            int patternBodyHeightPercent46Y =(int)(patternBodyHeight*0.46)+extraTopY;
+            mPath.lineTo(lastToothDistanceWidth +(patternCuspWidth*0.93f), patternBodyHeightPercent46Y);
+            int patternBodyHeightPercent50Y =(int)(patternBodyHeight*0.5)+extraTopY;
+            int patternBodyHeightPercent54Y =(int)(patternBodyHeight*0.54)+extraTopY;
+            mPath.quadTo(lastToothDistanceWidth +patternCuspWidth, patternBodyHeightPercent50Y, lastToothDistanceWidth +(patternCuspWidth*0.93f), patternBodyHeightPercent54Y);
+            mPath.lineTo(lastToothDistanceWidth,patternBodyMaxY);
+
+            for (int i = toothDepthNameTwo.length-1; i >=0; i--) {
+                if (toothDepthNameTwo[i].contains(".")) {
+                    String[] newStr = toothDepthNameTwo[i].split("\\.");
+                    Integer depthValue=depthPositionMapTwo.get(newStr[0]);
+                    float decimals=Float.parseFloat("0."+ newStr[1]);
+                    float valueY;
+                    int distanceY;
+                    if(depthValue==null){
+                        if(newStr[0].equals("X")||newStr.equals("0")){
+                            depthValue=depthPositionMapTwo.get(depthNameTwo[0]);
+                            distanceY =depthValue-patternBodyMaxY;
+                            valueY =distanceY*decimals;
+                            //i==最后一个长度 说明 i 里面有东西
+                            if(i== toothDistancesListTwo.size()-1){
+                                if(toothDistancesListTwo.get(i)+ halfToothWidth< lastToothDistanceWidth){
+                                    mPath.lineTo(toothDistancesListTwo.get(i)+ halfToothWidth,depthValue-valueY);
+                                    mPath.lineTo(toothDistancesListTwo.get(i)- halfToothWidth,depthValue-valueY);
+                                }else{
+                                    mPath.setLastPoint(lastToothDistanceWidth,depthValue-valueY);
+                                    mPath.lineTo(toothDistancesListTwo.get(i)- halfToothWidth,depthValue-valueY);
+                                }
+                            }else {
+                                mPath.lineTo(toothDistancesListTwo.get(i)+ halfToothWidth,depthValue-valueY);
+                                mPath.lineTo(toothDistancesListTwo.get(i)- halfToothWidth,depthValue-valueY);
+                            }
+                        }else {
+
+                        }
+                    }else {
+                        valueY =0;
+                        if(depthValue == depthPositionTwo[depthPositionTwo.length-1]){
+                            //等于最后一个深度位置不计算。
+                        }else {
+                            for(int j = 0; j< depthPositionTwo.length; j++){
+                                if(depthValue ==depthPositionTwo[j]){
+                                    distanceY = depthValue- depthPositionTwo[j+1];
+                                    valueY =distanceY*decimals;
+                                    break;
+                                }
+                            }
+                        }
+                        //i==最后一个长度 说明 i 里面有东西
+                        if(i== toothDistancesListTwo.size()-1){
+                            if(toothDistancesListTwo.get(i)+ halfToothWidth< lastToothDistanceWidth){
+                                mPath.lineTo(toothDistancesListTwo.get(i)+ halfToothWidth,depthValue-valueY);
+                                mPath.lineTo(toothDistancesListTwo.get(i)- halfToothWidth,depthValue-valueY);
+                            }else{
+                                mPath.setLastPoint(lastToothDistanceWidth,depthValue-valueY);
+                                mPath.lineTo(toothDistancesListTwo.get(i)- halfToothWidth,depthValue-valueY);
+                            }
+                        }else {
+                            mPath.lineTo(toothDistancesListTwo.get(i)+ halfToothWidth,depthValue-valueY);
+                            mPath.lineTo(toothDistancesListTwo.get(i)- halfToothWidth,depthValue-valueY);
+                        }
+                    }
+                }else {
+                    Integer depthValue=depthPositionMapTwo.get(toothDepthNameTwo[i]);
+                    if(i== toothDistancesListTwo.size()-1) {
+                        if(toothDistancesListTwo.get(i)+ halfToothWidth< lastToothDistanceWidth){
+                            mPath.lineTo(toothDistancesListTwo.get(i) + halfToothWidth, depthValue == null ? patternBodyMaxY : depthPositionMapTwo.get(toothDepthNameTwo[i]));
+                            mPath.lineTo(toothDistancesListTwo.get(i) - halfToothWidth, depthValue == null ?patternBodyMaxY : depthPositionMapTwo.get(toothDepthNameTwo[i]));
+                        }else{
+                            mPath.setLastPoint(lastToothDistanceWidth, depthValue == null ? patternBodyMaxY: depthPositionMapTwo.get(toothDepthNameTwo[i]));
+                            mPath.lineTo(toothDistancesListTwo.get(i) - halfToothWidth, depthValue == null ?patternBodyMaxY : depthPositionMapTwo.get(toothDepthNameTwo[i]));
+                        }
+                    }else {
+                        mPath.lineTo(toothDistancesListTwo.get(i) + halfToothWidth, depthValue == null ? patternBodyMaxY : depthPositionMapTwo.get(toothDepthNameTwo[i]));
+                        mPath.lineTo(toothDistancesListTwo.get(i)- halfToothWidth, depthValue == null ? patternBodyMaxY : depthPositionMapTwo.get(toothDepthNameTwo[i]));
+                    }
+                }
+            }
+            int extraX=0;
+            if(toothDistancesListTwo.get(0)- halfToothWidth<(patternShoulderWidthB+ patternExtraWidth)){
+                extraX=(patternShoulderWidthB+ patternExtraWidth)-(toothDistancesListTwo.get(0)-halfToothWidth);
+            }
+            mPath.lineTo((patternShoulderWidthB+ patternExtraWidth)-(extraX+1),patternBodyMaxY);
+            mPath.lineTo(0,patternBodyMaxY);
+            canvas.drawPath(mPath,mBorderPaint);
+            canvas.drawPath(mPath,mKeyAppearanceColorPaint);
+            mPath.reset(); //重置
+       }
+       if(isDraw){
+           this.drawDepthPattern(canvas);
+           this.drawToothCodePattern(canvas);
+       }
+        mPath.reset();  //重置
+        if(isShowArrows){
+            if(ki.getAlign()==KeyInfo.SHOULDERS_ALIGN){
+                mPath.moveTo(70,20);  //100
+                mPath.lineTo(100,20);//第一条  100
+                mPath.lineTo(100,12);
+                mPath.lineTo(110,24);//中间点  104
+                mPath.lineTo(100,36);
+                mPath.lineTo(100,28);
+                mPath.lineTo(70,28);
+                mPath.close();
+                canvas.drawPath(mPath, mArrowsPaint);
+                mPath.reset();
+            }else {
+                mPath.moveTo(lastToothDistanceWidth, 30);//80
+                mPath.lineTo(lastToothDistanceWidth + 10, 20);//70
+                mPath.lineTo(lastToothDistanceWidth + 10, 27);//77
+                mPath.lineTo(lastToothDistanceWidth + 35, 27);//77
+                mPath.lineTo(lastToothDistanceWidth + 35, 33);//83
+                mPath.lineTo(lastToothDistanceWidth + 10, 33);//83
+                mPath.lineTo(lastToothDistanceWidth + 10, 40);//90
+                mPath.lineTo(lastToothDistanceWidth, 30);//80
+                canvas.drawPath(mPath, mArrowsPaint);
+                mPath.reset();
+            }
+        }
+    }
+    public  void setDrawToothWidth(int width){
+        halfToothWidth=width/2;
+    }
+
+    /**
+     * 自定义绘制锯齿状
+     */
+   public void  customDrawSerrated(){
+       int  k=0;
+       for (int i = 0; i < toothDepthNameOne.length ; i++) {
+           if(depthNameOne.length>=3){
+               if(i>=3) {
+                       toothDepthNameOne[i] = depthNameOne[k];
+                       k++;
+                     if(k==3){
+                         k=0;
+                     }
+               }else {
+                   toothDepthNameOne[i] = depthNameOne[i];
+               }
+           }else {
+               if(i>=2){
+                   toothDepthNameOne[i]=depthNameOne[k];
+                   k++;
+                   if(k==2){
+                       k=0;
+                   }
+               }else {
+                   toothDepthNameOne[i]=depthNameOne[i];
+               }
+           }
+       }
+       k=0;
+       //第二组齿的深度名
+       for (int i = 0; i < toothDepthNameTwo.length ; i++) {
+           if(depthNameTwo.length>=3){
+               if(i>=3) {
+                   toothDepthNameTwo[i] = depthNameTwo[k];
+                   k++;
+                   if(k==3){
+                       k=0;
+                   }
+               }else {
+                   toothDepthNameTwo[i] = depthNameTwo[i];
+               }
+           }else {
+               if(i>=2){
+                   toothDepthNameTwo[i]=depthNameTwo[k];
+                   k++;
+                   if(k==2){
+                       k=0;
+                   }
+               }else {
+                   toothDepthNameTwo[i]=depthNameTwo[i];
+               }
+           }
+       }
+   }
+
+    /**
+     * 绘制的齿代码图样
+     */
+    private void  drawToothCodePattern(Canvas canvas){
+        //画第一组齿位
+        for (int i = 0; i < toothDistancesListOne.size(); i++) {
+            mPath.moveTo(toothDistancesListOne.get(i), depthPositionStartYOne);
+            mPath.lineTo(toothDistancesListOne.get(i), depthPositionEndYOne);
+            if(toothDepthNameOne[i].contains(".")){
+                mColorTextPaint.setColor(Color.parseColor("#FF3030"));//红色
+                String[] newStr=toothDepthNameOne[i].split("\\.");
+                int num=Integer.parseInt(newStr[1]);
+                if(depthPositionMapOne.get(newStr[0])==null){
+                    if(newStr[0].equals("X")||newStr[0].equals("0")){
+                        if(num>=5){
+                            canvas.drawText(depthNameOne[0], toothDistancesListOne.get(i), extraTopY -10, mColorTextPaint);//画红色的字
+                        }else {
+                            canvas.drawText(newStr[0], toothDistancesListOne.get(i), extraTopY -10 , mColorTextPaint);//画红色的字
+                        }
+                    }else {
+                        canvas.drawText(newStr[0], toothDistancesListOne.get(i), extraTopY -10 , mColorTextPaint);
+                    }
+                }else {
+                    if(num>=5){
+                        if(newStr[0].equals(depthNameOne[depthNameOne.length-1])){
+                            canvas.drawText(newStr[0], toothDistancesListOne.get(i), extraTopY -10 , mColorTextPaint);//画红色的字
+                        }else {
+                            for (int j = 0; j <depthNameOne.length ; j++) {
+                                if(depthNameOne[j].equals(newStr[0])){
+                                    canvas.drawText(depthNameOne[j+1], toothDistancesListOne.get(i), extraTopY  -10, mColorTextPaint);//画红色的字
+                                    break; //跳出循环
+                                }
+                            }
+                        }
+                    }else {
+                        canvas.drawText(newStr[0], toothDistancesListOne.get(i),extraTopY -10, mColorTextPaint);//画红色的字
+                    }
+                }
+            }else{//不包涵画蓝色的字
+                mColorTextPaint.setColor(Color.parseColor("#FF000080"));//蓝色
+                canvas.drawText(toothDepthNameOne[i],toothDistancesListOne.get(i), extraTopY -10, mColorTextPaint);//画蓝色的字
+            }
+        }
+        //画第二组齿位
+        for (int i = 0; i < toothDistancesListTwo.size(); i++) {
+            mPath.moveTo(toothDistancesListTwo.get(i), depthPositionStartYTwo);
+            mPath.lineTo(toothDistancesListTwo.get(i), depthPositionEndYTwo);
+            if(toothDepthNameTwo[i].contains(".")){
+                mColorTextPaint.setColor(Color.parseColor("#FF3030"));//红色
+                String[] newStr=toothDepthNameTwo[i].split("\\.");
+                int num=Integer.parseInt(newStr[1]);
+                if(depthPositionMapTwo.get(newStr[0])==null){
+                    if(newStr[0].equals("X")||newStr[0].equals("0")){
+                        if(num>=5){
+                            canvas.drawText(depthNameTwo[0], toothDistancesListTwo.get(i), patternBodyMaxY + 40, mColorTextPaint);//画红色的字
+                        }else {
+                            canvas.drawText(newStr[0], toothDistancesListTwo.get(i), patternBodyMaxY+ 40, mColorTextPaint);//画红色的字
+                        }
+                    }else {
+                        canvas.drawText(newStr[0], toothDistancesListTwo.get(i), patternBodyMaxY+ 40, mColorTextPaint);//画红色的字
+                    }
+                }else {
+                    if(num>=5){
+                        if(newStr[0].equals(depthNameTwo[depthNameTwo.length-1])){
+                            canvas.drawText(newStr[0],toothDistancesListTwo.get(i), patternBodyMaxY + 40, mColorTextPaint);//画红色的字
+                        }else {
+                            for (int j = 0; j <depthNameTwo.length ; j++) {
+                                if(depthNameTwo[j].equals(newStr[0])){
+                                    canvas.drawText(depthNameTwo[j+1], toothDistancesListTwo.get(i), patternBodyMaxY + 40, mColorTextPaint);//画红色的字
+                                    break; //跳出循环
+                                }
+                            }
+                        }
+                    }else {
+                        canvas.drawText(newStr[0], toothDistancesListTwo.get(i),patternBodyMaxY + 40, mColorTextPaint);//画红色的字
+                    }
+                }
+            }else{//不包涵画蓝色的字
+                mColorTextPaint.setColor(Color.parseColor("#FF000080"));//蓝色
+                canvas.drawText(toothDepthNameTwo[i],toothDistancesListTwo.get(i), patternBodyMaxY+40, mColorTextPaint);//画蓝色的字
+            }
+        }
+        canvas.drawPath(mPath, mDashedPaint);//画X轴方向的。
+        mPath.reset();  //重置
+    }
+
+    /**
+     *   绘制深度的图样
+     */
+    private void  drawDepthPattern(Canvas canvas){
+        //画深度第一组深度的值
+        for (int i = 0; i < depthPositionOne.length; i++) {
+            mPath.moveTo(patternShoulderWidthA, depthPositionOne[i]);
+            mPath.lineTo(lastToothDistanceWidth, depthPositionOne[i]);
+        }
+
+        //画深度第二组深度的值
+        for (int i = 0; i < depthPositionTwo.length; i++) {
+            mPath.moveTo(patternShoulderWidthB, depthPositionTwo[i]);
+            mPath.lineTo(lastToothDistanceWidth, depthPositionTwo[i]);
+        }
+        canvas.drawPath(mPath, mDashedPaint);
+        mPath.reset();
     }
 
     /**
      * 设置钥匙齿的深度名
-     * @param depthName
+     * @param toothCode
      */
-    public void setToothDepthName(String depthName) {
-        if(!TextUtils.isEmpty(depthName)){
-            allToothDepthName = depthName.split(",");
+    public void setToothCode(String toothCode) {
+        if(!TextUtils.isEmpty(toothCode)){
+            allToothDepthName = toothCode.split(",");
             if(spaceGroup.length==1){
                 for (int i = 0; i < allToothDepthName.length ; i++) {
                     toothDepthNameOne[i]= allToothDepthName[i];
@@ -404,8 +797,9 @@ public class BilateralKey extends Key {
                     }
                 }
             }
+        }else {  //没有为默认
+            this.setToothCodeDefault();
         }
-
     }
 
     @Override
@@ -417,134 +811,74 @@ public class BilateralKey extends Key {
      * 设置钥匙齿的数量
      * @param toothAmount
      */
-    public void setKeyToothAmount(int toothAmount) {
-        toothDistancesOne =new int[toothAmount];
-        toothDistancesTwo =new int[toothAmount];
-        //重新new 齿的深度名数组
-        toothDepthNameOne =new String[toothAmount];
-        toothDepthNameTwo =new String[toothAmount];
-        spaceDataArray1=new int[toothAmount];
-        spaceDataArray2=new int[toothAmount];
-        for (int i = 0; i < toothDistancesOne.length; i++) {
-            toothDistancesOne[i]= spaceDataList1.get(i);
-            spaceDataArray1[i]=spaceDataList1.get(i);
-            toothDepthNameOne[i]="X";
+    public void setToothAmount(int toothAmount) {
+        //清空 绘制的齿距
+        toothDistancesListOne.clear();
+        toothDistancesListTwo.clear();
+        toothDepthNameOne=new String[toothAmount];
+        toothDepthNameTwo=new String[toothAmount];
+        int [] spacesOne=new int[toothAmount];
+        int [] spacesTwo =new int[toothAmount];
+        String toothCode="";
+        if(spaceGroup.length==1){
+            for (int i = 0; i < toothAmount; i++) {
+                spacesOne[i]= saveSpacesDataOne[i];
+                toothDepthNameOne[i]="X";
+                toothCode+="X,";
+            }
+            for (int i = 0; i < toothAmount; i++) {
+                spacesTwo[i]= saveSpacesDataTwo[i];
+                toothDepthNameTwo[i]="X";
+            }
+        }else if(spaceGroup.length==2){
+            for (int i = 0; i < toothAmount; i++) {
+                spacesOne[i]= saveSpacesDataOne[i];
+                toothDepthNameOne[i]="X";
+                toothCode+="X,";
+            }
+            for (int i = 0; i < toothAmount; i++) {
+                spacesTwo[i]= saveSpacesDataTwo[i];
+                toothDepthNameTwo[i]="X";
+                toothCode+="X,";
+            }
         }
-        for (int i = 0; i < toothDistancesTwo.length; i++) {
-            toothDistancesTwo[i]= spaceDataList2.get(i);
-            spaceDataArray2[i]=spaceDataList2.get(i);
-            toothDepthNameTwo[i]="X";
-        }
-        if(ki.getAlign() == 0){
-            if (spaceGroup.length == 2) {
-                if (toothDistancesOne[toothDistancesOne.length-1] > toothDistancesTwo[toothDistancesTwo.length-1]) {
-                    maxToothPosition = toothDistancesOne[toothDistancesOne.length-1];
-                } else {
-                    maxToothPosition = toothDistancesTwo[toothDistancesTwo.length-1];
-                }
+        if(ki.getAlign()==KeyInfo.SHOULDERS_ALIGN){  //肩部
+            if(spacesOne[spacesOne.length-1]>= spacesTwo[spacesTwo.length-1]){
+                maxToothDistance=spacesOne[spacesOne.length-1];
             }else {
-                maxToothPosition= toothDistancesOne[toothDistancesOne.length-1];
+                maxToothDistance= spacesTwo[spacesTwo.length-1];
             }
-        }else if(ki.getAlign()==1){
-            if (spaceGroup.length ==2) {
-                if(toothDistancesOne[0] > toothDistancesTwo[0]){
-                    maxToothPosition= toothDistancesOne[0];
-                }else {
-                    maxToothPosition= toothDistancesTwo[0];
-                }
+        }else {   //前端
+            if(spacesOne[0]>= spacesTwo[0]){
+                maxToothDistance=spacesOne[0];
             }else {
-                maxToothPosition= toothDistancesOne[0];
+                maxToothDistance= spacesTwo[0];
+            }
+            //获得最小的齿距
+            if(spacesOne[spacesOne.length-1]<= spacesTwo[spacesTwo.length-1]){
+                minToothDistance=spacesOne[spacesOne.length-1];
+            }else {
+                minToothDistance= spacesTwo[spacesTwo.length-1];
             }
         }
-        //计算space的比例值
-        spacesScaleValue = keyBodyWidth/maxToothPosition;
-        if(ki.getAlign()==0){
-            //换算第一组齿位的数据
-            for (int i = 0; i < toothDistancesOne.length; i++) {
-                int toothPosition= (int)(toothDistancesOne[i]*spacesScaleValue)+132;
-                //一组的换算好的齿位
-                toothDistancesOne[i]= toothPosition;
-
-            }
-            //换算第二组的所有齿位的数据
-            for (int i = 0; i < toothDistancesTwo.length ; i++) {
-                int toothPosition= (int)(toothDistancesTwo[i]*spacesScaleValue)+132;
-                //存储第二组的换算好的齿位
-                toothDistancesTwo[i]=toothPosition;
-
-            }
-        }else if(ki.getAlign()==1){
-            int keySumX=(int)(keyBodyWidth+132);
-            int minToothPosition=0;
-
-            if(toothDistancesOne[toothDistancesOne.length-1]< toothDistancesTwo[toothDistancesTwo.length-1]){
-                minToothPosition= toothDistancesOne[toothDistancesOne.length-1];
-            }else {
-                minToothPosition= toothDistancesTwo[toothDistancesTwo.length-1];
-            }
-            surplusX=keySumX- (keySumX- (int)(spacesScaleValue* minToothPosition));
-            //换算第一组齿位的数据
-            for (int i = 0; i < toothDistancesOne.length; i++) {
-                int toothPosition= keySumX-(int)(toothDistancesOne[i]*spacesScaleValue)+surplusX;
-                //存储第一组的换算好的齿位
-                toothDistancesOne[i]= toothPosition;
-            }
-            //换算第二组的所有齿位的数据
-            for (int i = 0; i < toothDistancesTwo.length ; i++) {
-                int toothPosition=(keySumX-(int)(toothDistancesTwo[i]*spacesScaleValue))+surplusX;
-                //存储第二组的换算好的齿位
-                toothDistancesTwo[i]=toothPosition;
-            }
-        }
-        //重绘
+        ki.setKeyToothCode(toothCode);
+        this.calculateDrawToothDistances(spacesOne.length, spacesTwo.length);
         this.invalidate();
-
     }
+    public int getToothAmount() {
+        return saveSpacesDataOne.length;
+   }
 
     @Override
-    public String getSpace() {
-        String space="";
+    public ArrayList<String[]> getToothCode() {
+        toothCodeList.clear();
         if(spaceGroup.length==1){
-            for (int i = 0; i <spaceDataArray1.length ; i++) {
-                if(i==(spaceDataArray1.length-1)){
-                    space+=spaceDataArray1[i];
-                }else {
-                    space+=(spaceDataArray1[i]+",");
-                }
-            }
-            space+=";";
-            return  space;
-
+            toothCodeList.add(toothDepthNameOne);
         }else if(spaceGroup.length==2){
-                for (int i = 0; i <spaceDataArray1.length ; i++) {
-                    space+=(spaceDataArray1[i]+",");
-                }
-                space+=";";
-                for (int i = 0; i <spaceDataArray2.length ; i++) {
-                     space+=(spaceDataArray2[i]+",");
-                }
-                space+=";";
-                return  space;
+            toothCodeList.add(toothDepthNameOne);
+            toothCodeList.add(toothDepthNameTwo);
         }
-        return null;
-
-    }
-
-    public int getKeyToothAmount() {
-
-        return spaceDataList1.size();
-}
-
-    @Override
-    public ArrayList<String[]> getAllToothDepthName() {
-        toothNameGroupList.clear();
-        if(spaceGroup.length==1){
-            toothNameGroupList.add(toothDepthNameOne);
-        }else if(spaceGroup.length==2){
-            toothNameGroupList.add(toothDepthNameOne);
-            toothNameGroupList.add(toothDepthNameTwo);
-        }
-        return toothNameGroupList;
+        return toothCodeList;
     }
 
     @Override
@@ -554,12 +888,27 @@ public class BilateralKey extends Key {
 
     @Override
     public void setToothCodeDefault() {
-        for (int i = 0; i < toothDepthNameOne.length ; i++) {
-            toothDepthNameOne[i]="X";
+        String toothCode="";
+        if(spaceGroup.length==1){
+            for (int i = 0; i < toothDepthNameOne.length ; i++) {
+                toothDepthNameOne[i]="X";
+                toothCode+="X,";
+            }
+            for (int i = 0; i < toothDepthNameTwo.length ; i++) {
+                toothDepthNameTwo[i]="X";
+            }
+        }else if(spaceGroup.length==2){
+            for (int i = 0; i < toothDepthNameOne.length ; i++) {
+                toothDepthNameOne[i]="X";
+                toothCode+="X,";
+            }
+            for (int i = 0; i < toothDepthNameTwo.length ; i++) {
+                toothDepthNameTwo[i]="X";
+                toothCode+="X,";
+            }
+
         }
-        for (int i = 0; i < toothDepthNameTwo.length ; i++) {
-            toothDepthNameTwo[i]="X";
-        }
+        ki.setKeyToothCode(toothCode);
     }
 
     /**
@@ -732,208 +1081,13 @@ public class BilateralKey extends Key {
     }
 
     /**
-     * 两边钥匙
-     *
-     * @param canvas
-     */
-    public void bilateralKey(Canvas canvas) {
-        mPath.moveTo(30, 40);
-        mPath.lineTo(80, 40);
-        mPath.quadTo(92, 39, 90, 60);
-        mPath.lineTo(110, 60);
-        int lastToothPosition = 0;
-
-            //绘制第一边所有齿的位子和齿深
-            for (int i = 0; i < toothDistancesOne.length; i++) {
-                if (toothDepthNameOne[i].equals("X")) {
-                     mPath.lineTo(toothDistancesOne[i]-toothWidth, 60);
-                     mPath.lineTo(toothDistancesOne[i]+toothWidth, 60);
-                } else if (toothDepthNameOne[i].contains(".")) {
-                    //分割齿的深度名
-                    String[] str= toothDepthNameOne[i].split("\\.");
-                    if(depthMap1.get(str[0])==null){
-                        mPath.lineTo(toothDistancesOne[i]-toothWidth, 60);
-                        mPath.lineTo(toothDistancesOne[i]+toothWidth, 60);
-                    }else {
-                        int depthData = depthMap1.get(str[0]);
-                        float  decimals= Float.parseFloat("0."+ str[1]);
-                        float  sumY=0;
-                        if(depthData ==depthPositionArray1[depthPositionArray1.length-1]){
-                            //等于最后一个深度不计算。
-                        }else {
-                            for(int j=0;j<depthPositionArray1.length;j++){
-                                if(depthData ==depthPositionArray1[j]){
-                                    int distance =depthPositionArray1[j+1]- depthData;
-                                    sumY=distance*decimals;
-                                    break;
-                                }
-                            }
-                        }
-                        mPath.lineTo(toothDistancesOne[i]-toothWidth,depthData+sumY);
-                        mPath.lineTo(toothDistancesOne[i]+toothWidth,depthData+sumY);
-                    }
-                }else {
-                    mPath.lineTo(toothDistancesOne[i]-toothWidth,depthMap1.get(toothDepthNameOne[i])==null?60:depthMap1.get(toothDepthNameOne[i]));
-                    mPath.lineTo(toothDistancesOne[i]+toothWidth,depthMap1.get(toothDepthNameOne[i])==null?60:depthMap1.get(toothDepthNameOne[i]));
-                }
-            }
-        //得到最后一个齿位长度
-        lastToothPosition= toothDistancesOne[toothDistancesOne.length - 1]+toothWidth;
-        //计算是不是小于第二组的长度
-        if ((toothDistancesOne[toothDistancesOne.length - 1] + toothWidth) < (toothDistancesTwo[toothDistancesTwo.length - 1] + toothWidth)) {
-            excessX = (toothDistancesTwo[toothDistancesTwo.length - 1] + toothWidth) - (toothDistancesOne[toothDistancesOne.length - 1] + toothWidth);
-            lastToothPosition = lastToothPosition + excessX;
-            mPath.lineTo(lastToothPosition, 60);
-        }
-            mPath.lineTo(lastToothPosition + 54, keyHalfWidthY-5);
-            mPath.quadTo(lastToothPosition+58, keyHalfWidthY+2.5f,lastToothPosition + 54, keyHalfWidthY +10);
-            mPath.lineTo(lastToothPosition,(int) keySumY);
-        //绘制第二边所有齿的位子和齿深
-        for (int i = toothDistancesTwo.length-1; i >=0; i--) {
-            if (toothDepthNameTwo[i].equals("X")) {
-                if(i== toothDistancesTwo.length-1){
-                    mPath.lineTo(toothDistancesTwo[i]-toothWidth,keySumY);
-                }else {
-                    mPath.lineTo(toothDistancesTwo[i]+toothWidth,keySumY);
-                    mPath.lineTo(toothDistancesTwo[i]-toothWidth,keySumY);
-                }
-            } else if (toothDepthNameTwo[i].contains(".")) {
-                String[] str = toothDepthNameTwo[i].split("\\.");
-                if(depthMap2.get(str[0])==null) {
-                    if (i == toothDistancesTwo.length - 1) {
-                        mPath.lineTo(toothDistancesTwo[i]-toothWidth,keySumY);
-                    } else {
-                        mPath.lineTo(toothDistancesTwo[i]+toothWidth,keySumY);
-                        mPath.lineTo(toothDistancesTwo[i]-toothWidth,keySumY);
-                    }
-                }else {
-                    int depthData = depthMap2.get(str[0]);
-                    float  decimals= Float.parseFloat("0."+ str[1]);
-                    float  sumY=0;
-                    if(depthData ==depthPositionArray2[depthPositionArray1.length-1]){
-                        //等于最后一个深度不计算。
-                    }else {
-                        for(int j=0;j<depthPositionArray2.length;j++){
-                            if(depthData ==depthPositionArray2[j]){
-                                int distance =depthPositionArray2[j+1]- depthData;
-                                sumY=distance*decimals;
-                                break;
-                            }
-                        }
-                    }
-                    //i==最后一个长度 说明 i 里面有东西
-                    if(i== toothDistancesTwo.length-1){
-                        mPath.setLastPoint(lastToothPosition,depthData+sumY);
-                        mPath.lineTo(toothDistancesTwo[i]-toothWidth,depthData+sumY);
-                    }else {
-                        mPath.lineTo(toothDistancesTwo[i]+toothWidth,depthData+sumY);
-                        mPath.lineTo(toothDistancesTwo[i]-toothWidth,depthData+sumY);
-                    }
-                }
-            }else {
-                if(i== toothDistancesTwo.length-1) {
-                    mPath.setLastPoint(lastToothPosition,depthMap2.get(toothDepthNameTwo[i]) == null ? (int) keySumY : depthMap2.get(toothDepthNameTwo[i]));
-                    mPath.lineTo(toothDistancesTwo[i] -toothWidth, depthMap2.get(toothDepthNameTwo[i]) == null ? (int) keySumY : depthMap2.get(toothDepthNameTwo[i]));
-                }else {
-                    mPath.lineTo(toothDistancesTwo[i] + toothWidth, depthMap2.get(toothDepthNameTwo[i]) == null ? (int) keySumY : depthMap2.get(toothDepthNameTwo[i]));
-                    mPath.lineTo(toothDistancesTwo[i] - toothWidth, depthMap2.get(toothDepthNameTwo[i]) == null ? (int) keySumY : depthMap2.get(toothDepthNameTwo[i]));
-                }
-            }
-        }
-        mPath.lineTo(110,keySumY);
-        mPath.lineTo(90,keySumY);
-        mPath.quadTo(91,keySumY+22,80, keySumY+20);
-        mPath.lineTo(29,keySumY+20);
-        canvas.drawPath(mPath, mBorderPaint);
-        canvas.drawPath(mPath, mKeyAppearanceColorPaint);
-        //重置
-        mPath.reset();
-        //画深度第一组深度的值
-        for (int i = 0; i < depthPositionArray1.length; i++) {
-            mPath.moveTo(90, depthPositionArray1[i]);
-            mPath.lineTo(lastToothPosition, depthPositionArray1[i]);
-        }
-        //画深度第二组深度的值
-        for (int i = 0; i < depthPositionArray2.length; i++) {
-            mPath.moveTo(90, depthPositionArray2[i]);
-            mPath.lineTo(lastToothPosition, depthPositionArray2[i]);
-        }
-        canvas.drawPath(mPath, mDashedPaint);
-        //画第一组齿位
-        for (int i = 0; i < toothDistancesOne.length; i++) {
-            mPath.moveTo(toothDistancesOne[i], depthStartY1);
-            mPath.lineTo(toothDistancesOne[i], depthEndY1);
-            canvas.drawPath(mPath, mDashedPaint);//画X轴方向的。
-            if(toothDepthNameOne[i].contains(".")){
-                if(toothDepthNameOne[i].contains("X")){
-                    canvas.drawText("X", toothDistancesOne[i], 60-10, mTextColorPaint);//画红色的字
-                }else {
-                    String[] s = toothDepthNameOne[i].split("\\.");
-                    canvas.drawText(s[0], toothDistancesOne[i],60-10, mTextColorPaint);//画红色的字
-                }
-            }else if(toothDepthNameOne.equals("X")){//不包涵画蓝色的字
-                canvas.drawText("X", toothDistancesOne[i], 60 -10, p4);//画蓝色的字
-            }else {
-                canvas.drawText(toothDepthNameOne[i], toothDistancesOne[i], 60-10, p4);//画蓝色的字
-            }
-
-        }
-        //画第二组齿位
-        for (int i = 0; i < toothDistancesTwo.length; i++) {
-            mPath.moveTo(toothDistancesTwo[i], depthStartY2);
-            mPath.lineTo(toothDistancesTwo[i], depthEndY2);
-            canvas.drawPath(mPath, mDashedPaint);
-            if(toothDepthNameTwo[i].contains(".")){
-                if(toothDepthNameTwo[i].contains("X")){
-                    canvas.drawText("X", toothDistancesTwo[i], (int)keySumY+40, mTextColorPaint);//画红色的字
-                }else {
-                    String[] s = toothDepthNameTwo[i].split("\\.");
-                    canvas.drawText(s[0], toothDistancesTwo[i],(int)keySumY+40, mTextColorPaint);//画红色的字
-                }
-            }else if(toothDepthNameTwo.equals("X")){//不包涵画蓝色的字
-                canvas.drawText("X", toothDistancesTwo[i],(int)keySumY+40, p4);//画蓝色的字
-            }else {
-                canvas.drawText(toothDepthNameTwo[i], toothDistancesTwo[i],(int)keySumY+40, p4);//画蓝色的字
-            }
-        }
-        mPath.reset();  //重置
-        if(isShowArrows){
-            if(ki.getAlign()==0){
-                mPath.moveTo(90,20);  //100
-                mPath.lineTo(120,20);//第一条  100
-                mPath.lineTo(120,12);
-                mPath.lineTo(130,24);//中间点  104
-                mPath.lineTo(120,36);
-                mPath.lineTo(120,28);
-                mPath.lineTo(90,28);
-                mPath.close();
-                canvas.drawPath(mPath, mArrowsPaint);
-                mPath.reset();
-            }else {
-                mPath.moveTo(lastToothPosition, 30);//80
-                mPath.lineTo(lastToothPosition + 10, 20);//70
-                mPath.lineTo(lastToothPosition + 10, 27);//77
-                mPath.lineTo(lastToothPosition + 35, 27);//77
-                mPath.lineTo(lastToothPosition + 35, 33);//83
-                mPath.lineTo(lastToothPosition + 10, 33);//83
-                mPath.lineTo(lastToothPosition + 10, 40);//90
-                mPath.lineTo(lastToothPosition, 30);//80
-                canvas.drawPath(mPath, mArrowsPaint);
-                mPath.reset();
-            }
-        }
-
-    }
-
-    /**
      * 初始化路径和画笔
      */
   private  void initPaintAndPath() {
         mPath = new Path();//画点
         mBorderPaint = new Paint();//画点线的笔
         mDashedPaint = new Paint(); //画虚线的笔
-        mTextColorPaint = new Paint();//画蓝色字体的笔
-        p4 = new Paint(); //画红色字体的笔
+        mColorTextPaint = new Paint();//画蓝色字体的笔
         mArrowsPaint = new Paint();//画红色箭头的笔
         mKeyAppearanceColorPaint = new Paint();  //画钥匙身体颜色的笔
         //画钥匙形状属性
@@ -943,18 +1097,14 @@ public class BilateralKey extends Key {
         mBorderPaint.setStrokeWidth(2);
         //画虚线的属性
         mDashedPaint.setAntiAlias(true);//去掉抗锯齿
-        mDashedPaint.setColor(Color.parseColor("#6699ff"));  //画笔的颜色  为蓝色
+        mDashedPaint.setColor(Color.parseColor("#0033ff"));  //画笔的颜色  为蓝色
         mDashedPaint.setStyle(Paint.Style.STROKE);//设置画笔描边
         mDashedPaint.setStrokeWidth(1);
         PathEffect effects = new DashPathEffect(new float[]{3, 1}, 0);
         mDashedPaint.setPathEffect(effects);
         //画字体的属性
-        mTextColorPaint.setColor(Color.parseColor("#FF3030"));  //设置字体颜色  红色
-        mTextColorPaint.setFlags(Paint.ANTI_ALIAS_FLAG);  //消除字体的抗锯齿
-        mTextColorPaint.setTextSize(40);
-        p4.setColor(Color.parseColor("#FF000080"));//设置字体颜色  蓝色
-        p4.setFlags(Paint.ANTI_ALIAS_FLAG);  //消除字体的抗锯齿
-        p4.setTextSize(40);
+        mColorTextPaint.setFlags(Paint.ANTI_ALIAS_FLAG);  //消除字体的抗锯齿
+        mColorTextPaint.setTextSize(40);
         //画红色提示箭头的属性
         mArrowsPaint.setColor(Color.RED);
         mArrowsPaint.setAntiAlias(true);//去掉锯齿

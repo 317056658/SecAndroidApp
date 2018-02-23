@@ -12,7 +12,7 @@ import android.widget.TextView;
 
 import com.kkkcut.www.myapplicationkukai.R;
 import com.kkkcut.www.myapplicationkukai.adapter.LanguageAdapter;
-import com.kkkcut.www.myapplicationkukai.dao.SQLiteKeyDao;
+import com.kkkcut.www.myapplicationkukai.dao.LanguageDaoManager;
 import com.kkkcut.www.myapplicationkukai.entity.LanguageEvent;
 import com.kkkcut.www.myapplicationkukai.entity.Multilingual;
 import com.kkkcut.www.myapplicationkukai.utils.EventBusUtils;
@@ -25,11 +25,11 @@ import java.util.HashMap;
 public class LanguageChoiceActivity extends AppCompatActivity implements View.OnClickListener{
     private ArrayList<Multilingual> languageList;
     private HashMap<String,String> languageMap;
-  private   Context mContext;
-    private SQLiteKeyDao languageDatabase;
+    private Context mContext;
     private View DecorView;
     private String mCurrentLanguage;
     private LanguageAdapter mLanguageAdapter;
+    private LanguageDaoManager languageDaoManager;
     private  String  TAG="LanguageChoiceActivity";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +37,7 @@ public class LanguageChoiceActivity extends AppCompatActivity implements View.On
         setContentView(R.layout.activity_language_choice);
         getIntentData();
         initViews();
+        languageDaoManager=LanguageDaoManager.getInstanc();
     }
 
     private void initViews() {
@@ -61,8 +62,7 @@ public class LanguageChoiceActivity extends AppCompatActivity implements View.On
         }
 
         ListView mLanguageList = (ListView) findViewById(R.id.language_list);
-        languageDatabase = new SQLiteKeyDao(mContext, "LanguageFile.db");
-        languageList = languageDatabase.queryLanguagesSelect();
+        languageList = languageDaoManager.queryLanguagesSelect();
         mCurrentLanguage = SPutils.getLocalLanguageType(mContext);
         for (int i = 0; i < languageList.size(); i++) {
             if (languageList.get(i).getTableName().equals(mCurrentLanguage)) {
@@ -100,7 +100,7 @@ public class LanguageChoiceActivity extends AppCompatActivity implements View.On
                 if(languageTable.equals(mCurrentLanguage)){
                         finish();
                 }else {
-                    languageMap = languageDatabase.queryLanguageTable(languageTable);
+                    languageMap = languageDaoManager.queryLanguageTable(languageTable);
                     SPutils.setLocalLanguageType(getApplication(),languageTable);
                     EventBusUtils.post(new LanguageEvent(languageMap));
                     finish();

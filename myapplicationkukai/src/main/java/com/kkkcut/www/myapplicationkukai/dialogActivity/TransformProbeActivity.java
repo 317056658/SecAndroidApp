@@ -6,8 +6,9 @@ import android.util.Log;
 import android.view.View;
 
 import com.kkkcut.www.myapplicationkukai.R;
-import com.kkkcut.www.myapplicationkukai.serialDriverCommunication.ProlificSerialDriver;
 import com.kkkcut.www.myapplicationkukai.entity.Instruction;
+import com.kkkcut.www.myapplicationkukai.serialDriverCommunication.ProlificSerialDriver;
+import com.kkkcut.www.myapplicationkukai.utils.ActivityWindowUtils;
 import com.kkkcut.www.myapplicationkukai.utils.Tools;
 
 /**
@@ -20,8 +21,10 @@ public class TransformProbeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //保健当前屏幕永不休眠
+        ActivityWindowUtils.setScreenNoDormant(getWindow());
         setContentView(R.layout.activity_transform_probe);
-        serialDriver=ProlificSerialDriver.getInstance();
+        serialDriver=ProlificSerialDriver.getInstance(getApplicationContext());
         mDecorView =getWindow().getDecorView();
           findViewById(R.id.iv_transform_probe).setOnClickListener(new View.OnClickListener() {
               @Override

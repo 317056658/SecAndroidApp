@@ -23,42 +23,47 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.kkkcut.www.myapplicationkukai.DataCollect.KeyInformationBoxroomActivity;
 import com.kkkcut.www.myapplicationkukai.MainActivity;
 import com.kkkcut.www.myapplicationkukai.R;
-import com.kkkcut.www.myapplicationkukai.application.MyApplication;
-import com.kkkcut.www.myapplicationkukai.dao.SQLiteCollectAndCutHistoryDao;
+import com.kkkcut.www.myapplicationkukai.dao.SaveDataDaoManager;
 import com.kkkcut.www.myapplicationkukai.dialogActivity.ExceptionActivity;
-import com.kkkcut.www.myapplicationkukai.dialogActivity.KeyCutOperationTipsActivity;
-import com.kkkcut.www.myapplicationkukai.dialogActivity.MeasureToolActivity;
 import com.kkkcut.www.myapplicationkukai.dialogActivity.MessageTipsActivity;
+import com.kkkcut.www.myapplicationkukai.dialogActivity.OperateTipsActivity;
+import com.kkkcut.www.myapplicationkukai.dialogActivity.ProbeAndCutterMeasurementActivity;
 import com.kkkcut.www.myapplicationkukai.drawKeyImg.AngleKey;
 import com.kkkcut.www.myapplicationkukai.drawKeyImg.BilateralKey;
 import com.kkkcut.www.myapplicationkukai.drawKeyImg.ConcaveDotKey;
 import com.kkkcut.www.myapplicationkukai.drawKeyImg.CylinderKey;
+import com.kkkcut.www.myapplicationkukai.drawKeyImg.DualPathInsideGrooveKey;
 import com.kkkcut.www.myapplicationkukai.drawKeyImg.DualPathOuterGrooveKey;
 import com.kkkcut.www.myapplicationkukai.drawKeyImg.Key;
 import com.kkkcut.www.myapplicationkukai.drawKeyImg.MonorailInsideGrooveKey;
 import com.kkkcut.www.myapplicationkukai.drawKeyImg.MonorailOuterGrooveKey;
 import com.kkkcut.www.myapplicationkukai.drawKeyImg.SideToothKey;
 import com.kkkcut.www.myapplicationkukai.drawKeyImg.UnilateralKey;
-import com.kkkcut.www.myapplicationkukai.entity.ClampLocating;
+import com.kkkcut.www.myapplicationkukai.entity.Clamp;
+import com.kkkcut.www.myapplicationkukai.entity.ConstantValue;
+import com.kkkcut.www.myapplicationkukai.entity.Detection;
 import com.kkkcut.www.myapplicationkukai.entity.Instruction;
 import com.kkkcut.www.myapplicationkukai.entity.KeyInfo;
 import com.kkkcut.www.myapplicationkukai.entity.KeyType;
+import com.kkkcut.www.myapplicationkukai.entity.MessageEvent;
 import com.kkkcut.www.myapplicationkukai.entity.MicyocoEvent;
 import com.kkkcut.www.myapplicationkukai.serialDriverCommunication.ProlificSerialDriver;
 import com.kkkcut.www.myapplicationkukai.setup.FrmMaintenanceActivity;
+import com.kkkcut.www.myapplicationkukai.utils.ActivityWindowUtils;
 import com.kkkcut.www.myapplicationkukai.utils.ArithUtils;
+import com.kkkcut.www.myapplicationkukai.utils.DensityUtils;
+import com.kkkcut.www.myapplicationkukai.utils.EventBusUtils;
 import com.kkkcut.www.myapplicationkukai.utils.Tools;
 
 import java.lang.ref.WeakReference;
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import static com.kkkcut.www.myapplicationkukai.R.id.btn_stop_cut;
+import static com.kkkcut.www.myapplicationkukai.utils.Tools.removeUnnecessaryZero;
 
 public class CutKeyActivity extends AppCompatActivity implements View.OnClickListener {
     private Button mBack,mCutterDiameter,mMenu, mCutKey,mStopCut,mBtnPassCut;
@@ -68,7 +73,8 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
     private View mRootView;
     private ImageView mSpeed, mIvClampLocationSelect, mIvLocateMode;
     private KeyInfo ki;
-    private Button mSteelSpeed, mSilverSpeed, mBrassSpeed, mHighSpeed, mAddDiameter, mSubtractDiameter,mMeasureCutter;
+    private Button mSteelSpeed, mSilverSpeed, mBrassSpeed, mHighSpeed, mMeasureCutter;
+    private ImageView mAddDiameter, mSubtractDiameter;
     private PopupWindow mCutterDiameterChangeWindow;
     private PopupWindow mMenuWindow;
     private PopupWindow mCutDepthSwitchoverWindow;
@@ -80,16 +86,16 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
     //刀具直径的初始数据
     private double diameterData = 2;
     private String cutterDiameterValue ="2";
-    private float minDepth;
-    private int keyClamp,index,imgFlag;
+    private float deepestDepthValue;
+    private int keyClamp,index, clampAvailable;
     private boolean isShowMeun=false;
     private int locatingSlot;
     private String cutOrder;
-    private Key key;
+    private Key mKey;
     private LinearLayout mPutKey;
-    private TextView mTvProgress,mTvTextHint1,mTvTextHint2,mTvTextCutHint;
-    private List<ClampLocating> clampLocatingList;
-    private ClampLocating cl;
+    private TextView mTvProgress,mTvTextHint1, mTvTextGuideHint,mTvTextCutHint;
+    private List<Clamp> clampList;
+    private Clamp cl;
     private PopupWindow mCutLocationMode;
     private ImageView mIvNoDetect,mIvUpDownLocation,mIvBilateralLocation,mIvCuspLocation,mIvThreeTerminalLocation;
     private int cutDetectionMode;  //切割检测方式
@@ -109,6 +115,7 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
     private Button   mBtnZCutHierarchy3;
     private LinearLayout mLlZCutHierarchySelect;
     private int ZCutHierarchyValue=1;   //默认为1
+    private  int defaultLength=1300;;
 
 
 
@@ -137,9 +144,9 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             CutKeyActivity activity=(CutKeyActivity)reference.get();
-            String data="";
+            String str ="";
             if(msg.obj!=null){
-                data=msg.obj.toString();
+                str =msg.obj.toString();
             }
             switch (msg.what){
                 case MicyocoEvent.OPERATION_FINISH://操作完成
@@ -151,10 +158,10 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                         Log.d("mMeasureCutter", "onMessageEventMain: ");
                     }else if(activity.mCutKey.getVisibility()==View.INVISIBLE){
                         if(activity.cutToken==1){
-                            activity.key.setVisibility(View.GONE);  //隐藏钥匙
+                            activity.mKey.setVisibility(View.GONE);  //隐藏钥匙
                             activity.mIvClampLocationSelect.setVisibility(View.VISIBLE);  //显示这个夹具类型选择ImageView
                             activity.mTvTextHint1.setVisibility(View.VISIBLE);
-                            activity.mTvTextHint2.setVisibility(View.VISIBLE);
+                            activity.mTvTextGuideHint.setVisibility(View.VISIBLE);
                             activity.mTvTextCutHint.setVisibility(View.INVISIBLE);
                             activity.mMenu.setVisibility(View.VISIBLE);
                             activity.mRlProgressBar.setVisibility(View.INVISIBLE);
@@ -164,12 +171,13 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                             activity.mCutKey.setVisibility(View.VISIBLE);
                             activity.mCutKey.setBackgroundResource(R.drawable.btncutimage1_frmkeycut_docutres);
                             activity.mBack.setVisibility(View.VISIBLE);
-
-                            activity.mBtnFirstCut.setBackgroundResource(R.drawable.btntopimage_frmkeycut_docutres);
-                            activity.mBtnFirstCut.setTextColor(Color.BLACK);
-                            activity.mBtnSecondCut.setVisibility(View.VISIBLE);
-                            activity.mBtnSecondCut.setBackgroundResource(R.drawable.btnbottomdisabledimage_frmkeycut_docutres);
-                            activity.mBtnSecondCut.setTextColor(Color.parseColor("#B5B5B5"));
+                            if(activity.ki.getType()!=KeyType.UNILATERAL_KEY&&activity.ki.getType()!=KeyType.BILATERAL_KEY){
+                                activity.mBtnFirstCut.setBackgroundResource(R.drawable.btntopimage_frmkeycut_docutres);
+                                activity.mBtnFirstCut.setTextColor(Color.BLACK);
+                                activity.mBtnSecondCut.setVisibility(View.VISIBLE);
+                                activity.mBtnSecondCut.setBackgroundResource(R.drawable.btnbottomdisabledimage_frmkeycut_docutres);
+                                activity.mBtnSecondCut.setTextColor(Color.parseColor("#B5B5B5"));
+                            }
                             activity.cutToken=2;
                         }else if(activity.cutToken==2){
                             if(activity.mBtnFirstCut.getVisibility()==View.INVISIBLE){
@@ -182,10 +190,10 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                     break;
                 case MicyocoEvent.USER_CANCEL_OPERATE://用户操作取消
                     if(activity.mCutKey.getVisibility()==View.INVISIBLE){
-                        activity.key.setVisibility(View.GONE);  //隐藏钥匙
+                        activity.mKey.setVisibility(View.GONE);  //隐藏钥匙
                         activity.mIvClampLocationSelect.setVisibility(View.VISIBLE);  //显示这个夹具类型选择ImageView
                         activity.mTvTextHint1.setVisibility(View.VISIBLE);
-                        activity.mTvTextHint2.setVisibility(View.VISIBLE);
+                        activity.mTvTextGuideHint.setVisibility(View.VISIBLE);
                         activity.mTvTextCutHint.setVisibility(View.INVISIBLE);
                         activity.mMenu.setVisibility(View.VISIBLE);
                         activity.mRlProgressBar.setVisibility(View.INVISIBLE);
@@ -196,26 +204,29 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                         activity.mCutKey.setBackgroundResource(R.drawable.btncutimage1_frmkeycut_docutres);
                         activity.mCutKey.setClickable(true);
                         activity.mBack.setVisibility(View.VISIBLE);
-                        activity.mBtnSecondCut.setVisibility(View.VISIBLE);
-                        activity.mBtnFirstCut.setVisibility(View.VISIBLE);
+                        if(activity.ki.getType()!=KeyType.UNILATERAL_KEY&&activity.ki.getType()!=KeyType.BILATERAL_KEY){
+                            activity.mBtnSecondCut.setVisibility(View.VISIBLE);
+                            activity.mBtnFirstCut.setVisibility(View.VISIBLE);
+                        }
                     } else  if(activity.mMeasureCutter.isClickable()==false){
                         activity.mMeasureCutter.setTextColor(Color.parseColor("#020701"));
                         activity.mMeasureCutter.setClickable(true);
                     }
                     exceptionIntent.setClass(activity,ExceptionActivity.class);
-                    exceptionIntent.putExtra("exception",data);
+                    exceptionIntent.putExtra("exception", str);
                     activity.startActivity(exceptionIntent);
                     break;
                 case MicyocoEvent.CUT_DATA_BACK:  //代表下位机返回的 切割齿消息
-                    String   str=data.replaceAll("[!PG,;]","");
-                    int progress = calculateProgress(str.charAt(0),str.charAt(1));
+                    String data = str.replaceAll("[!PG,;]","");
+                    int progress = calculateProgress(data.charAt(0), data.charAt(1));
                     activity.mTvProgress.setText(progress+"%");  //设置显示的百分比进度
                     activity.mPbLoading.setProgress(progress); //设置加载的进度
                     break;
                 case MicyocoEvent.SAFETYGATE_OPEN:  //安全们打开
-                    exceptionIntent.setClass(activity,ExceptionActivity.class);
-                    exceptionIntent.putExtra("exception",data);
-                    activity.startActivity(exceptionIntent);
+                    ExceptionActivity.startItselfActivity(activity, str);
+                    break;
+                case MicyocoEvent.MATERIAL_OR_POSITION_ERROR:  //钥匙位置不正确或者材料不正确
+                    ExceptionActivity.startItselfActivity(activity, str);
                     break;
             }
         }
@@ -224,8 +235,9 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivityWindowUtils.setScreenNoDormant(getWindow());
         setContentView(R.layout.activity_cut_key);
-        serialDriver=ProlificSerialDriver.getInstance();
+        serialDriver=ProlificSerialDriver.getInstance(getApplicationContext());
         getIntentData();
         initViews();
         initPopupWindow();
@@ -233,8 +245,6 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
         clampJudge(ki);  //夹具判断
         judgeKeyCutLocationMode();  //判断钥匙的切割定位方式
         addKeyViewType();//准备好要绘制的钥匙
-   // accordingKeyTypeSetParam();
-
     }
     public  static  void  startCutKeyActivity(Context context, KeyInfo ki, HashMap<String,String> languageMap,String step,int startFlag){
           Intent  intent=new Intent(context,CutKeyActivity.class);
@@ -257,7 +267,7 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
      *  根据钥匙类型判断显示按钮
      */
     private void  keyTypeJudgeShowBtn(){
-             if(ki.getType()==2){   //双轨内槽
+             if(ki.getType()==KeyInfo.DUAL_PATH_INSIDE_GROOVE_KEY){   //双轨内槽
                  //显示切割第几面的按钮
                  mBtnFirstCut.setVisibility(View.VISIBLE);
                  mBtnFirstCut.setTextColor(Color.parseColor("#B5B5B5"));
@@ -272,7 +282,7 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                  //显示切割深度按钮
                  if(ki.getCutDepth()!=0){
                      cutDepth= ki.getCutDepth();
-                     String str=Tools.removeUnnecessaryZero(ArithUtils.mul(cutDepth, 0.01));
+                     String str= removeUnnecessaryZero(ArithUtils.mul(cutDepth, 0.01));
                      mBtnCutDepth.setText(str+"mm");
                      mBtnCutDepth.setVisibility(View.VISIBLE);
                      mTvCutDepthValue.setText(str+"mm");
@@ -282,10 +292,7 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                      mTvCutDepthValue.setText("1mm");
                      cutDepth=100;
                  }
-
-                 NumberFormat nf = NumberFormat.getInstance();
-                 nf.format(3.300);
-             }else if(ki.getType()==3){  //单轨外槽
+             }else if(ki.getType()==KeyInfo.MONORAIL_OUTER_GROOVE_KEY){  //单轨外槽
                  mBtnFirstCut.setVisibility(View.VISIBLE);
                  mBtnFirstCut.setTextColor(Color.parseColor("#B5B5B5"));
                  mBtnFirstCut.setText("1st Cut");
@@ -295,16 +302,17 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                  mBtnCutDepth.setVisibility(View.VISIBLE);  //显示切割深度按钮
                  if(ki.getCutDepth()!=0){
                      cutDepth= ki.getCutDepth();
-                     String str=Tools.removeUnnecessaryZero(ArithUtils.mul(cutDepth, 0.01));
+                     String str= removeUnnecessaryZero(ArithUtils.mul(cutDepth, 0.01));
                      mBtnCutDepth.setText(str+"mm");
+                     mBtnCutDepth.setVisibility(View.VISIBLE);
                      mTvCutDepthValue.setText(str+"mm");
-                     cutDepth= ki.getCutDepth();
                  }else {
                      mBtnCutDepth.setText("1mm");
+                     mBtnCutDepth.setVisibility(View.VISIBLE);
                      mTvCutDepthValue.setText("1mm");
                      cutDepth=100;
                  }
-             }else if(ki.getType()==4){
+             }else if(ki.getType()==KeyInfo.DUAL_PATH_OUTER_GROOVE_KEY){
                  mBtnFirstCut.setVisibility(View.VISIBLE);
                  mBtnFirstCut.setTextColor(Color.parseColor("#B5B5B5"));
                  mBtnFirstCut.setText("1st Cut");
@@ -315,7 +323,7 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
 
                  if(ki.getCutDepth()!=0){
                      cutDepth= ki.getCutDepth();
-                     String str=Tools.removeUnnecessaryZero(ArithUtils.mul(cutDepth, 0.01));
+                     String str= removeUnnecessaryZero(ArithUtils.mul(cutDepth, 0.01));
                      mBtnCutDepth.setText(str+"mm");
                      mTvCutDepthValue.setText(str+"mm");
                      cutDepth= ki.getCutDepth();
@@ -324,7 +332,7 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                      mTvCutDepthValue.setText("1mm");
                      cutDepth=100;
                  }
-             }else if(ki.getType()==5){  //单轨内槽
+             }else if(ki.getType()==KeyInfo.MONORAIL_INSIDE_GROOVE_KEY){  //单轨内槽
                  mBtnFirstCut.setVisibility(View.VISIBLE);
                  mBtnFirstCut.setTextColor(Color.parseColor("#B5B5B5"));
                  mBtnFirstCut.setText("1st Cut");
@@ -337,8 +345,7 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                  ZCutHierarchyValue=2;  //设置为2;
                  if(ki.getCutDepth()!=0){
                      cutDepth= ki.getCutDepth();
-
-                     String str=Tools.removeUnnecessaryZero(ArithUtils.mul(cutDepth, 0.01));
+                     String str= removeUnnecessaryZero(ArithUtils.mul(cutDepth, 0.01));
                      mBtnCutDepth.setText(str+"mm");
                      mTvCutDepthValue.setText(str+"mm");
                      cutDepth= ki.getCutDepth();
@@ -348,6 +355,24 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                      cutDepth=100;
                  }
              }
+             else if(ki.getType()==KeyInfo.CONCAVE_DOT_KEY){
+                 mBtnFirstCut.setVisibility(View.VISIBLE);
+                 mBtnFirstCut.setTextColor(Color.parseColor("#B5B5B5"));
+                 mBtnFirstCut.setText("1st Cut");
+                 cutToken=1; //切割记号为1
+                 mBtnSecondCut.setVisibility(View.VISIBLE);
+                 mBtnSecondCut.setText("2nd Cut");
+             }else if(ki.getType()== KeyInfo.ANGLE_KEY){
+                   mBtnPassCut.setVisibility(View.INVISIBLE);
+             } else if(ki.getType()==KeyInfo.SIDE_TOOTH_KEY){  //等于侧齿钥匙
+                 mBtnFirstCut.setVisibility(View.VISIBLE);
+                 mBtnFirstCut.setTextColor(Color.parseColor("#B5B5B5"));
+                 mBtnFirstCut.setText("1st Cut");
+                 cutToken=1; //切割记号为1
+                 mBtnSecondCut.setVisibility(View.VISIBLE);
+                 mBtnSecondCut.setText("2nd Cut");
+             }
+
 
     }
     /**
@@ -355,20 +380,20 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
      * 设置定位方式
      */
     private void judgeKeyCutLocationMode() {
-        if (ki.getType() == 0) {  //双边齿
-            if (ki.getAlign() == 0) {
-                cutDetectionMode =0; //默认为0
-                mIvLocateMode.setImageResource( R.drawable.btnautosensenoimage_frmkeycut_docutres);
-                mIvNoDetect.setImageResource(R.drawable.btnautosensenopressedimage_frmkeycut_docutres);
+        if (ki.getType() == KeyInfo.BILATERAL_KEY) {  //双边齿
+            if (ki.getAlign() == KeyInfo.SHOULDERS_ALIGN) {
+                cutDetectionMode = Detection.MODE_BOTHSIDE_LOCATION;
+                mIvLocateMode.setImageResource( R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
+                mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
                 mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightdisabledimage_frmkeycut_docutres);
                 mIvUpDownLocation.setClickable(false);
-                mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
+                mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterpressedimage_frmkeycut_docutres);
                 mIvCuspLocation.setImageResource(R.drawable.btnautosensetipdisabledimage_frmkeycut_docutres);
                 mIvCuspLocation.setClickable(false);//不能点击
                 mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosensealldisabledimage_frmkeycut_docutres);
                 mIvThreeTerminalLocation.setClickable(false);  //不能点击
-            } else if (ki.getAlign() == 1) {
-                cutDetectionMode =4;  //默认为0 不检测
+            } else if (ki.getAlign() == KeyInfo.FRONTEND_ALIGN) {
+                cutDetectionMode =Detection.MODE_THREETERMINAL_LOCATION;  //默认为0 不检测
                 mIvLocateMode.setImageResource(R.drawable.btnautosenseallimage_frmkeycut_docutres);
                 mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
                 mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightdisabledimage_frmkeycut_docutres);
@@ -377,71 +402,17 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                 mIvCuspLocation.setImageResource(R.drawable.btnautosensetipimage_frmkeycut_docutres);
                 mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosenseallpressedimage_frmkeycut_docutres);
             }
-        } else if (ki.getType() == 1) {  //单边齿
-            if (ki.getAlign() == 0) {
+        } else if (ki.getType() == KeyInfo.UNILATERAL_KEY) {  //单边齿
+            if (ki.getAlign() == KeyInfo.SHOULDERS_ALIGN) {
                 mIvLocateMode.setVisibility(View.INVISIBLE);  //根据钥匙的特性屏蔽定位方式
-                cutDetectionMode =0;
-            } else if (ki.getAlign() == 1) {
+                cutDetectionMode =Detection.MODE_NO_DETECT;
+            } else if (ki.getAlign() == KeyInfo.FRONTEND_ALIGN) {
                 mIvLocateMode.setVisibility(View.INVISIBLE);  //根据钥匙的特性屏蔽定位方式
-                cutDetectionMode =0;
+                cutDetectionMode =Detection.MODE_NO_DETECT;
             }
-        }else if(ki.getType()==2){
-            if(ki.getAlign()==0){
-                cutDetectionMode =1;
-                mIvLocateMode.setImageResource(R.drawable.btnautosenseheightimage_frmkeycut_docutres);
-                mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
-                mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightpressedimage_frmkeycut_docutres);
-                mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
-                mIvCuspLocation.setImageResource(R.drawable.btnautosensetipdisabledimage_frmkeycut_docutres);
-                mIvCuspLocation.setClickable(false);
-                mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosensealldisabledimage_frmkeycut_docutres);
-                mIvThreeTerminalLocation.setClickable(false);
-            }else if(ki.getAlign()==1){
-
-            }
-        }else if(ki.getType()==3){  //单轨外槽
-               if(ki.getAlign()==0){
-                   cutDetectionMode =1;
-                   mIvLocateMode.setImageResource(R.drawable.btnautosenseheightimage_frmkeycut_docutres);
-                   mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
-                   mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightpressedimage_frmkeycut_docutres);
-                   mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
-                   mIvCuspLocation.setImageResource(R.drawable.btnautosensetipdisabledimage_frmkeycut_docutres);
-                   mIvCuspLocation.setClickable(false);
-                   mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosensealldisabledimage_frmkeycut_docutres);
-                   mIvThreeTerminalLocation.setClickable(false);
-               }else if(ki.getAlign()==1){
-                   cutDetectionMode =4;
-                   mIvLocateMode.setImageResource(R.drawable.btnautosenseallimage_frmkeycut_docutres);
-                   mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
-                   mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightimage_frmkeydecode_dodecoderes);
-                   mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
-                   mIvCuspLocation.setImageResource(R.drawable.btnautosensetipimage_frmkeycut_docutres);
-                   mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosenseallpressedimage_frmkeycut_docutres);
-               }
-        }else if(ki.getType()==4){  //双轨外槽
-               if(ki.getAlign()==0){
-                   cutDetectionMode =1;
-                   mIvLocateMode.setImageResource(R.drawable.btnautosenseheightimage_frmkeycut_docutres);
-                   mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
-                   mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightpressedimage_frmkeycut_docutres);
-                   mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
-                   mIvCuspLocation.setImageResource(R.drawable.btnautosensetipdisabledimage_frmkeycut_docutres);
-                   mIvCuspLocation.setClickable(false);
-                   mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosensealldisabledimage_frmkeycut_docutres);
-                   mIvThreeTerminalLocation.setClickable(false);
-               }else if(ki.getAlign()==1){
-                   cutDetectionMode =4;
-                   mIvLocateMode.setImageResource(R.drawable.btnautosenseallimage_frmkeycut_docutres);
-                   mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
-                   mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightimage_frmkeydecode_dodecoderes);
-                   mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
-                   mIvCuspLocation.setImageResource(R.drawable.btnautosensetipimage_frmkeycut_docutres);
-                   mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosenseallpressedimage_frmkeycut_docutres);
-               }
-        }else if(ki.getType()==5){
-            if(ki.getAlign()==0){
-                cutDetectionMode=2;
+        }else if(ki.getType()==KeyInfo.DUAL_PATH_INSIDE_GROOVE_KEY){
+            if(ki.getAlign()==KeyInfo.SHOULDERS_ALIGN){
+                cutDetectionMode =Detection.MODE_BOTHSIDE_LOCATION;
                 mIvLocateMode.setImageResource(R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
                 mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
                 mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightimage_frmkeycut_docutres);
@@ -450,8 +421,8 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                 mIvCuspLocation.setClickable(false);
                 mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosensealldisabledimage_frmkeycut_docutres);
                 mIvThreeTerminalLocation.setClickable(false);
-            }else if(ki.getAlign()==1){
-                cutDetectionMode=4;
+            }else if(ki.getAlign()==KeyInfo.FRONTEND_ALIGN){  //前端
+                cutDetectionMode =Detection.MODE_THREETERMINAL_LOCATION;
                 mIvLocateMode.setImageResource(R.drawable.btnautosenseallimage_frmkeycut_docutres);
                 mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
                 mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightimage_frmkeycut_docutres);
@@ -459,377 +430,560 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                 mIvCuspLocation.setImageResource(R.drawable.btnautosensetipimage_frmkeycut_docutres);
                 mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosenseallpressedimage_frmkeycut_docutres);
             }
+        }else if(ki.getType()==KeyInfo.MONORAIL_OUTER_GROOVE_KEY){  //单轨外槽
+               if(ki.getAlign()==KeyInfo.SHOULDERS_ALIGN){
+                   cutDetectionMode =Detection.MODE_BOTHSIDE_LOCATION;
+                   mIvLocateMode.setImageResource(R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
+                   mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
+                   mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightimage_frmkeycut_docutres);
+                   mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterpressedimage_frmkeycut_docutres);
+                   mIvCuspLocation.setImageResource(R.drawable.btnautosensetipdisabledimage_frmkeycut_docutres);
+                   mIvCuspLocation.setClickable(false);
+                   mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosensealldisabledimage_frmkeycut_docutres);
+                   mIvThreeTerminalLocation.setClickable(false);
+               }else if(ki.getAlign()==KeyInfo.FRONTEND_ALIGN){
+                   cutDetectionMode =Detection.MODE_THREETERMINAL_LOCATION;
+                   mIvLocateMode.setImageResource(R.drawable.btnautosenseallimage_frmkeycut_docutres);
+                   mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
+                   mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightimage_frmkeydecode_dodecoderes);
+                   mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
+                   mIvCuspLocation.setImageResource(R.drawable.btnautosensetipimage_frmkeycut_docutres);
+                   mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosenseallpressedimage_frmkeycut_docutres);
+               }
+        }else if(ki.getType()==KeyInfo.DUAL_PATH_OUTER_GROOVE_KEY){  //双轨外槽
+               if(ki.getAlign()==KeyInfo.SHOULDERS_ALIGN){
+                   cutDetectionMode =Detection.MODE_BOTHSIDE_LOCATION;
+                   mIvLocateMode.setImageResource(R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
+                   mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
+                   mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightimage_frmkeycut_docutres);
+                   mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterpressedimage_frmkeycut_docutres);
+                   mIvCuspLocation.setImageResource(R.drawable.btnautosensetipdisabledimage_frmkeycut_docutres);
+                   mIvCuspLocation.setClickable(false);
+                   mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosensealldisabledimage_frmkeycut_docutres);
+                   mIvThreeTerminalLocation.setClickable(false);
+               }else if(ki.getAlign()==KeyInfo.FRONTEND_ALIGN){
+                   cutDetectionMode =Detection.MODE_THREETERMINAL_LOCATION;
+                   mIvLocateMode.setImageResource(R.drawable.btnautosenseallimage_frmkeycut_docutres);
+                   mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
+                   mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightimage_frmkeydecode_dodecoderes);
+                   mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
+                   mIvCuspLocation.setImageResource(R.drawable.btnautosensetipimage_frmkeycut_docutres);
+                   mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosenseallpressedimage_frmkeycut_docutres);
+               }
+        }else if(ki.getType()==KeyInfo.MONORAIL_INSIDE_GROOVE_KEY){
+            if(ki.getAlign()==KeyInfo.SHOULDERS_ALIGN){
+                cutDetectionMode=Detection.MODE_BOTHSIDE_LOCATION;
+                mIvLocateMode.setImageResource(R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
+                mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
+                mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightimage_frmkeycut_docutres);
+                mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterpressedimage_frmkeycut_docutres);
+                mIvCuspLocation.setImageResource(R.drawable.btnautosensetipdisabledimage_frmkeycut_docutres);
+                mIvCuspLocation.setClickable(false);
+                mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosensealldisabledimage_frmkeycut_docutres);
+                mIvThreeTerminalLocation.setClickable(false);
+            }else if(ki.getAlign()==KeyInfo.FRONTEND_ALIGN){
+                cutDetectionMode=Detection.MODE_THREETERMINAL_LOCATION;
+                mIvLocateMode.setImageResource(R.drawable.btnautosenseallimage_frmkeycut_docutres);
+                mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
+                mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightimage_frmkeycut_docutres);
+                mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
+                mIvCuspLocation.setImageResource(R.drawable.btnautosensetipimage_frmkeycut_docutres);
+                mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosenseallpressedimage_frmkeycut_docutres);
+            }
+        } if(ki.getType()==KeyInfo.CONCAVE_DOT_KEY){   //凹点钥匙
+            if (ki.getAlign() ==  KeyInfo.SHOULDERS_ALIGN) {
+                cutDetectionMode = Detection.MODE_NO_DETECT;
+                mIvLocateMode.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
+                mIvNoDetect.setImageResource(R.drawable.btnautosensenopressedimage_frmkeycut_docutres);
+                mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightdisabledimage_frmkeycut_docutres);
+                mIvUpDownLocation.setClickable(false);
+                mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterdisabledimage_frmkeycut_docutres);
+                mIvBilateralLocation.setClickable(false);
+                mIvCuspLocation.setImageResource(R.drawable.btnautosensetipdisabledimage_frmkeycut_docutres);
+                mIvCuspLocation.setClickable(false);
+                mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosensealldisabledimage_frmkeycut_docutres);
+                mIvThreeTerminalLocation.setClickable(false);
+            } else if (ki.getAlign() == KeyInfo.FRONTEND_ALIGN) {
+                cutDetectionMode = Detection.MODE_FRONTEND_LOCATION;
+                mIvLocateMode.setImageResource(R.drawable.btnautosensetipimage_frmkeycut_docutres);
+                mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
+                mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightdisabledimage_frmkeycut_docutres);
+                mIvUpDownLocation.setClickable(false);
+                mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterdisabledimage_frmkeycut_docutres);
+                mIvBilateralLocation.setClickable(false);
+                mIvCuspLocation.setImageResource(R.drawable.btnautosensetippressedimage_frmkeycut_docutres);
+                mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosensealldisabledimage_frmkeycut_docutres);
+                mIvThreeTerminalLocation.setClickable(false);
+            }
+        }else if(ki.getType()==KeyInfo.ANGLE_KEY){   //角度钥匙
+            if(ki.getAlign()==KeyInfo.FRONTEND_ALIGN){
+                cutDetectionMode = Detection.MODE_UP_DOWN_LOCATION;
+                mIvLocateMode.setImageResource(R.drawable.btnautosenseheightimage_frmkeycut_docutres);
+                mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
+                mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightpressedimage_frmkeycut_docutres);
+                mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterdisabledimage_frmkeycut_docutres);
+                mIvBilateralLocation.setClickable(false);
+                mIvCuspLocation.setImageResource(R.drawable.btnautosensetipdisabledimage_frmkeycut_docutres);
+                mIvCuspLocation.setClickable(false);
+                mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosensealldisabledimage_frmkeycut_docutres);
+                mIvThreeTerminalLocation.setClickable(false);
+            }
+        }else if(ki.getType()==KeyInfo.CYLINDER_KEY){
+            if (ki.getAlign() == KeyInfo.SHOULDERS_ALIGN) {
+                mIvLocateMode.setVisibility(View.INVISIBLE);  //根据钥匙的特性屏蔽定位方式
+                cutDetectionMode =Detection.MODE_NO_DETECT;
+            } else if (ki.getAlign() == KeyInfo.FRONTEND_ALIGN) {
+                mIvLocateMode.setVisibility(View.INVISIBLE);  //根据钥匙的特性屏蔽定位方式
+                cutDetectionMode =Detection.MODE_NO_DETECT;
+            }
+        }else if(ki.getType()==KeyInfo.SIDE_TOOTH_KEY){
+            if (ki.getAlign() == KeyInfo.SHOULDERS_ALIGN) {
+
+            } else if (ki.getAlign() == KeyInfo.FRONTEND_ALIGN) {
+                cutDetectionMode = Detection.MODE_NO_DETECT;
+                mIvLocateMode.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
+                mIvNoDetect.setImageResource(R.drawable.btnautosensenopressedimage_frmkeycut_docutres);
+                mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightdisabledimage_frmkeycut_docutres);
+                mIvUpDownLocation.setClickable(false);
+                mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterdisabledimage_frmkeycut_docutres);
+                mIvBilateralLocation.setClickable(false);
+                mIvCuspLocation.setImageResource(R.drawable.btnautosensetipdisabledimage_frmkeycut_docutres);
+                mIvCuspLocation.setClickable(false);
+                mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosensealldisabledimage_frmkeycut_docutres);
+                mIvThreeTerminalLocation.setClickable(false);
+            }
         }
     }
     /**
      * 夹具判断
      */
     private void clampJudge(KeyInfo ki) {
-        clampLocatingList=new ArrayList<>();
-        int type = ki.getType();
+        clampList =new ArrayList<>();
         String[] spaceGroup = ki.getSpace().split(";"); //分割space
         String[] depthGroup = ki.getDepth().split(";"); //分割深度
-        if (type == 0) {   // 等于0为双边齿
-            if(ki.getAlign() == 0){
-                ClampLocating cl = new ClampLocating();
+        if (ki.getType() == KeyInfo.BILATERAL_KEY) {   // 等于0为双边齿
+            if (ki.getAlign() == KeyInfo.SHOULDERS_ALIGN) {
+                Clamp cl = new Clamp();
                 cl.setImgHint(R.drawable.a9_standard_stop_1);
                 cl.setLocationSlot(1);
-                cl.setClamp(1);
-                mIvClampLocationSelect.setClickable(false);
-                clampLocatingList.add(cl);
-            }else   if (ki.getAlign() == 1) {
-                int maxSpace = 0;
+                cl.setClampType(1);
+                clampList.add(cl);
+            } else if (ki.getAlign() == KeyInfo.FRONTEND_ALIGN) {
+                int availableExtent = 0;  //有效范围
+                int quondamSpace=0;
                 if (spaceGroup.length == 1) {
                     String[] spaceDataArray = spaceGroup[0].split(",");
-                    maxSpace = Integer.parseInt(spaceDataArray[0]);
+                    availableExtent = Integer.parseInt(spaceDataArray[0])+defaultLength;
+                    quondamSpace=Integer.parseInt(spaceDataArray[0]);
                 } else if (spaceGroup.length == 2) {
-                    String[] spaceDataArray1 = spaceGroup[0].split(",");
-                    String[] spaceDataArray2 = spaceGroup[1].split(",");
-                    int space1 = Integer.parseInt(spaceDataArray1[0]);
-                    int space2 = Integer.parseInt(spaceDataArray2[0]);
-                    if (space1 > space2) {
-                        maxSpace = space1;
+                    String[] spaceDataArrayOne = spaceGroup[0].split(",");
+                    String[] spaceDataArrayTwo = spaceGroup[1].split(",");
+                    int spaceOne = Integer.parseInt(spaceDataArrayOne[0]);
+                    int spaceTwo = Integer.parseInt(spaceDataArrayTwo[0]);
+                    if (spaceOne > spaceTwo) {
+                        availableExtent = spaceOne +defaultLength;
+                        quondamSpace=spaceOne;
                     } else {
-                        maxSpace = space2;
+                        availableExtent = spaceTwo +defaultLength;
+                        quondamSpace=spaceTwo;
                     }
                 }
-                if (maxSpace <=2750) {
-                    ClampLocating cl = new ClampLocating();
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FOUR_DISTANC&&quondamSpace<Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FOUR_DISTANC ){
+                    Clamp cl = new Clamp();
                     cl.setImgHint(R.drawable.a9_standard_stop_4);
                     cl.setLocationSlot(4);
-                    cl.setClamp(1);
-                    clampLocatingList.add(cl);
+                    cl.setClampType(1);
+                    clampList.add(cl);
                 }
-                if (maxSpace <= 2450) {
-                    ClampLocating cl = new ClampLocating();
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_THREE_DISTANC&&quondamSpace<Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_THREE_DISTANC ){
+                    Clamp cl = new Clamp();
                     cl.setImgHint(R.drawable.a9_standard_stop_3);
                     cl.setLocationSlot(3);
-                    cl.setClamp(1);
-                    clampLocatingList.add(cl);
+                    cl.setClampType(1);
+                    clampList.add(cl);
                 }
-                if (maxSpace <= 2100) {
-                    ClampLocating cl = new ClampLocating();
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_TWO_DISTANCE&&quondamSpace<Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_TWO_DISTANCE) {
+                    Clamp cl = new Clamp();
                     cl.setImgHint(R.drawable.a9_standard_stop_2);
                     cl.setLocationSlot(2);
-                    cl.setClamp(1);
-                    clampLocatingList.add(cl);
+                    cl.setClampType(1);
+                    clampList.add(cl);
                 }
-                if (maxSpace <= 3250) {
-                    ClampLocating cl = new ClampLocating();
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FIVE_DISTANC&&quondamSpace<Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FIVE_DISTANC) {
+                    Clamp cl = new Clamp();
                     cl.setImgHint(R.drawable.a9_standard_stop_5);
                     cl.setLocationSlot(5);
-                    cl.setClamp(1);
-                    clampLocatingList.add(cl);
+                    cl.setClampType(1);
+                    clampList.add(cl);
                 }
             }
-        } else if (type == 1) {  //单边齿
+        } else if (ki.getType() == KeyInfo.FRONTEND_ALIGN) {  //单边齿
             String[] depths = depthGroup[0].split(",");
-            if(ki.getAlign() == 0){
-                ClampLocating cl = new ClampLocating();
-                cl.setImgHint(R.drawable.a9_aux_single_std_1);
-                cl.setLocationSlot(16);
-                cl.setClamp(3);
-                clampLocatingList.add(cl);
-                mIvClampLocationSelect.setClickable(false);
-                //获得最小深度
-                minDepth = Float.parseFloat(depths[depths.length - 1]) * 0.01f;
-                if (minDepth > 5.0) {
-                    imgFlag = 2;
+            //肩部定位
+            if (ki.getAlign() == KeyInfo.SHOULDERS_ALIGN) {
+                Clamp clamp = new Clamp();
+                clamp.setImgHint(R.drawable.a9_aux_single_std_1);
+                clamp.setLocationSlot(16);  //定位槽为16
+                clamp.setClampType(3);
+                clampList.add(clamp);
+                //获得最深深度
+                deepestDepthValue = Float.parseFloat(depths[depths.length - 1]) * 0.01f;
+                if (deepestDepthValue > Clamp.THREE_NUMBER_CLAMP_AVAILABLE_FIVE_MM) {
+                    clampAvailable = Clamp.THREE_NUMBER_CLAMP_FIVE_MM_AVAILABLE;
                     mClampTextHint.setText("Available Clamp:3.5mm,5mm");
-                } else if (minDepth > 3.5) {
-                    imgFlag = 1;
+                } else if (deepestDepthValue > Clamp.THREE_NUMBER_CLAMP_AVAILABLE_THREE_POINT_FIVE_MM) {
+                    clampAvailable = Clamp.THREE_NUMBER_CLAMP_THREE_POINT_FIVE_MM_AVAILABLE;
                     mClampTextHint.setText("Available Clamp:3.5mm");
-                } else if (minDepth <= 3.5) {    //小于3.5  这钥匙数据不对
-                    Intent messageHintIntent = new Intent(CutKeyActivity.this, MessageTipsActivity.class);
-                    messageHintIntent.putExtra("Type", 3);
+                } else if (deepestDepthValue <= Clamp.THREE_NUMBER_CLAMP_AVAILABLE_THREE_POINT_FIVE_MM) {    //小于3.5  这钥匙数据不对
+                    Intent messageHintIntent = new Intent(this, MessageTipsActivity.class);
+                    messageHintIntent.putExtra("msgTips", 3);
                     messageHintIntent.putExtra("IntentFlag", startFlag);
                     startActivity(messageHintIntent);
                 }
-            }else if(ki.getAlign() == 1){
-                minDepth = Float.parseFloat(depths[depths.length - 1]) * 0.01f;
-                if (minDepth > 5.0) {
-                    ClampLocating cl = new ClampLocating();
-                    cl.setImgHint(R.drawable.a9_aux_single_std_1);
-                    cl.setLocationSlot(16);  //定位槽为16
-                    cl.setClamp(3);
-                    clampLocatingList.add(cl);
-                    imgFlag = 2;
+            } else if (ki.getAlign() == KeyInfo.FRONTEND_ALIGN) {  //前端定位
+                deepestDepthValue = Float.parseFloat(depths[depths.length - 1]) * 0.01f;
+                Clamp cl = new Clamp();
+                cl.setImgHint(R.drawable.a9_aux_single_std_2);
+                cl.setLocationSlot(17);  //定位槽为17
+                cl.setClampType(3);
+                clampList.add(cl);
+                if (deepestDepthValue > Clamp.THREE_NUMBER_CLAMP_AVAILABLE_FIVE_MM) {
+                    clampAvailable = 2;
                     mClampTextHint.setText("Available Clamp:3.5mm,5mm");
-                } else if (minDepth > 3.5) {
-                    ClampLocating cl = new ClampLocating();
-                    cl.setImgHint(R.drawable.a9_aux_single_std_1);
-                    cl.setLocationSlot(16);  //定位槽为16
-                    cl.setClamp(3);
-                    clampLocatingList.add(cl);
-                    imgFlag = 1;
+                } else if (deepestDepthValue >Clamp.THREE_NUMBER_CLAMP_AVAILABLE_THREE_POINT_FIVE_MM) {
+                    clampAvailable = 1;
                     mClampTextHint.setText("Available Clamp:3.5mm");
-                }
-                int maxSpace = 0;
-                String[] spaceDataArray = spaceGroup[0].split(",");
-                maxSpace = Integer.parseInt(spaceDataArray[0]);
-                if (maxSpace <= 3250) {
-                    ClampLocating cl = new ClampLocating();
-                    cl.setImgHint(R.drawable.a9_standard_stop_5);
-                    cl.setLocationSlot(5);
-                    cl.setClamp(1);
-                    clampLocatingList.add(cl);
-                }
-                if (maxSpace <=2750) {
-                    ClampLocating cl = new ClampLocating();
-                    cl.setImgHint(R.drawable.a9_standard_stop_4);
-                    cl.setLocationSlot(4);
-                    cl.setClamp(1);
-                    clampLocatingList.add(cl);
-                }
-                if (maxSpace <= 2450) {
-                    ClampLocating cl = new ClampLocating();
-                    cl.setImgHint(R.drawable.a9_standard_stop_3);
-                    cl.setLocationSlot(3);
-                    cl.setClamp(1);
-                    clampLocatingList.add(cl);
-                }
-                if (maxSpace <= 2100) {//本来是2100
-                    ClampLocating cl = new ClampLocating();
-                    cl.setImgHint(R.drawable.a9_standard_stop_2);
-                    cl.setLocationSlot(2);
-                    cl.setClamp(1);
-                    clampLocatingList.add(cl);
+                }else if (deepestDepthValue <= Clamp.THREE_NUMBER_CLAMP_AVAILABLE_THREE_POINT_FIVE_MM) {    //小于3.5  这钥匙数据不对
+                    Intent messageHintIntent = new Intent(this, MessageTipsActivity.class);
+                    messageHintIntent.putExtra("msgTips", 3);
+                    messageHintIntent.putExtra("IntentFlag", startFlag);
+                    startActivity(messageHintIntent);
                 }
             }
-        }else if(type==2){  //双轨内槽
-                if(ki.getAlign()==0){
-                    ClampLocating cl = new ClampLocating();
-                    cl.setImgHint(R.drawable.a9_laser_stop_1);
-                    cl.setLocationSlot(1);
-                    cl.setClamp(1);
-                    clampLocatingList.add(cl);
-                }else if(ki.getAlign()==1){
-
-                }
-        }else if(type==KeyType.MONORAIL_OUTER_GROOVE_KEY){  //单轨外槽
-            if(ki.getAlign()==0){
-                ClampLocating cl = new ClampLocating();
+        } else if (ki.getType() == KeyInfo.DUAL_PATH_INSIDE_GROOVE_KEY) {  //双轨内槽钥匙
+            if (ki.getAlign() == KeyInfo.SHOULDERS_ALIGN) {   //前端定位
+                Clamp cl = new Clamp();
                 cl.setImgHint(R.drawable.a9_laser_stop_1);
                 cl.setLocationSlot(1);
-                cl.setClamp(1);
-                clampLocatingList.add(cl);
-            }else if(ki.getAlign()==1){
-                int maxSpace = 0;
-                ClampLocating cl; //定义一个 夹具定位类
-                String[] spaceDataArray = spaceGroup[0].split(",");
-                maxSpace = Integer.parseInt(spaceDataArray[0]);
-                if (maxSpace <= 2750) {
-                    cl = new ClampLocating();
-                    cl.setImgHint(R.drawable.a9_laser_stop_4);
-                    cl.setLocationSlot(4);
-                    cl.setClamp(1);
-                    clampLocatingList.add(cl);
+                cl.setClampType(1);
+                clampList.add(cl);
+                mTvTextGuideHint.setVisibility(View.INVISIBLE);
+            } else if (ki.getAlign() == KeyInfo.FRONTEND_ALIGN) {  //尖端定位
+                String[] spaceDataArrayOne = spaceGroup[0].split(",");
+                String[] spaceDataArrayTwo = spaceGroup[1].split(",");
+                int availableExtent ;
+                int quondamSpace;
+                int spaceOne = Integer.parseInt(spaceDataArrayOne[0]);
+                int spaceTwo = Integer.parseInt(spaceDataArrayTwo[0]);
+                if (spaceOne > spaceTwo) {
+                    availableExtent = spaceOne+defaultLength;
+                    quondamSpace=spaceOne;
+                } else {
+                    availableExtent = spaceTwo+defaultLength;
+                    quondamSpace=spaceTwo;
                 }
-                if (maxSpace <= 2450) {
-                    cl = new ClampLocating();
-                    cl.setImgHint(R.drawable.a9_laser_stop_3);
-                    cl.setLocationSlot(3);
-                    cl.setClamp(1);
-                    clampLocatingList.add(cl);
+                Clamp  clamp;
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FOUR_DISTANC&& quondamSpace <Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FOUR_DISTANC ){
+                    clamp= new Clamp();
+                    clamp.setImgHint(R.drawable.a9_laser_stop_4);
+                    clamp.setLocationSlot(4);
+                    clamp.setClampType(1);
+                    clampList.add(clamp);
                 }
-                if (maxSpace <= 2000) {//本来是2100  换成2000
-                    cl = new ClampLocating();
-                    cl.setImgHint(R.drawable.a9_laser_stop_2);
-                    cl.setLocationSlot(2);
-                    cl.setClamp(1);
-                    clampLocatingList.add(cl);
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_THREE_DISTANC&& quondamSpace <Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_THREE_DISTANC ){
+                    clamp = new Clamp();
+                    clamp.setImgHint(R.drawable.a9_laser_stop_3);
+                    clamp.setLocationSlot(3);
+                    clamp.setClampType(1);
+                    clampList.add(clamp);
                 }
-                if (maxSpace <=3250) {
-                    cl = new ClampLocating();
-                    cl.setImgHint(R.drawable.a9_laser_stop_5);
-                    cl.setLocationSlot(5);
-                    cl.setClamp(1);
-                    clampLocatingList.add(cl);
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_TWO_DISTANCE&& quondamSpace <Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_TWO_DISTANCE) {
+                    clamp= new Clamp();
+                    clamp.setImgHint(R.drawable.a9_laser_stop_2);
+                    clamp.setLocationSlot(2);
+                    clamp.setClampType(1);
+                    clampList.add(clamp);
+                }
+                //这个是加了辅助夹具定位档片
+                clamp = new Clamp();
+                clamp.setImgHint(R.drawable.a9_laser_stop_15);
+                clamp.setLocationSlot(15);  //辅助夹具的定位槽
+                clamp.setClampType(1);
+                clampList.add(clamp);
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FIVE_DISTANC&& quondamSpace <Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FIVE_DISTANC) {
+                    clamp= new Clamp();
+                    clamp.setImgHint(R.drawable.a9_laser_stop_5);
+                    clamp.setLocationSlot(5);
+                    clamp.setClampType(1);
+                    clampList.add(clamp);
                 }
             }
-        }else if(type==4){  //双轨外槽
-                if(ki.getAlign()==0){
-                    ClampLocating cl = new ClampLocating();
-                    cl.setImgHint(R.drawable.a9_laser_stop_1_1);
-                    cl.setLocationSlot(1);
-                    cl.setClamp(1);
-                    clampLocatingList.add(cl);
-                    mIvClampLocationSelect.setClickable(false);
-                }else if(ki.getAlign()==1){
-                    String[] spaceDataArray1 = spaceGroup[0].split(",");
-                    String[] spaceDataArray2 = spaceGroup[1].split(",");
-                    int maxSpace = 0;
-                    ClampLocating cl; //定义一个 夹具定位类
-                    if(Integer.parseInt(spaceDataArray1[0])>Integer.parseInt(spaceDataArray2[0])){
-                        maxSpace=Integer.parseInt(spaceDataArray1[0]);
-                    }else {
-                        maxSpace=Integer.parseInt(spaceDataArray2[0]);
-                    }
-                    if (maxSpace <=2750) {
-                        cl = new ClampLocating();
-                        cl.setImgHint(R.drawable.a9_laser_stop_4);
-                        cl.setLocationSlot(4);
-                        cl.setClamp(1);
-                        clampLocatingList.add(cl);
-                    }
-
-                    if (maxSpace <=2450) {
-                        cl = new ClampLocating();
-                        cl.setImgHint(R.drawable.a9_laser_stop_3);
-                        cl.setLocationSlot(3);
-                        cl.setClamp(1);
-                        clampLocatingList.add(cl);
-                    }
-                    if(this.ki.getLastBitting()==0){
-                        if (maxSpace <= 2000) {
-                            cl = new ClampLocating();
-                            cl.setImgHint(R.drawable.a9_laser_stop_2);
-                            cl.setLocationSlot(2);
-                            cl.setClamp(1);
-                            clampLocatingList.add(cl);
-                        }
-                    }
-                    //这个是加了辅助夹具定位档片
-                    cl = new ClampLocating();
-                    cl.setImgHint(R.drawable.a9_laser_stop_15);
-                    cl.setLocationSlot(10);  //辅助夹具的槽
-                    cl.setClamp(1);
-                    clampLocatingList.add(cl);
-                    if (maxSpace <= 3250) {
-                        cl = new ClampLocating();
-                        cl.setImgHint(R.drawable.a9_laser_stop_5);
-                        cl.setLocationSlot(5);
-                        cl.setClamp(1);
-                        clampLocatingList.add(cl);
-                    }
-                }
-        }else if(type==KeyType.MONORAIL_INSIDE_GROOVE_KEY){
-            if (ki.getAlign() == 0) {
-                ClampLocating cl = new ClampLocating();
+        } else if (ki.getType()==KeyInfo.MONORAIL_OUTER_GROOVE_KEY) {  //单轨外槽
+            if (ki.getAlign() == KeyInfo.SHOULDERS_ALIGN) {
+                Clamp cl = new Clamp();
                 cl.setImgHint(R.drawable.a9_laser_stop_1);
                 cl.setLocationSlot(1);
-                cl.setClamp(1);
-                clampLocatingList.add(cl);
-                mIvClampLocationSelect.setClickable(false);
-            } else if (ki.getAlign() == 1) {
-                ClampLocating cl = new ClampLocating();
-                cl.setImgHint(R.drawable.a9_laser_stop_4);
-                cl.setLocationSlot(4);
-                cl.setClamp(1);
-                clampLocatingList.add(cl);
-                mIvClampLocationSelect.setClickable(false);
+                cl.setClampType(1);
+                clampList.add(cl);
+            } else if (ki.getAlign() == KeyInfo.FRONTEND_ALIGN) {
+                String[] spaceDataArrayOne = spaceGroup[0].split(",");
+                int availableExtent ;
+                int quondamSpace;
+                int spaceOne = Integer.parseInt(spaceDataArrayOne[0]);
+                availableExtent = spaceOne+defaultLength;
+                quondamSpace=spaceOne;
+                Clamp  clamp;
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FOUR_DISTANC&& quondamSpace <Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FOUR_DISTANC ){
+                    clamp= new Clamp();
+                    clamp.setImgHint(R.drawable.a9_laser_stop_4);
+                    clamp.setLocationSlot(4);
+                    clamp.setClampType(1);
+                    clampList.add(clamp);
+                }
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_THREE_DISTANC&& quondamSpace <Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_THREE_DISTANC ){
+                    clamp = new Clamp();
+                    clamp.setImgHint(R.drawable.a9_laser_stop_3);
+                    clamp.setLocationSlot(3);
+                    clamp.setClampType(1);
+                    clampList.add(clamp);
+                }
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_TWO_DISTANCE&& quondamSpace <Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_TWO_DISTANCE) {
+                    clamp= new Clamp();
+                    clamp.setImgHint(R.drawable.a9_laser_stop_2);
+                    clamp.setLocationSlot(2);
+                    clamp.setClampType(1);
+                    clampList.add(clamp);
+                }
+                //这个是加了辅助夹具定位档片
+                clamp = new Clamp();
+                clamp.setImgHint(R.drawable.a9_laser_stop_15);
+                clamp.setLocationSlot(15);  //辅助夹具的定位槽
+                clamp.setClampType(1);
+                clampList.add(clamp);
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FIVE_DISTANC&& quondamSpace <Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FIVE_DISTANC) {
+                    clamp= new Clamp();
+                    clamp.setImgHint(R.drawable.a9_laser_stop_5);
+                    clamp.setLocationSlot(5);
+                    clamp.setClampType(1);
+                    clampList.add(clamp);
+                }
             }
+        } else if (ki.getType() == KeyInfo.DUAL_PATH_OUTER_GROOVE_KEY) {  //双轨外槽钥匙
+            if (ki.getAlign() == KeyInfo.SHOULDERS_ALIGN) {  //肩部定位
+                Clamp cl = new Clamp();
+                cl.setImgHint(R.drawable.a9_laser_stop_1_1);
+                cl.setLocationSlot(1);
+                cl.setClampType(1);
+                clampList.add(cl);
+            } else if (ki.getAlign() == KeyInfo.FRONTEND_ALIGN) {  //前端定位
+                String[] spaceDataArrayOne = spaceGroup[0].split(",");
+                String[] spaceDataArrayTwo = spaceGroup[1].split(",");
+                int availableExtent ;
+                int quondamSpace;
+                int spaceOne = Integer.parseInt(spaceDataArrayOne[0]);
+                int spaceTwo = Integer.parseInt(spaceDataArrayTwo[0]);
+                if (spaceOne > spaceTwo) {
+                    availableExtent = spaceOne+defaultLength;
+                    quondamSpace=spaceOne;
+                } else {
+                    availableExtent = spaceTwo+defaultLength;
+                    quondamSpace=spaceTwo;
+                }
+                Clamp  clamp;
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FOUR_DISTANC&& quondamSpace <Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FOUR_DISTANC ){
+                    clamp= new Clamp();
+                    clamp.setImgHint(R.drawable.a9_laser_stop_4);
+                    clamp.setLocationSlot(4);
+                    clamp.setClampType(1);
+                    clampList.add(clamp);
+                }
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_THREE_DISTANC&& quondamSpace <Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_THREE_DISTANC ){
+                    clamp = new Clamp();
+                    clamp.setImgHint(R.drawable.a9_laser_stop_3);
+                    clamp.setLocationSlot(3);
+                    clamp.setClampType(1);
+                    clampList.add(clamp);
+                }
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_TWO_DISTANCE&& quondamSpace <Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_TWO_DISTANCE) {
+                    clamp= new Clamp();
+                    clamp.setImgHint(R.drawable.a9_laser_stop_2);
+                    clamp.setLocationSlot(2);
+                    clamp.setClampType(1);
+                    clampList.add(clamp);
+                }
+                //这个是加了辅助夹具定位档片
+                clamp = new Clamp();
+                clamp.setImgHint(R.drawable.a9_laser_stop_15);
+                clamp.setLocationSlot(15);  //辅助夹具的定位槽
+                clamp.setClampType(1);
+                clampList.add(clamp);
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FIVE_DISTANC&& quondamSpace <Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FIVE_DISTANC) {
+                    clamp= new Clamp();
+                    clamp.setImgHint(R.drawable.a9_laser_stop_5);
+                    clamp.setLocationSlot(5);
+                    clamp.setClampType(1);
+                    clampList.add(clamp);
+                }
+            }
+        } else if (ki.getType() == KeyInfo.MONORAIL_INSIDE_GROOVE_KEY) {  //单轨内槽钥匙
+            if (ki.getAlign() == KeyInfo.SHOULDERS_ALIGN) {
+                Clamp cl = new Clamp();
+                cl.setImgHint(R.drawable.a9_laser_stop_1);
+                cl.setLocationSlot(1);
+                cl.setClampType(1);
+                clampList.add(cl);
+            } else if (ki.getAlign() == KeyInfo.FRONTEND_ALIGN) {
+                int availableExtent = 0;  //有效范围
+                int quondamSpace=0;
+                if (spaceGroup.length == 1) {
+                    String[] spaceDataArray = spaceGroup[0].split(",");
+                    availableExtent = Integer.parseInt(spaceDataArray[0])+defaultLength;
+                    quondamSpace=Integer.parseInt(spaceDataArray[0]);
+                } else if (spaceGroup.length == 2) {
+                    String[] spaceDataArrayOne = spaceGroup[0].split(",");
+                    String[] spaceDataArrayTwo = spaceGroup[1].split(",");
+                    int spaceOne = Integer.parseInt(spaceDataArrayOne[0]);
+                    int spaceTwo = Integer.parseInt(spaceDataArrayTwo[0]);
+                    if (spaceOne > spaceTwo) {
+                        availableExtent = spaceOne +defaultLength;
+                        quondamSpace=spaceOne;
+                    } else {
+                        availableExtent = spaceTwo +defaultLength;
+                        quondamSpace=spaceTwo;
+                    }
+                }
+                Clamp  clamp;
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FOUR_DISTANC&& quondamSpace <Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FOUR_DISTANC ){
+                    clamp= new Clamp();
+                    clamp.setImgHint(R.drawable.a9_laser_stop_4);
+                    clamp.setLocationSlot(4);
+                    clamp.setClampType(1);
+                    clampList.add(clamp);
+                }
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_THREE_DISTANC&& quondamSpace <Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_THREE_DISTANC ){
+                    clamp = new Clamp();
+                    clamp.setImgHint(R.drawable.a9_laser_stop_3);
+                    clamp.setLocationSlot(3);
+                    clamp.setClampType(1);
+                    clampList.add(clamp);
+                }
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_TWO_DISTANCE&& quondamSpace <Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_TWO_DISTANCE) {
+                    clamp= new Clamp();
+                    clamp.setImgHint(R.drawable.a9_laser_stop_2);
+                    clamp.setLocationSlot(2);
+                    clamp.setClampType(1);
+                    clampList.add(clamp);
+                }
+                //这个是加了辅助夹具定位档片
+                clamp = new Clamp();
+                clamp.setImgHint(R.drawable.a9_laser_stop_15);
+                clamp.setLocationSlot(15);  //辅助夹具的定位槽
+                clamp.setClampType(1);
+                clampList.add(clamp);
+                if (availableExtent >= Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FIVE_DISTANC&& quondamSpace <Clamp.ONE_NUMBER_CLAMP_LOCATING_GROOVE_FIVE_DISTANC) {
+                    clamp= new Clamp();
+                    clamp.setImgHint(R.drawable.a9_laser_stop_5);
+                    clamp.setLocationSlot(5);
+                    clamp.setClampType(1);
+                    clampList.add(clamp);
+                }
+            }
+        }else if(ki.getType()==KeyInfo.CONCAVE_DOT_KEY){   //凹点钥匙
+            if (ki.getAlign() == KeyInfo.SHOULDERS_ALIGN) {
+                Clamp cl = new Clamp();
+                cl.setImgHint(R.drawable.a9_dimple_stop_1);
+                cl.setLocationSlot(6);
+                cl.setClampType(2);
+                clampList.add(cl);
+            } else if (ki.getAlign() == KeyInfo.FRONTEND_ALIGN) {
+                Clamp clamp;
+                clamp= new Clamp();
+                clamp.setImgHint(R.drawable.a9_dimple_stop_5);
+                clamp.setLocationSlot(10);
+                clamp.setClampType(2);
+                clampList.add(clamp);
 
+                clamp = new Clamp();
+                clamp.setImgHint(R.drawable.a9_dimple_stop_4);
+                clamp.setLocationSlot(9);
+                clamp.setClampType(2);
+                clampList.add(clamp);
+
+                clamp = new Clamp();
+                clamp.setImgHint(R.drawable.a9_dimple_stop_3);
+                clamp.setLocationSlot(8);
+                clamp.setClampType(2);
+                clampList.add(clamp);
+
+                clamp = new Clamp();
+                clamp.setImgHint(R.drawable.a9_dimple_stop_2);
+                clamp.setLocationSlot(7);
+                clamp.setClampType(2);
+                clampList.add(clamp);
+            }
+        }else if(ki.getType()==KeyInfo.ANGLE_KEY){   //角度钥匙
+            if(ki.getShape()==0){
+                Clamp   clamp = new Clamp();
+                clamp.setImgHint(R.drawable.a9_tibbe_stop_3);
+                clamp.setLocationSlot(4);
+                clamp.setClampType(1);
+                clampList.add(clamp);
+            }else if(ki.getShape()==1){
+                Clamp   clamp = new Clamp();
+                clamp.setImgHint(R.drawable.a9_clamp_no_5);
+                clamp.setLocationSlot(0);
+                clamp.setClampType(1);
+                clampList.add(clamp);
+            }
+            mTvTextGuideHint.setVisibility(View.INVISIBLE);  //隐藏占位子
+        }else if(ki.getType()==KeyInfo.CYLINDER_KEY){  //圆筒钥匙
+            if(ki.getAlign()==KeyInfo.SHOULDERS_ALIGN){
+                Clamp    clamp = new Clamp();
+                clamp.setImgHint(R.drawable.a9_tubular_stop);
+                clamp.setClampType(4);
+                clampList.add(clamp);
+            }else if(ki.getAlign()==KeyInfo.FRONTEND_ALIGN){
+                Clamp    clamp = new Clamp();
+                clamp.setImgHint(R.drawable.a9_tubular_stop);
+                clamp.setClampType(4);
+                clampList.add(clamp);
+            }
+        }else if(ki.getType()==KeyInfo.SIDE_TOOTH_KEY){  //侧齿钥匙
+            //侧齿钥匙没有夹具判断  在读齿里面
+                Clamp   clamp = new Clamp();
+                clamp.setImgHint(R.drawable.a9_fo19_stop_3);
+                clamp.setLocationSlot(4);
+                clamp.setClampType(1);
+                clampList.add(clamp);
+               mTvTextGuideHint.setVisibility(View.GONE);
+        }
+        if(clampList.size()<=1){
+            mIvClampLocationSelect.setClickable(false);
+            mTvTextGuideHint.setVisibility(View.INVISIBLE);  //隐藏但占位置
+        }
+        if(clampList.size()>=1){
+            //根据索引设置夹具图片和定位槽
+            cl = clampList.get(ki.getClampStateIndex());
+            mIvClampLocationSelect.setImageResource(cl.getImgHint());
+            locatingSlot = cl.getLocationSlot();
+            keyClamp = cl.getClampType();
+            index=ki.getClampStateIndex();
+        }else {
+            mIvClampLocationSelect.setImageDrawable(null);
         }
 
-        //根据索引设置夹具图片和定位槽
-        if (MyApplication.clampLocatingIndex == 100) {
-            if(clampLocatingList.size()>=1){
-                cl = clampLocatingList.get(0);
-                mIvClampLocationSelect.setImageResource(cl.getImgHint());
-                locatingSlot = cl.getLocationSlot();
-                keyClamp =cl.getClamp();
-            }else {
-                return;
-            }
-        } else {
-            if(clampLocatingList.size()>=1){
-                cl = clampLocatingList.get(MyApplication.clampLocatingIndex);
-                mIvClampLocationSelect.setImageResource(cl.getImgHint());
-                locatingSlot = cl.getLocationSlot();
-                keyClamp =cl.getClamp();
-            }else {
-                return;
-            }
-        }
-        if(keyClamp==3){
+        if (keyClamp == 3) {  //夹具等于3  就显示夹具技巧提示
             mClampTextHint.setVisibility(View.VISIBLE);
         }
     }
-    /**
-     * 这个方式是临时的
-     * 根据钥匙类型设置参数
-     */
-    private void accordingKeyTypeSetParam() {
-        if (ki.getType() == 0) {  //双边钥匙
-            if (ki.getAlign() == KeyType.SHOULDERS_ALIGN) {
-                locatingSlot = 1;
-                cutDetectionMode = 0;
 
-            } else if (ki.getAlign() == KeyType.FRONTEND_ALIGN) {
-                locatingSlot = 4;
-                cutDetectionMode = 3;
-
-            }
-        } else if (ki.getType() == 1) {  //单边钥匙
-            if (ki.getAlign() == KeyType.SHOULDERS_ALIGN) {
-                locatingSlot = 16;
-                cutDetectionMode = 0;
-            } else if (ki.getAlign() == KeyType.FRONTEND_ALIGN) {
-
-            }
-        } else if (ki.getType() == 2) {  //双轨内槽
-            if (ki.getAlign() == KeyType.SHOULDERS_ALIGN) {
-                cutDetectionMode = 2;
-                locatingSlot = 1;
-            } else if (ki.getAlign() == KeyType.FRONTEND_ALIGN) {
-                cutDetectionMode = 4;
-                locatingSlot = 4;
-
-            }
-        } else if (ki.getType() == 3) {     //单轨外槽
-            if (ki.getAlign() == KeyType.SHOULDERS_ALIGN) {
-
-            } else if (ki.getAlign() == KeyType.FRONTEND_ALIGN) {
-                locatingSlot = 4;
-                cutDetectionMode = 4;
-            }
-        } else if (ki.getType() == 4) {   //双轨外槽
-            if (ki.getAlign() == KeyType.SHOULDERS_ALIGN) {
-
-            } else if (ki.getAlign() == KeyType.FRONTEND_ALIGN) {
-                locatingSlot = 4;
-                cutDetectionMode = 4;
-                mIvClampLocationSelect.setImageResource(R.drawable.a9_laser_stop_4);
-            }
-        } else if (ki.getType() == 5) {   //单轨内槽
-
-        } else if (ki.getType() == 6) {   //凹点钥匙
-            if (ki.getAlign() == KeyType.SHOULDERS_ALIGN) {
-                cutDetectionMode = 0;
-                locatingSlot = 6;
-                mIvClampLocationSelect.setImageResource(R.drawable.a9_dimple_stop_1);
-            } else if (ki.getAlign() == KeyType.FRONTEND_ALIGN) {
-
-            }
-        } else if (ki.getType() == 7) {  //角度钥匙
-            if (ki.getAlign() == KeyType.SHOULDERS_ALIGN) {
-
-            } else if (ki.getAlign() == KeyType.FRONTEND_ALIGN) {
-
-            }
-        } else if (ki.getType() == 8) {//圆筒钥匙/
-            if (ki.getAlign() == KeyType.SHOULDERS_ALIGN) {
-                cutDetectionMode = 0;
-                locatingSlot = 0;
-            } else if (ki.getAlign() == KeyType.FRONTEND_ALIGN) {
-
-            }
-        } else if (ki.getType() == 9) {  //侧齿
-            if (ki.getAlign() == KeyType.SHOULDERS_ALIGN) {
-
-            } else if (ki.getAlign() == KeyType.FRONTEND_ALIGN) {
-
-            }
-        }
-    }
 
     private void initViews() {
         mPutKey = (LinearLayout) findViewById(R.id.ll_put_key);
         mBack = (Button) findViewById(R.id.btn_back_close);
         mBack.setOnClickListener(this);
         mQueryName = (TextView) findViewById(R.id.tv_query_name);
-        mQueryName.setText("IC Card " + ki.getId() + " >");
+        mQueryName.setText("IC Card " + ki.getCardNumber() + " >");
         mSpeed = (ImageView) findViewById(R.id.iv_speed);
         mSpeed.setOnClickListener(this);
         mCutterDiameter = (Button) findViewById(R.id.btn_cut_knife_diameter);
@@ -844,18 +998,18 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
         mBtnPassCut.setOnClickListener(this);
         mCutKey = (Button)findViewById(R.id.btn_cut_key);
         mCutKey.setOnClickListener(this);
-        mBtnFirstCut =(Button)findViewById(R.id.btn_first_cut);
+        mBtnFirstCut =(Button)findViewById(R.id.btn_cut_first_face);
         mBtnFirstCut.setOnClickListener(this);
-        mBtnSecondCut =(Button)findViewById(R.id.btn_second_cut);
+        mBtnSecondCut =(Button)findViewById(R.id.btn_cut_second_face);
         mBtnSecondCut.setOnClickListener(this);
         //停止切割按钮
         mStopCut =(Button)findViewById(btn_stop_cut);
         mStopCut.setOnClickListener(this);
 
         //当前界面 文本提示1
-         mTvTextHint1= (TextView)findViewById(R.id.tv_hint1);
+         mTvTextHint1= (TextView)findViewById(R.id.tv_hint);
         //当前界面 文本提示2
-         mTvTextHint2=(TextView)findViewById(R.id.tv_hint2);
+         mTvTextGuideHint =(TextView)findViewById(R.id.tv_guide_hint);
         //钥匙切割文本提示
         mTvTextCutHint=(TextView)findViewById(R.id.tv_cut_hint);
         //获得进度条父布局
@@ -865,7 +1019,7 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
         //获得进度条
         mPbLoading = (ProgressBar)findViewById(R.id.pb_loading);
         //获得菜单
-        mMenu=(Button)findViewById(R.id.btn_cut_menu);
+        mMenu=(Button)findViewById(R.id.btn_frm_menu);
         mMenu.setOnClickListener(this);
         mBtnCutDepth=(Button)findViewById(R.id.btn_cut_depth);
         mBtnCutDepth.setOnClickListener(this);
@@ -922,19 +1076,31 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
 
         //切割刀直径切换窗口
         View cutterContentView = LayoutInflater.from(this).inflate(R.layout.popupwindow_cutter_diameter_change, null);
+        //获得显示刀具规格TextView
+        mCutterSpecification=(TextView)cutterContentView.findViewById(R.id.tv_cutter_specification);
+        mAddDiameter = (ImageView) cutterContentView.findViewById(R.id.btn_add);
+        mAddDiameter.setOnClickListener(popupWindowItemClick);
+        mSubtractDiameter = (ImageView) cutterContentView.findViewById(R.id.btn_subtract);
+        mSubtractDiameter.setOnClickListener(popupWindowItemClick);
+        mCutterDiameterText = (TextView) cutterContentView.findViewById(R.id.tv_storage_diameter_data);
+        ImageView cutterImgHint =(ImageView)cutterContentView.findViewById(R.id.iv_cutter_hint);
+       LinearLayout  bottomLayout= (LinearLayout)cutterContentView.findViewById(R.id.ll_bottom);
+        if(ki.getType()==KeyInfo.CONCAVE_DOT_KEY){
+            mCutterDiameter.setBackgroundResource(R.drawable.resource21_frmkeycut_docutres);
+            mCutterDiameter.setText("");
+            cutterImgHint.setImageResource(R.drawable.dimplecutter);
+            LinearLayout.LayoutParams linearParams = (LinearLayout.LayoutParams) cutterImgHint.getLayoutParams();
+            linearParams.width=ViewGroup.LayoutParams.WRAP_CONTENT;
+            cutterImgHint.setLayoutParams(linearParams);
+            mCutterSpecification.setVisibility(View.GONE);
+            bottomLayout.setVisibility(View.GONE);
+        }
         mCutterDiameterChangeWindow = new PopupWindow(this);
         mCutterDiameterChangeWindow.setContentView(cutterContentView);
         mCutterDiameterChangeWindow.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
         mCutterDiameterChangeWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
         mCutterDiameterChangeWindow.setBackgroundDrawable(new ColorDrawable());
         mCutterDiameterChangeWindow.setOutsideTouchable(true);
-        //获得显示刀具规格TextView
-        mCutterSpecification=(TextView)cutterContentView.findViewById(R.id.tv_cutter_specification);
-        mAddDiameter = (Button) cutterContentView.findViewById(R.id.btn_add);
-        mAddDiameter.setOnClickListener(popupWindowItemClick);
-        mSubtractDiameter = (Button) cutterContentView.findViewById(R.id.btn_subtract);
-        mSubtractDiameter.setOnClickListener(popupWindowItemClick);
-        mCutterDiameterText = (TextView) cutterContentView.findViewById(R.id.tv_storage_diameter_data);
 
         //切割深度切换窗口
         View     mCutDepthContentView= LayoutInflater.from(this).inflate(R.layout.popupwindow_cut_depth_change,null);
@@ -1040,7 +1206,7 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                     judgeCutDepthWindowIsHide();
                     judgeLocationModeWindowIsHide();
                     judgeCutterDiameterWindowIsHide();
-                    judgeCuttterWindowIsHide();
+                    judgeCutterWindowIsHide();
                     if(mLlZCutHierarchySelect.getVisibility()==View.INVISIBLE){
                         mBtnZCutHierarchy1.setVisibility(View.VISIBLE);
                         mBtnZCutHierarchy2.setVisibility(View.VISIBLE);
@@ -1108,7 +1274,6 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                     mCutLocationMode.dismiss();
                     break;
                 case R.id.ib_bilateral_location: //两边定位
-                    Log.d("是好多？", "onClick: "+cutDetectionMode);
                     if (cutDetectionMode == 0) {
                         mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
                     } else if (cutDetectionMode == 1) {
@@ -1163,15 +1328,14 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        judgePopupWindowDismiss();
-        judgeZCutHierarchySelectIsHide();
-        Log.d("点击了", "onTouchEvent: ");
+        if(event.getAction()==MotionEvent.ACTION_DOWN){
+            judgePopupWindowDismiss();
+            judgeZCutHierarchySelectIsHide();
+        }
         return super.onTouchEvent(event);
     }
 
     View.OnClickListener popupWindowItemClick = new View.OnClickListener() {
-        Button btn;
-
         @Override
         public void onClick(View v) {
             switch (v.getId()) {
@@ -1241,55 +1405,67 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                     break;
                 case R.id.btn_add:  //添加切割刀的直径
                     diameterData = ArithUtils.add(diameterData,0.1);
+                    //去掉后面不要的0  转为String
+                    cutterDiameterValue  = removeUnnecessaryZero(diameterData);
                     if(diameterData>2.5){
                         diameterData=1;
-                        mCutterDiameterText.setText(1 + "mm");
-                        mCutterDiameter.setText(1 + "mm");
+                        cutterDiameterValue="1";
+                        mCutterDiameterText.setText(cutterDiameterValue + "mm");
+                        mCutterDiameter.setText(cutterDiameterValue + "mm");
                         mCutterSpecification.setText("ref.T60-E10-P");
                     }else {
                          if(diameterData==2){
                             mCutterSpecification.setText("ref.T60-E20-P");
-                             mCutterDiameterText.setText(2 + "mm");
-                             mCutterDiameter.setText(2 + "mm");
+                             mCutterDiameterText.setText(cutterDiameterValue + "mm");
+                             mCutterDiameter.setText(cutterDiameterValue + "mm");
                         }else if(diameterData==1.7){
                             mCutterSpecification.setText("ref.T60-E17-P");
+                             mCutterDiameterText.setText(cutterDiameterValue + "mm");
+                             mCutterDiameter.setText(cutterDiameterValue + "mm");
                         }else if(diameterData==1.5) {
                             mCutterSpecification.setText("ref.T60-E15-P");
+                             mCutterDiameterText.setText(cutterDiameterValue + "mm");
+                             mCutterDiameter.setText(cutterDiameterValue + "mm");
                         }else {
-                             mCutterDiameterText.setText(diameterData + "mm");
-                             mCutterDiameter.setText(diameterData + "mm");
+                             mCutterDiameterText.setText(cutterDiameterValue + "mm");
+                             mCutterDiameter.setText(cutterDiameterValue + "mm");
                             mCutterSpecification.setText("");
                         }
                     }
-                    cutterDiameterValue = mCutterDiameterText.getText().toString().replace("mm","");
                     timer.cancel();
                     break;
                 case R.id.btn_subtract:
                     diameterData = ArithUtils.sub(diameterData, 0.1);
+                    //去掉后面不要的0  转为String
+                    cutterDiameterValue  = removeUnnecessaryZero(diameterData);
                     if(diameterData<1){
                         diameterData=2.5;
+                        cutterDiameterValue="2.5";
                         mCutterDiameterText.setText(diameterData + "mm");
                         mCutterDiameter.setText(diameterData + "mm");
                     }else {
                         if(diameterData==1){
                             mCutterSpecification.setText("ref.T60-E10-P");
-                            mCutterDiameterText.setText(1 + "mm");
-                            mCutterDiameter.setText(1 + "mm");
+                            mCutterDiameterText.setText(cutterDiameterValue + "mm");
+                            mCutterDiameter.setText(cutterDiameterValue + "mm");
                         }else if(diameterData==2){
                             mCutterSpecification.setText("ref.T60-E20-P");
-                            mCutterDiameterText.setText(2 + "mm");
-                            mCutterDiameter.setText(2 + "mm");
+                            mCutterDiameterText.setText(cutterDiameterValue + "mm");
+                            mCutterDiameter.setText(cutterDiameterValue + "mm");
                         }else if(diameterData==1.7){
                             mCutterSpecification.setText("ref.T60-E17-P");
+                            mCutterDiameterText.setText(cutterDiameterValue + "mm");
+                            mCutterDiameter.setText(cutterDiameterValue + "mm");
                         }else if(diameterData==1.5){
                             mCutterSpecification.setText("ref.T60-E15-P");
+                            mCutterDiameterText.setText(cutterDiameterValue + "mm");
+                            mCutterDiameter.setText(cutterDiameterValue + "mm");
                         }else {
                             mCutterSpecification.setText("");
-                            mCutterDiameterText.setText(diameterData + "mm");
-                            mCutterDiameter.setText(diameterData + "mm");
+                            mCutterDiameterText.setText(cutterDiameterValue + "mm");
+                            mCutterDiameter.setText(cutterDiameterValue + "mm");
                         }
                     }
-                    cutterDiameterValue = mCutterDiameterText.getText().toString().replace("mm","");
                     timer.cancel();
                     break;
                 case R.id.menu_home:   //回到主界面
@@ -1298,16 +1474,14 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                     startActivity(intentHome);
                     break;
                 case R.id.menu_calibration:  //打开校准界面
-                    Intent intentCalibration=new Intent(CutKeyActivity.this,FrmMaintenanceActivity.class);
-                    startActivity(intentCalibration);
+                    FrmMaintenanceActivity.startFrmMaintenanceActivity(CutKeyActivity.this,languageMap);
                     break;
                 case R.id.menu_clamp_move:  //发指令夹具移动
                     serialDriver.write(Instruction.FIXTURE_MOVE.getBytes(),Instruction.FIXTURE_MOVE.length());
                     break;
                 case R.id.menu_measure:
-                    Intent measureIntent =new Intent(CutKeyActivity.this,MeasureToolActivity.class);
-                    measureIntent.putExtra("Flags",2);
-                    startActivityForResult(measureIntent,1);
+                    ProbeAndCutterMeasurementActivity.
+                            startItselfActivity(CutKeyActivity.this,ProbeAndCutterMeasurementActivity.FlAG_CUTTER_MEASUREMENT);
                     break;
                 case R.id.menu_stop:  //停止操作指令
                     serialDriver.write(Instruction.STOP_OPERATE.getBytes(),Instruction.STOP_OPERATE.length());
@@ -1357,6 +1531,7 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
         super.onDestroy();
         judgePopupWindowDismiss();
         mHandler.removeCallbacksAndMessages(null);
+
     }
 
     /**
@@ -1367,7 +1542,7 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.btn_back_close:
+            case R.id.btn_back_close:  // 关闭当前窗口
                 finish();
                 break;
             case R.id.iv_speed:  //速度切换
@@ -1408,6 +1583,7 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                 judgeMenuWindowIsHide();
                 judgeLocationModeWindowIsHide();
                 judgeCutDepthWindowIsHide();
+
                 if (!isShowCutterDiameterWindow) {
                     mCutterDiameterChangeWindow.showAsDropDown(mCutterDiameter, 100, -95);
                     isShowCutterDiameterWindow = true;
@@ -1425,7 +1601,7 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                 judgeCutterDiameterWindowIsHide();
                 judgeCutDepthWindowIsHide();
                 break;
-            case R.id.btn_cut_menu:  // 界面的菜单
+            case R.id.btn_frm_menu:  // 界面的菜单
                 judgeZCutHierarchySelectIsHide();
                 judgeSpeedSelectWindowIsHide();
                 judgeLocationModeWindowIsHide();
@@ -1441,42 +1617,259 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                 }
 
                 break;
-            case R.id.btn_cut_key: //准备切割钥匙
-                saveCutKeyData();//保存切割记录
+            case R.id.btn_cut_key: //切割钥匙
+                 SaveDataDaoManager.saveDataToCutHistory(ki);//保存数据切割记录
                 judgeZCutHierarchySelectIsHide();
                 judgeSpeedSelectWindowIsHide();
                 judgeMenuWindowIsHide();
                 judgeLocationModeWindowIsHide();
                 judgeCutterDiameterWindowIsHide();
                 judgeCutDepthWindowIsHide();
-                cutOrder =key.getCutOrder(cutDepth,  //切割深度
+                EventBusUtils.post(new MessageEvent(MessageEvent.CLAMP_STATE_INDEX,index));
+                cutOrder = mKey.getCutOrder(cutDepth,  //切割深度
                                           locatingSlot, // 定位槽
                                           assistClamp,  //辅助夹具
-                                    cutterDiameterValue, //刀具直径
+                                          cutterDiameterValue, //刀具直径
                                           cutSpeed,         //速度
                                           ZCutHierarchyValue,  //Z切割层次
-                        cutDetectionMode);   //定位方式
-                Log.d("切割指令", "指令==="+ cutOrder);
-                if(keyClamp ==3){
-                    mCutKey.setBackgroundResource(R.drawable.btncutpressedimage_frmkeycut_docutres);
-                    Intent cutIntent =new Intent(CutKeyActivity.this, KeyCutOperationTipsActivity.class);
-                    cutIntent.putExtra("ImgFlag",imgFlag);
-                    cutIntent.putExtra("Order", cutOrder);
-                    startActivityForResult(cutIntent,3);  //请求码是3
-               }else if(keyClamp ==1){
-                    Intent cutIntent =new Intent(CutKeyActivity.this, KeyCutOperationTipsActivity.class);
-                    cutIntent.putExtra("Clamp",keyClamp);
-                    cutIntent.putExtra("Order", cutOrder);
-                    startActivityForResult(cutIntent,3);  //请求码是3
-                      //切割钥匙   做到切割界面
-                    mCutKey.setBackgroundResource(R.drawable.btncutpressedimage_frmkeycut_docutres);
-                    mCutKey.setClickable(false);
+                                          cutDetectionMode);   //定位方式
+                Log.d("切割指令", "onClick: "+cutOrder);
+                switch (ki.getType()){
+                    case KeyInfo.BILATERAL_KEY:
+                        if(cutDetectionMode==Detection.MODE_BOTHSIDE_LOCATION||cutDetectionMode==Detection.MODE_THREETERMINAL_LOCATION){
+                            OperateTipsActivity.startItselfActivityForResult(this, ki.getType(), cutOrder,Clamp.CLAMP_GROOVE_CHIPS);
+                        }else {
+                            if (serialDriver != null) {
+                                serialDriver.write(cutOrder.getBytes(), cutOrder.length());
+                            }
+                            mIvClampLocationSelect.setVisibility(View.GONE);  //隐藏这个夹具类型选择ImageView
+                            mTvTextHint1.setVisibility(View.INVISIBLE);
+                            mTvTextGuideHint.setVisibility(View.INVISIBLE);
+                            mTvTextCutHint.setVisibility(View.VISIBLE);
+                            mMenu.setVisibility(View.INVISIBLE);
+                            mRlProgressBar.setVisibility(View.VISIBLE);
+                            mStopCut.setVisibility(View.VISIBLE);
+                            mCutKey.setVisibility(View.INVISIBLE);
+                            mBack.setVisibility(View.INVISIBLE);
+                            mKey.setVisibility(View.VISIBLE);  //显示钥匙
+                        }
+                        break;
+                    case  KeyInfo.UNILATERAL_KEY:  //单边钥匙
+                        OperateTipsActivity.startItselfActivityForResult(this,ki.getType(),cutOrder, clampAvailable);
+                        break;
+                    case  KeyInfo.DUAL_PATH_INSIDE_GROOVE_KEY:
+                        if(cutDetectionMode==Detection.MODE_BOTHSIDE_LOCATION||cutDetectionMode==Detection.MODE_THREETERMINAL_LOCATION){
+                            OperateTipsActivity.startItselfActivityForResult(this, ki.getType(), cutOrder,Clamp.CLAMP_GROOVE_CHIPS);
+                        } else if(cutDetectionMode==Detection.MODE_NO_DETECT){
+                                MessageTipsActivity.startMessageTipsActivityForResult(this,MessageTipsActivity.CUT_NO_DETECTION);
+                        }else {
+                            if (serialDriver != null) {
+                                serialDriver.write(cutOrder.getBytes(), cutOrder.length());
+                            }
+                            mIvClampLocationSelect.setVisibility(View.GONE);  //隐藏这个夹具类型选择ImageView
+                            mTvTextHint1.setVisibility(View.INVISIBLE);
+                            mTvTextGuideHint.setVisibility(View.INVISIBLE);
+                            mTvTextCutHint.setVisibility(View.VISIBLE);
+                            mMenu.setVisibility(View.INVISIBLE);
+                            mRlProgressBar.setVisibility(View.VISIBLE);
+                            mStopCut.setVisibility(View.VISIBLE);
+                            mCutKey.setVisibility(View.INVISIBLE);
+                            mBack.setVisibility(View.INVISIBLE);
+                            mKey.setVisibility(View.VISIBLE);  //显示钥匙
+                            if(cutToken==1){
+                                mBtnSecondCut.setVisibility(View.INVISIBLE);
+                            }else if(cutToken==2){
+                                mBtnFirstCut.setVisibility(View.INVISIBLE);
+                            }
+                        }
+                        break;
+                    case KeyInfo.MONORAIL_OUTER_GROOVE_KEY:  //双轨外槽钥匙
+                        if(cutDetectionMode==Detection.MODE_BOTHSIDE_LOCATION||cutDetectionMode==Detection.MODE_THREETERMINAL_LOCATION){
+                            OperateTipsActivity.startItselfActivityForResult(this, ki.getType(), cutOrder,Clamp.CLAMP_GROOVE_CHIPS);
+                        } else if(cutDetectionMode==Detection.MODE_NO_DETECT){
+                            MessageTipsActivity.startMessageTipsActivityForResult(this,MessageTipsActivity.CUT_NO_DETECTION);
+                        }else {
+                            if (serialDriver != null) {
+                                serialDriver.write(cutOrder.getBytes(), cutOrder.length());
+                            }
+                            mIvClampLocationSelect.setVisibility(View.GONE);  //隐藏这个夹具类型选择ImageView
+                            mTvTextHint1.setVisibility(View.INVISIBLE);
+                            mTvTextGuideHint.setVisibility(View.INVISIBLE);
+                            mTvTextCutHint.setVisibility(View.VISIBLE);
+                            mMenu.setVisibility(View.INVISIBLE);
+                            mRlProgressBar.setVisibility(View.VISIBLE);
+                            mStopCut.setVisibility(View.VISIBLE);
+                            mCutKey.setVisibility(View.INVISIBLE);
+                            mBack.setVisibility(View.INVISIBLE);
+                            mKey.setVisibility(View.VISIBLE);  //显示钥匙
+                            if(cutToken==1){
+                                mBtnSecondCut.setVisibility(View.INVISIBLE);
+                            }else if(cutToken==2){
+                                mBtnFirstCut.setVisibility(View.INVISIBLE);
+                            }
+                        }
+                        break;
+                    case KeyInfo.DUAL_PATH_OUTER_GROOVE_KEY:  //双轨外槽
+                        if(cutDetectionMode==Detection.MODE_BOTHSIDE_LOCATION||cutDetectionMode==Detection.MODE_THREETERMINAL_LOCATION){
+                            OperateTipsActivity.startItselfActivityForResult(this, ki.getType(), cutOrder,Clamp.CLAMP_GROOVE_CHIPS);
+                        } else if(cutDetectionMode==Detection.MODE_NO_DETECT){
+                            MessageTipsActivity.startMessageTipsActivityForResult(this,MessageTipsActivity.CUT_NO_DETECTION);
+                        }else {
+                            if (serialDriver != null) {
+                                serialDriver.write(cutOrder.getBytes(), cutOrder.length());
+                            }
+                            mIvClampLocationSelect.setVisibility(View.GONE);  //隐藏这个夹具类型选择ImageView
+                            mTvTextHint1.setVisibility(View.INVISIBLE);
+                            mTvTextGuideHint.setVisibility(View.INVISIBLE);
+                            mTvTextCutHint.setVisibility(View.VISIBLE);
+                            mMenu.setVisibility(View.INVISIBLE);
+                            mRlProgressBar.setVisibility(View.VISIBLE);
+                            mStopCut.setVisibility(View.VISIBLE);
+                            mCutKey.setVisibility(View.INVISIBLE);
+                            mBack.setVisibility(View.INVISIBLE);
+                            mKey.setVisibility(View.VISIBLE);  //显示钥匙
+                            if(cutToken==1){
+                                mBtnSecondCut.setVisibility(View.INVISIBLE);
+                            }else if(cutToken==2){
+                                mBtnFirstCut.setVisibility(View.INVISIBLE);
+                            }
+                        }
+                        break;
+                    case KeyInfo.MONORAIL_INSIDE_GROOVE_KEY:
+                        if(cutDetectionMode==Detection.MODE_BOTHSIDE_LOCATION||cutDetectionMode==Detection.MODE_THREETERMINAL_LOCATION){
+                            OperateTipsActivity.startItselfActivityForResult(this, ki.getType(), cutOrder,Clamp.CLAMP_GROOVE_CHIPS);
+                        } else if(cutDetectionMode==Detection.MODE_NO_DETECT){
+                            MessageTipsActivity.startMessageTipsActivityForResult(this,MessageTipsActivity.CUT_NO_DETECTION);
+                        }else {
+                            if (serialDriver != null) {
+                                serialDriver.write(cutOrder.getBytes(), cutOrder.length());
+                            }
+                            mIvClampLocationSelect.setVisibility(View.GONE);  //隐藏这个夹具类型选择ImageView
+                            mTvTextHint1.setVisibility(View.INVISIBLE);
+                            mTvTextGuideHint.setVisibility(View.INVISIBLE);
+                            mTvTextCutHint.setVisibility(View.VISIBLE);
+                            mMenu.setVisibility(View.INVISIBLE);
+                            mRlProgressBar.setVisibility(View.VISIBLE);
+                            mStopCut.setVisibility(View.VISIBLE);
+                            mCutKey.setVisibility(View.INVISIBLE);
+                            mBack.setVisibility(View.INVISIBLE);
+                            mKey.setVisibility(View.VISIBLE);  //显示钥匙
+                            if(cutToken==1){
+                                mBtnSecondCut.setVisibility(View.INVISIBLE);
+                            }else if(cutToken==2){
+                                mBtnFirstCut.setVisibility(View.INVISIBLE);
+                            }
+                        }
+                        break;
+                    case KeyInfo.CONCAVE_DOT_KEY:   //凹点钥匙
+                        if(ki.getRowCount()>1){
+                            String[]  rowPos =ki.getRow_pos().split(";");
+                            int  valueSide;
+                            boolean isHaveSide = false;
+                            boolean isPathwayEquality=false;
+                            //数
+                            int num=0;
+                            for (int i = 0; i <rowPos.length ; i++) {
+                                valueSide  =Integer.parseInt(rowPos[i]);
+                                if(valueSide<=0){
+                                    isHaveSide=true;
+                                    break;
+                                }
+                                if(valueSide==num){
+                                    isPathwayEquality=true;
+                                    break;
+                                }else {
+                                    num=valueSide;
+                                }
+                            }
+                            if(isHaveSide==true||isPathwayEquality==true){
+                                    //属于特殊钥匙的逻辑
+                            }else {
+                                OperateTipsActivity.startItselfActivityForResult(this, ki.getType(), cutOrder,ConstantValue.B_TYPE_CUTTER);
+                            }
+                        }else {
+                            OperateTipsActivity.startItselfActivityForResult(this, ki.getType(), cutOrder,ConstantValue.B_TYPE_CUTTER);
+                        }
+
+                        break;
+                    case KeyInfo.ANGLE_KEY:   //角度钥匙
+                        if (serialDriver != null) {
+                            serialDriver.write(cutOrder.getBytes(), cutOrder.length());
+                        }
+                        mIvClampLocationSelect.setVisibility(View.GONE);  //隐藏这个夹具类型选择ImageView
+                        mTvTextHint1.setVisibility(View.INVISIBLE);
+                        mTvTextGuideHint.setVisibility(View.INVISIBLE);
+                        mTvTextCutHint.setVisibility(View.VISIBLE);
+                        mMenu.setVisibility(View.INVISIBLE);
+                        mRlProgressBar.setVisibility(View.VISIBLE);
+                        mStopCut.setVisibility(View.VISIBLE);
+                        mCutKey.setVisibility(View.INVISIBLE);
+                        mBack.setVisibility(View.INVISIBLE);
+                        mKey.setVisibility(View.VISIBLE);  //显示钥匙
+                        break;
+                    case KeyInfo.CYLINDER_KEY:   //圆筒钥匙
+                        if (serialDriver != null) {
+                            serialDriver.write(cutOrder.getBytes(), cutOrder.length());
+                        }
+                        mIvClampLocationSelect.setVisibility(View.GONE);  //隐藏这个夹具类型选择ImageView
+                        mTvTextHint1.setVisibility(View.INVISIBLE);
+                        mTvTextGuideHint.setVisibility(View.INVISIBLE);
+                        mTvTextCutHint.setVisibility(View.VISIBLE);
+                        mMenu.setVisibility(View.INVISIBLE);
+                        mRlProgressBar.setVisibility(View.VISIBLE);
+                        mStopCut.setVisibility(View.VISIBLE);
+                        mCutKey.setVisibility(View.INVISIBLE);
+                        mBack.setVisibility(View.INVISIBLE);
+                        mKey.setVisibility(View.VISIBLE);  //显示钥匙
+                        break;
+                    case KeyInfo.SIDE_TOOTH_KEY:  //侧齿钥匙
+                        if (serialDriver != null) {
+                            serialDriver.write(cutOrder.getBytes(), cutOrder.length());
+                        }
+                        mIvClampLocationSelect.setVisibility(View.GONE);  //隐藏这个夹具类型选择ImageView
+                        mTvTextHint1.setVisibility(View.INVISIBLE);
+                        mTvTextCutHint.setVisibility(View.VISIBLE);
+                        mMenu.setVisibility(View.INVISIBLE);
+                        mRlProgressBar.setVisibility(View.VISIBLE);
+                        mStopCut.setVisibility(View.VISIBLE);
+                        mCutKey.setVisibility(View.INVISIBLE);
+                        mBack.setVisibility(View.INVISIBLE);
+                        mKey.setVisibility(View.VISIBLE);  //显示钥匙
+                        if(cutToken==1){
+                            mBtnSecondCut.setVisibility(View.INVISIBLE);
+                        }else if(cutToken==2){
+                            mBtnFirstCut.setVisibility(View.INVISIBLE);
+                        }
+                        break;
+
                 }
-                MyApplication.clampLocatingIndex=index;
                 break;
             case R.id.btn_stop_cut:   //停止切割
                 if(serialDriver!=null){
                     serialDriver.write(Instruction.STOP_OPERATE.getBytes(),Instruction.STOP_OPERATE.length());
+                }
+                if(mCutKey.getVisibility()==View.INVISIBLE){
+                    mKey.setVisibility(View.GONE);  //隐藏钥匙
+                    mIvClampLocationSelect.setVisibility(View.VISIBLE);  //显示这个夹具类型选择ImageView
+                   mTvTextHint1.setVisibility(View.VISIBLE);
+                    mTvTextGuideHint.setVisibility(View.VISIBLE);
+                    mTvTextCutHint.setVisibility(View.INVISIBLE);
+                   mMenu.setVisibility(View.VISIBLE);
+                    mRlProgressBar.setVisibility(View.INVISIBLE);
+                    mTvProgress.setText("0");
+                   mPbLoading.setProgress(0);
+                    mStopCut.setVisibility(View.INVISIBLE);
+                    mCutKey.setVisibility(View.VISIBLE);
+                   mCutKey.setBackgroundResource(R.drawable.btncutimage1_frmkeycut_docutres);
+                    mCutKey.setClickable(true);
+                    mBack.setVisibility(View.VISIBLE);
+                    if(ki.getType()!=KeyType.UNILATERAL_KEY&&ki.getType()!=KeyType.BILATERAL_KEY&&ki.getType()!=KeyInfo.ANGLE_KEY&&ki.getType()!=KeyInfo.CYLINDER_KEY){
+                        mBtnSecondCut.setVisibility(View.VISIBLE);
+                        mBtnFirstCut.setVisibility(View.VISIBLE);
+                    }
+                } else  if(mMeasureCutter.isClickable()==false){
+                    mMeasureCutter.setTextColor(Color.parseColor("#020701"));
+                    mMeasureCutter.setClickable(true);
                 }
                 break;
             case R.id.iv_key_cut_location: //打开钥匙切割定位选择窗口
@@ -1562,7 +1955,7 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                     isShowLocationModeWindow = false;
                 }
                 break;
-            case R.id.btn_first_cut:  //第一次切割
+            case R.id.btn_cut_first_face:  //第一次切割
                 if(cutToken!=1){
                     mBtnFirstCut.setBackgroundResource(R.drawable.btntopdisabledimage_frmkeycut_docutres);
                     mBtnFirstCut.setTextColor(Color.parseColor("#B5B5B5"));
@@ -1571,7 +1964,7 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                     cutToken=1; //切割记号为1
                 }
                 break;
-            case R.id.btn_second_cut:  //第二次切割
+            case R.id.btn_cut_second_face:  //第二次切割
                 if(cutToken!=2){
                     mBtnFirstCut.setBackgroundResource(R.drawable.btntopimage_frmkeycut_docutres);
                     mBtnFirstCut.setTextColor(Color.BLACK);
@@ -1600,23 +1993,9 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     /**
-     * 保存切割钥匙的数据
-     */
-   private  void saveCutKeyData(){
-       SQLiteCollectAndCutHistoryDao sqLiteCollectAndCutHistoryDao=
-               SQLiteCollectAndCutHistoryDao.getInstance(getApplication());
-       //获得表中数据有多少条
-      int dataQuantity=sqLiteCollectAndCutHistoryDao.getTableDataNum(sqLiteCollectAndCutHistoryDao.TABLE_CUT_HISTORY);
-       if(dataQuantity< KeyInformationBoxroomActivity.CUT_HISTORY_DATA_MAX){
-           sqLiteCollectAndCutHistoryDao.insertDataToCutHistory(step,ki,startFlag);
-       }else {
-           MessageTipsActivity.startMessageTipsActivity(this,MessageTipsActivity.COLLECT_FAILURE);
-       }
-   }
-    /**
      *   判断切割深度窗口是否隐藏
      */
-    private void judgeCuttterWindowIsHide(){
+    private void judgeCutterWindowIsHide(){
         if(isShowCutDepthWindow){
             mCutDepthSwitchoverWindow.dismiss();
             isShowCutDepthWindow=false;
@@ -1715,7 +2094,6 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
      *  判断本activity的PopupWindow是否关闭
      */
     private void judgePopupWindowDismiss(){
-
         if (isShowSpeedWindow) {  //判断速度窗口是不是为true
             if(cutSpeed ==1){
                 mSpeed.setImageResource(R.drawable.btnspeed1image_frmkeycut_docutres);
@@ -1739,7 +2117,6 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
             isShowMeun=false;
         }
         if (isShowCutterDiameterWindow) {   //判断切割刀规格选择窗口 是不是显示状态
-            mBtnCutDepth.setBackgroundResource(R.drawable.btndepthpressedimage_frmkeycut_docutres);
             mCutterDiameterChangeWindow.dismiss();
             isShowCutterDiameterWindow = false;
         }
@@ -1766,96 +2143,111 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
     private void addKeyViewType() {
         if (ki.getType() == KeyType.BILATERAL_KEY) {//双边钥匙
             //准备好要绘制的数据和钥匙
-            key=new BilateralKey(this,ki);
-            key.setLayoutParams(new LinearLayout.LayoutParams(740, 330));
-            key.setToothDepthName(ki.getKeyToothCode());
-            key.setBackgroundResource(R.drawable.edit_shape);
-            key.setShowArrows(false);
-            key.setVisibility(View.GONE);
+            mKey =new BilateralKey(this,ki);
+            mKey.setLayoutParams(new LinearLayout.LayoutParams(615,265));
+            mKey.setDrawPatternSize(600,250);
+            mKey.setToothCode(ki.getKeyToothCode());
+            mKey.setDrawToothWidth(20);
+            mKey.setBackgroundResource(R.drawable.edit_shape);
+            mKey.setShowArrows(false);
+            mKey.setVisibility(View.GONE);
             //添加View
-            mPutKey.addView(key,0);
+            mPutKey.addView(mKey,0);
         } else if (ki.getType() ==  KeyType.UNILATERAL_KEY) {  //单边钥匙
-            key = new UnilateralKey(this,ki);
-            key.setNeededDrawAttribute(ki);
-            key.setShowArrows(false);
-            key.setLayoutParams(new LinearLayout.LayoutParams(720,300));
-            key.setToothDepthName(ki.getKeyToothCode());
-            key.setBackgroundResource(R.drawable.edit_shape);
-            key.setShowArrows(false);
-            key.setVisibility(View.GONE);
-            mPutKey.addView(key,0);
+            mKey = new UnilateralKey(this,ki);
+            mKey.setLayoutParams(new LinearLayout.LayoutParams(660,270));
+            mKey.setDrawPatternSize(640,265);
+            mKey.setBackgroundResource(R.drawable.edit_shape);
+            mKey.setToothCode(ki.getKeyToothCode());
+            mKey.setShowArrows(false);
+            mKey.setVisibility(View.GONE);
+            mPutKey.addView(mKey,0);
         }else if(ki.getType()==KeyType.DUAL_PATH_INSIDE_GROOVE_KEY){  //双轨内槽钥匙
-            key = new DualPathOuterGrooveKey(this);
-            key.setNeededDrawAttribute(ki);
-            key.setShowArrows(false);
-            key.setLayoutParams(new LinearLayout.LayoutParams(720,300));
-            key.setToothDepthName(ki.getKeyToothCode());
-            key.setBackgroundResource(R.drawable.edit_shape);
-            key.setVisibility(View.GONE);
-            mPutKey.addView(key,0);
+            mKey = new DualPathInsideGrooveKey(this,ki);
+            mKey.setLayoutParams(new LinearLayout.LayoutParams(DensityUtils.dip2px(this,620), DensityUtils.dip2px(this,230)));
+            mKey.setDrawPatternSize(DensityUtils.dip2px(this,610),DensityUtils.dip2px(this,225));
+            mKey.setShowArrows(false);
+            mKey.setToothCode(ki.getKeyToothCode());
+            mKey.setBackgroundResource(R.drawable.edit_shape);
+            mKey.setVisibility(View.GONE);
+            mPutKey.addView(mKey,0);
         }else if(ki.getType()==KeyType.MONORAIL_OUTER_GROOVE_KEY){  // 单轨外槽钥匙
-            key = new MonorailOuterGrooveKey(this);
-            key.setNeededDrawAttribute(ki);  //设置需要绘制的属性
-            key.setShowArrows(false);
-            key.setToothDepthName(ki.getKeyToothCode());
-            key.setBackgroundResource(R.drawable.edit_shape);
-            key.setLayoutParams(new LinearLayout.LayoutParams(740,300));
-            key.setVisibility(View.GONE);
-            mPutKey.addView(key,0);   //添加View
+            mKey = new MonorailOuterGrooveKey(this,ki);
+            mKey.setBackgroundResource(R.drawable.edit_shape);
+            mKey.setLayoutParams(new LinearLayout.LayoutParams(DensityUtils.dip2px(this,620),DensityUtils.dip2px(this,230)));
+            mKey.setDrawPatternSize(DensityUtils.dip2px(this,610),DensityUtils.dip2px(this,225));
+            mKey.setToothCode(ki.getKeyToothCode());
+            mKey.setShowArrows(false);
+            mKey.setVisibility(View.GONE);
+            mPutKey.addView(mKey,0);   //添加View
         }else if(ki.getType()==KeyType.DUAL_PATH_OUTER_GROOVE_KEY){ //双轨外槽钥匙
-            key = new DualPathOuterGrooveKey(this); //双轨外槽钥匙
-            key.setNeededDrawAttribute(ki);  //设置需要绘制的属性
-            key.setShowArrows(false);
-            key.setToothDepthName(ki.getKeyToothCode());
-            key.setBackgroundResource(R.drawable.edit_shape);
-            key.setLayoutParams(new LinearLayout.LayoutParams(740,300));
-            key.setVisibility(View.GONE);
-            mPutKey.addView(key,0);   //添加View
+            mKey = new DualPathOuterGrooveKey(this,ki); //双轨外槽钥匙
+            mKey.setBackgroundResource(R.drawable.edit_shape);
+            mKey.setLayoutParams(new LinearLayout.LayoutParams(DensityUtils.dip2px(this,610), DensityUtils.dip2px(this,206)));
+            mKey.setDrawPatternSize(DensityUtils.dip2px(this,600),DensityUtils.dip2px(this,204));
+            mKey.setShowArrows(false);
+            mKey.setToothCode(ki.getKeyToothCode());
+            mKey.setVisibility(View.GONE);
+            mPutKey.addView(mKey,0);   //添加View
         }if(ki.getType()==KeyType.MONORAIL_INSIDE_GROOVE_KEY){  //单轨内槽钥匙
-            key = new MonorailInsideGrooveKey(this);
-            key.setNeededDrawAttribute(ki);  //设置需要绘制的属性
-            key.setShowArrows(false);
-            key.setToothDepthName(ki.getKeyToothCode());
-            key.setBackgroundResource(R.drawable.edit_shape);
-            key.setLayoutParams(new LinearLayout.LayoutParams(740,300));
-            key.setVisibility(View.GONE);
-            mPutKey.addView(key,0);   //添加View
+            mKey = new MonorailInsideGrooveKey(this,ki);
+            mKey.setLayoutParams(new LinearLayout.LayoutParams(740, 300));
+            mKey.setDrawPatternSize(736,296);
+            mKey.setToothCode(ki.getKeyToothCode());
+            mKey.setShowArrows(false);
+            mKey.setBackgroundResource(R.drawable.edit_shape);
+            mKey.setVisibility(View.GONE);
+            mPutKey.addView(mKey,0);   //添加View
         }else if(ki.getType()==KeyType.CONCAVE_DOT_KEY){  //凹点钥匙
-            key = new ConcaveDotKey(this);
-            key.setNeededDrawAttribute(ki);  //设置需要绘制的属性
-            key.setShowArrows(false);
-            key.setToothDepthName(ki.getKeyToothCode());
-            key.setBackgroundResource(R.drawable.edit_shape);
-            key.setLayoutParams(new LinearLayout.LayoutParams(740,300));
-            key.setVisibility(View.GONE);
-            mPutKey.addView(key,0);   //添加View
+            String[] newStr=ki.getRow_pos().split(";");
+            if(ki.getRowCount()==1&&Integer.parseInt(newStr[0])<0){
+                mKey = new ConcaveDotKey(this,ki);
+                LinearLayout.LayoutParams layoutParam=new LinearLayout.LayoutParams(DensityUtils.dip2px(this,550), DensityUtils.dip2px(this,80));
+                layoutParam.setMargins(0,DensityUtils.dip2px(this,90),0,0);
+                mKey.setLayoutParams(layoutParam);
+                mKey.setOnlyDrawSidePatternSize(DensityUtils.dip2px(this,548),DensityUtils.dip2px(this,78));
+                mKey.setDrawBigCircleAndInnerCircleSize(14,6);
+                mKey.setToothCode(ki.getKeyToothCode());
+                mKey.setShowArrows(false);
+                mKey.setVisibility(View.GONE);
+                mPutKey.addView(mKey,0);
+            }else {
+                mKey = new ConcaveDotKey(this,ki);
+                mKey.setLayoutParams(new LinearLayout.LayoutParams(DensityUtils.dip2px(this,620), DensityUtils.dip2px(this,210)));
+                mKey.setDrawPatternSize(DensityUtils.dip2px(this,618),DensityUtils.dip2px(this,208));
+                mKey.setDrawBigCircleAndInnerCircleSize(14,6);
+                mKey.setToothCode(ki.getKeyToothCode());
+                mKey.setShowArrows(false);
+                mKey.setVisibility(View.GONE);
+                mPutKey.addView(mKey,0);
+            }
         }else if(ki.getType()==KeyType.ANGLE_KEY){   //角度钥匙
-            key = new AngleKey(this);
-            key.setNeededDrawAttribute(ki);  //设置需要绘制的属性
-            key.setShowArrows(false);
-            key.setToothDepthName(ki.getKeyToothCode());
-            key.setBackgroundResource(R.drawable.edit_shape);
-            key.setLayoutParams(new LinearLayout.LayoutParams(740,300));
-            key.setVisibility(View.GONE);
-            mPutKey.addView(key,0);   //添加View
+            mKey = new AngleKey(this,ki);
+            mKey.setLayoutParams(new LinearLayout.LayoutParams(740,240));
+            mKey.setBackgroundResource(R.drawable.edit_shape);
+            mKey.setDrawPatternSize(700,238);
+            mKey.setShowArrows(false);
+            mKey.setToothCode(ki.getKeyToothCode());
+            mKey.setVisibility(View.GONE);
+            mPutKey.addView(mKey,0);   //添加View
         }else if(ki.getType()==KeyType.CYLINDER_KEY){  //圆筒钥匙
-            key = new CylinderKey(this);
-            key.setNeededDrawAttribute(ki);  //设置需要绘制的属性
-            key.setShowArrows(false);
-            key.setToothDepthName(ki.getKeyToothCode());
-            key.setBackgroundResource(R.drawable.edit_shape);
-            key.setLayoutParams(new LinearLayout.LayoutParams(740,300));
-            key.setVisibility(View.GONE);
-            mPutKey.addView(key,0);   //添加View
+            mKey = new CylinderKey(this,ki);
+            LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(305,305);
+            layoutParams.setMargins(DensityUtils.dip2px(this,90),0,0,0);
+            layoutParams.gravity=Gravity.CENTER;
+            mKey.setLayoutParams(layoutParams);
+            mKey.setDrawPatternSize(300,300);
+            mKey.setToothCode(ki.getKeyToothCode());
+            mKey.setVisibility(View.GONE);
+            mPutKey.addView(mKey,0);   //添加View
         }else if(ki.getType()==KeyType.SIDE_TOOTH_KEY){  //侧齿钥匙
-            key = new SideToothKey(this);
-            key.setNeededDrawAttribute(ki);  //设置需要绘制的属性
-            key.setShowArrows(false);
-            key.setToothDepthName(ki.getKeyToothCode());
-            key.setBackgroundResource(R.drawable.edit_shape);
-            key.setLayoutParams(new LinearLayout.LayoutParams(740,300));
-            key.setVisibility(View.GONE);
-            mPutKey.addView(key,0);   //添加View
+            mKey = new SideToothKey(this,ki);
+            mKey.setLayoutParams(new LinearLayout.LayoutParams(740,250));
+            mKey.setDrawPatternSize(730,248);
+            mKey.setShowArrows(false);
+            mKey.setToothCode(ki.getKeyToothCode());
+            mKey.setVisibility(View.GONE);
+            mPutKey.addView(mKey,0);   //添加View
         }
     }
 
@@ -1864,104 +2256,53 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
      */
     private  void clampLocationSlotImgSelect(){
                 index++;
-                if (index < clampLocatingList.size()) {
-                    cl = clampLocatingList.get(index);
+                if (index < clampList.size()) {
+                    cl = clampList.get(index);
                     mIvClampLocationSelect.setImageResource(cl.getImgHint());
                     locatingSlot = cl.getLocationSlot();
-                    keyClamp=cl.getClamp();
+                    keyClamp=cl.getClampType();
                 } else {
                     index = 0;
-                    cl = clampLocatingList.get(index);
+                    cl = clampList.get(index);
                     mIvClampLocationSelect.setImageResource(cl.getImgHint());
                     locatingSlot = cl.getLocationSlot();
-                    keyClamp=cl.getClamp();
+                    keyClamp=cl.getClampType();
                 }
-        if(keyClamp==1){
-            if(mClampTextHint.getVisibility()==View.VISIBLE){
-                mClampTextHint.setVisibility(View.INVISIBLE);
-            }
-            if(ki.getType()==3){  //单轨外槽
-                if(ki.getAlign()==0){
-
-                }else if(ki.getAlign()==1){
-                    if(locatingSlot==10){
-                        cutDetectionMode =2;
-                        mIvLocateMode.setImageResource(R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
-                        mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
-                        mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightimage_frmkeycut_docutres);
-                        mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterpressedimage_frmkeycut_docutres);
-                        mIvCuspLocation.setImageResource(R.drawable.btnautosensetipimage_frmkeycut_docutres);
-                        mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosenseallimage_frmkeycut_docutres);
-                    }else {
-                        cutDetectionMode =4;
-                        mIvLocateMode.setImageResource(R.drawable.btnautosenseallimage_frmkeycut_docutres);
-                        mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
-                        mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightimage_frmkeycut_docutres);
-                        mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
-                        mIvCuspLocation.setImageResource(R.drawable.btnautosensetipimage_frmkeycut_docutres);
-                        mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosenseallpressedimage_frmkeycut_docutres);
-                    }
-                }
-            }else if(ki.getType()==4){  //双轨外槽
-                if(ki.getAlign()==0){
-
-                }else if(ki.getAlign()==1){
-                    if(locatingSlot==10){
-                        cutDetectionMode =2;
-                        mIvLocateMode.setImageResource(R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
-                        mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
-                        mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightimage_frmkeycut_docutres);
-                        mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterpressedimage_frmkeycut_docutres);
-                        mIvCuspLocation.setImageResource(R.drawable.btnautosensetipimage_frmkeycut_docutres);
-                        mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosenseallimage_frmkeycut_docutres);
-                    }else {
-                        cutDetectionMode =4;
-                        mIvLocateMode.setImageResource(R.drawable.btnautosenseallimage_frmkeycut_docutres);
-                        mIvNoDetect.setImageResource(R.drawable.btnautosensenoimage_frmkeycut_docutres);
-                        mIvUpDownLocation.setImageResource(R.drawable.btnautosenseheightimage_frmkeycut_docutres);
-                        mIvBilateralLocation.setImageResource(R.drawable.btnautosenseycenterimage_frmkeycut_docutres);
-                        mIvCuspLocation.setImageResource(R.drawable.btnautosensetipimage_frmkeycut_docutres);
-                        mIvThreeTerminalLocation.setImageResource(R.drawable.btnautosenseallpressedimage_frmkeycut_docutres);
-                    }
-                }
-            }
-        }else if(keyClamp==3){
-            if(mClampTextHint.getVisibility()==View.INVISIBLE){
-                mClampTextHint.setVisibility(View.VISIBLE);
-            }
-        }
     }
 
     View.OnClickListener  cutDepthSwitchoverListener=new View.OnClickListener(){
 
         @Override
         public void onClick(View v) {
-           Double  depthValue=   Double.parseDouble(mTvCutDepthValue.getText().toString().replace("mm",""));
+//           Double  depthValue=   Double.parseDouble(mTvCutDepthValue.getText().toString().replace("mm",""));
             String  value="";
                 switch (v.getId()){
                     case R.id.btn_reduce://减
-                      value=Tools.removeUnnecessaryZero(ArithUtils.sub(depthValue, 0.1));
-                        Log.d("是好多?", "onClick: "+value);
-                        if(depthValue<0.5){
+                        cutDepth=cutDepth-10;
+
+                        if(cutDepth<50){
                             mTvCutDepthValue.setText("1.5mm");
                             mBtnCutDepth.setText("1.5mm");
+                            cutDepth=150;
                         }else {
+                            value= Tools.removeUnnecessaryZero(ArithUtils.mul(cutDepth,0.01));
                             mBtnCutDepth.setText(value+"mm");
                             mTvCutDepthValue.setText(value+"mm");
                         }
-
-                        cutDepth=(int)ArithUtils.mul(Double.parseDouble(value),100);
+                        Log.d("是好多?", "onClick: "+cutDepth);
                         break;
                     case R.id.btn_increase:  //增加
-                        value=Tools.removeUnnecessaryZero(ArithUtils.add(depthValue, 0.1));
-                        if(depthValue>1.5){
+                        cutDepth=cutDepth+10;
+                        if(cutDepth>150){
                             mBtnCutDepth.setText("0.8mm");
                             mTvCutDepthValue.setText("0.8mm");
+                            cutDepth=80;
                         }else {
+                            value= removeUnnecessaryZero(ArithUtils.mul(cutDepth, 0.01));
                             mBtnCutDepth.setText(value+"mm");
                             mTvCutDepthValue.setText(value+"mm");
                         }
-                        cutDepth=(int)ArithUtils.mul(Double.parseDouble(value),100);
+                        Log.d("是好多?", "onClick: "+cutDepth);
                         break;
                 }
         }
@@ -1991,18 +2332,17 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
             isShowCutterWindow = false;
             timer.start();//开始倒计时
         }
-
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-           if(requestCode==1&&resultCode==2){  //代表检测切割刀高度的返回
+           if(requestCode==1&&resultCode== ConstantValue.START_MEASURE_CUTTER){  //代表检测切割刀高度的返回
                mMeasureCutter.setTextColor(Color.parseColor("#636363"));
                mMeasureCutter.setClickable(false);
-           }else if(requestCode==3&&resultCode==2){   //返回码为2
+           }else if(resultCode==ConstantValue.START_OPERATE){   //返回码为2
                mIvClampLocationSelect.setVisibility(View.GONE);  //隐藏这个夹具类型选择ImageView
                mTvTextHint1.setVisibility(View.INVISIBLE);
-               mTvTextHint2.setVisibility(View.INVISIBLE);
+               mTvTextGuideHint.setVisibility(View.INVISIBLE);
                mTvTextCutHint.setVisibility(View.VISIBLE);
                mMenuWindow.dismiss();
                mMenu.setVisibility(View.INVISIBLE);
@@ -2010,11 +2350,31 @@ public class CutKeyActivity extends AppCompatActivity implements View.OnClickLis
                mStopCut.setVisibility(View.VISIBLE);
                mCutKey.setVisibility(View.INVISIBLE);
                mBack.setVisibility(View.INVISIBLE);
-               key.setVisibility(View.VISIBLE);  //显示钥匙
+               mKey.setVisibility(View.VISIBLE);  //显示钥匙
                if(cutToken==1){
                    mBtnSecondCut.setVisibility(View.INVISIBLE);
                }else if(cutToken==2){
                    mBtnFirstCut.setVisibility(View.INVISIBLE);
+               }
+           }else if(resultCode==MessageTipsActivity.CUT_NO_DETECTION){  //不检测  开始切割
+               mIvClampLocationSelect.setVisibility(View.GONE);  //隐藏这个夹具类型选择ImageView
+               mTvTextHint1.setVisibility(View.INVISIBLE);
+               mTvTextGuideHint.setVisibility(View.INVISIBLE);
+               mTvTextCutHint.setVisibility(View.VISIBLE);
+               mMenuWindow.dismiss();
+               mMenu.setVisibility(View.INVISIBLE);
+               mRlProgressBar.setVisibility(View.VISIBLE);
+               mStopCut.setVisibility(View.VISIBLE);
+               mCutKey.setVisibility(View.INVISIBLE);
+               mBack.setVisibility(View.INVISIBLE);
+               mKey.setVisibility(View.VISIBLE);  //显示钥匙
+               if(cutToken==1){
+                   mBtnSecondCut.setVisibility(View.INVISIBLE);
+               }else if(cutToken==2){
+                   mBtnFirstCut.setVisibility(View.INVISIBLE);
+               }
+               if (serialDriver != null) {
+                   serialDriver.write(cutOrder.getBytes(), cutOrder.length());
                }
            }
     }

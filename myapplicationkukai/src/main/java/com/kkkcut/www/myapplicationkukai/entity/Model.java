@@ -1,25 +1,37 @@
 package com.kkkcut.www.myapplicationkukai.entity;
 
+
+
 /**
- * 型号类
+ * 类型类
  */
 
 public class Model {
-    private int _id;
+    private int id;
     private String name;
-    private String _desc;
-    private int fk_mfg;
+    private String desc;
+    private int fkMfg;
     private String sortLetters;  //显示数据拼音的首字母
+    private String showName;
+
+    public String getShowName() {
+        return showName;
+    }
+
+    public void setShowName(String showName) {
+        this.showName = showName;
+    }
+
+    public Model(int id, String name, String desc, int fkMfg) {
+        this.id = id;
+        this.name = name;
+        this.desc = desc;
+        this.fkMfg = fkMfg;
+    }
 
     public Model() {
-
     }
 
-    public Model(int _id, String _name, String _desc, int _fk_mfg) {
-        this._id = _id;
-        this.name = _name;
-        this._desc = _desc;
-    }
     public String getSortLetters() {
         return sortLetters;
     }
@@ -28,31 +40,38 @@ public class Model {
         this.sortLetters = sortLetters;
     }
 
-    public int get_id() {
-        return _id;}
+    public int getId() {
+        return this.id;
+    }
 
-    public void set_id(int value) {
-        this._id = value;}
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getName() {
-        return name;
+        return this.name;
     }
 
-    public void setName(String value) {
-        this.name = value;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public String get_desc() {
-        return _desc;
+    public String getDesc() {
+        return this.desc;
     }
 
-    public void set_desc(String value) {
-        this.name = value;
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
 
-    public int getFk_mfg() {
-        return fk_mfg;}
+    public int getFkMfg() {
+        return this.fkMfg;
+    }
 
-    public void setFk_mfg(int value) {
-        this.fk_mfg = value;}
+    public void setFkMfg(int fkMfg) {
+        this.fkMfg = fkMfg;
+    }
+
+
+
 }

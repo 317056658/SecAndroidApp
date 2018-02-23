@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <FrameLayout
+        android:padding="6dp"
+        android:background="@drawable/picturebox1image_dlgclampselectres"
+        android:layout_width="460dp"
+        android:layout_height="250dp">
+    <GridLayout
+         android:rowCount="2"
+         android:columnCount="2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+        <Button
+            android:id="@+id/btn_automobile_clamp"
+            android:layout_margin="5dp"
+            android:textSize="12sp"
+            android:gravity="bottom|center"
+            android:textAllCaps="false"
+            android:background="@drawable/a9_vise_automobile_img_switching"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Automobile key Clamp"
+            />
+        <Button
+            android:id="@+id/btn_dimple_clamp"
+            android:layout_marginTop="5dp"
+            android:textSize="12sp"
+            android:gravity="bottom|center"
+            android:textAllCaps="false"
+            android:background="@drawable/dimple_clamp_img_switchover"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Dimple Key Clamp"
+            />
+        <Button
+            android:id="@+id/btn_single_sided_clamp"
+            android:layout_marginLeft="5dp"
+            android:textSize="12sp"
+            android:gravity="bottom|center"
+            android:textAllCaps="false"
+            android:background="@drawable/a9_vise_single_standard_img_switching"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Single-Sided Key Clamp"
+            />
+        <Button
+            android:id="@+id/btn_tubular_clamp"
+            android:textSize="12sp"
+            android:gravity="bottom|center"
+            android:textAllCaps="false"
+            android:background="@drawable/a9_vise_tubular_img_switching"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tubular Key Clamp"
+            />
+    </GridLayout>
+    <Button
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:id="@+id/btn_close_window"
+        android:gravity="bottom|center"
+        android:layout_gravity="right|bottom"
+        android:background="@drawable/close_img_switching"
+        android:textAllCaps="false"
+        android:text="Close"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    </FrameLayout>
+</FrameLayout>

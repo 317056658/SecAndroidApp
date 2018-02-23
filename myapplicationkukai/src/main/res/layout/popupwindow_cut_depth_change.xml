@@ -11,8 +11,8 @@
         android:gravity="center_vertical"
         android:background="#ffffff"
         android:textStyle="bold"
-        android:textSize="30sp"
-        android:text="1mm"
+        android:textSize="28sp"
+        android:text="1.25mm"
         android:layout_width="110dp"
         android:layout_height="45dp" />
     <Button

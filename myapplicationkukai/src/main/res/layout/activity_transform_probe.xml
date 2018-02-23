@@ -1,17 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <LinearLayout
-        android:background="#808080"
-        android:orientation="vertical"
-        android:layout_width="wrap_content"
-        android:layout_height="314dp">
+    android:background="#808080"
+    android:layout_height="236dp">
         <ImageView
             android:id="@+id/iv_transform_probe"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/changecuttersidetooltocutter"
+            android:src="@drawable/changecuttersidetooltodecoder"
             android:clickable="true" />
         <TextView
             android:layout_width="220dp"
@@ -21,6 +17,4 @@
             android:background="#C4C4C4"
             android:gravity="center"
             android:text="Change tool to decoder.Ready?" />
-    </LinearLayout>
-
 </LinearLayout>

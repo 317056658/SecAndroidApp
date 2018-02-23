@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.kkkcut.www.myapplicationkukai.entity.Instruction;
 import com.kkkcut.www.myapplicationkukai.entity.MicyocoEvent;
 import com.kkkcut.www.myapplicationkukai.entity.PL2303DeviceEvent;
+import com.kkkcut.www.myapplicationkukai.utils.CacheActivityUtils;
 import com.kkkcut.www.myapplicationkukai.utils.EventBusUtils;
 import com.kkkcut.www.myapplicationkukai.utils.Tools;
 import com.kkkcut.www.myapplicationkukai.utils.logDocument.LogUtils;
@@ -38,11 +39,11 @@ public class ProlificSerialDriver {
     private final Object mWriteBufferLock = new Object();
     private byte[] buffer = new byte[4096];
     private ByteArrayOutputStream bufferOS = new ByteArrayOutputStream();
-    private  Context context;
+    private Context context;
     private UsbEndpoint mReadEndpoint;
     private UsbEndpoint mWriteEndpoint;
     private UsbDeviceConnection connection;
-    private  UsbDevice usbDevice;
+    private UsbDevice usbDevice;
     public boolean isEnd = false;//是否结束掉持续读取
     public int timeout = 0;//设置超时时间
     private final static String ACTION_DEVICE_PERMISSION="com.prolific.pl2303hxdsimpletest.USB_PERMISSION";
@@ -58,21 +59,29 @@ public class ProlificSerialDriver {
         this.usbDevice = usbDevice;
         openDevice();
     }
-
-
-    public static  synchronized ProlificSerialDriver initInstance(Context context, UsbDevice usbDevice) {
+    //获得单例
+    public static  ProlificSerialDriver getInstance(Context context){
         if(pl2303SerialDriver ==null){
-            pl2303SerialDriver = new ProlificSerialDriver(context,usbDevice);
+            synchronized (ProlificSerialDriver.class){
+                if(pl2303SerialDriver==null){
+                    //获得一个usb管理类
+                    UsbManager usbManager = (UsbManager)context.getSystemService(Context.USB_SERVICE);
+                    UsbDevice usbDevice = null;
+                    //枚举找到,发现的usb设备
+                    for (UsbDevice item : usbManager.getDeviceList().values()) {
+                        usbDevice = item;
+                    }
+                    if (usbDevice == null) {
+                        Toast.makeText(context, "设备是空的", Toast.LENGTH_SHORT).show();
+                        return null;
+                    } else {
+                        Toast.makeText(context, "设备不是空的", Toast.LENGTH_SHORT).show();
+                        pl2303SerialDriver = new ProlificSerialDriver(context,usbDevice);
+                    }
+                }
+            }
         }
         return pl2303SerialDriver;
-    }
-    //获得单例
-    public static final  ProlificSerialDriver getInstance(){
-        if(pl2303SerialDriver ==null){
-            throw new NullPointerException("class ProlificSerialDriver must not null");
-        }else {
-            return pl2303SerialDriver;
-        }
     }
     /**
      * 设置handler 接收消息
@@ -89,18 +98,25 @@ public class ProlificSerialDriver {
         //申请权限
         usbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         PendingIntent mPermissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_DEVICE_PERMISSION), 0);
-        IntentFilter  permissionFilter=new IntentFilter(ACTION_DEVICE_PERMISSION);
-        context.registerReceiver(usbPermissionReceiver,permissionFilter);  //注册广播
+        IntentFilter  permissionFilter=new IntentFilter();
+        permissionFilter.addAction(ACTION_DEVICE_PERMISSION);
+        permissionFilter.addAction(UsbManager.ACTION_USB_ACCESSORY_ATTACHED);
+        permissionFilter.addAction(UsbManager.ACTION_USB_ACCESSORY_DETACHED);
+        permissionFilter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
+        permissionFilter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
+        context.registerReceiver(usbPermissionReceiver,permissionFilter);  //注册ubs权限广播
+
         usbManager.requestPermission(usbDevice, mPermissionIntent);  //显示对话框,询问用户允许打开权限
     }
 
     /**
-     * usb权限许可广播
+     * usb权限广播
      */
     private  final BroadcastReceiver usbPermissionReceiver=new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
                  String  action   =intent.getAction();
+            Log.d("设备分离？", "onReceive: "+action);
             if(action.equals(ACTION_DEVICE_PERMISSION)){
                 synchronized(this){
                     UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
@@ -108,6 +124,7 @@ public class ProlificSerialDriver {
                           if(device!=null){
                               //授权成功,在这里进行打开设备操作
                               UsbInterface usbInterface = usbDevice.getInterface(0);  //获得一个接口
+                              //根据接口获得输入输出端点
                               for (int i = 0; i < usbInterface.getEndpointCount(); ++i) {
                                   UsbEndpoint currentEndpoint = usbInterface.getEndpoint(i);
                                   switch (currentEndpoint.getAddress()) {
@@ -135,6 +152,9 @@ public class ProlificSerialDriver {
                                 EventBusUtils.post(new PL2303DeviceEvent(false));
                       }
                 }
+            }else if(action.equals(UsbManager.ACTION_USB_DEVICE_DETACHED)){
+                 //设备分离了  就退出应用程序
+                CacheActivityUtils.finishAllActivity();
             }
         }
     };
@@ -216,6 +236,7 @@ public class ProlificSerialDriver {
      * @return
      */
     public int write(byte[] buf, int wlength) {
+
         int offset = 0;
         int actual_length = 0;
         byte[] write_buf = new byte[4096];
@@ -243,15 +264,15 @@ public class ProlificSerialDriver {
                 int number;//一次读取多少个字节
                 while (!isEnd) {
                     number = connection.bulkTransfer(mReadEndpoint, buffer, buffer.length, timeout);
+                    Log.d(TAG, "read: 多少字节？"+number);
                     if (number > 0) {
                         sum += number;
                         if (timeout == 0) {
-                            timeout = 200;//如果来数据了 就变为300ms
+                            timeout = 200;//如果来数据了 就变为200ms
                         }
                         bufferOS.write(buffer, 0, number);
                     } else if (number == -1) {
                         timeout = 0;
-                        Log.d("读到多少字节", "多少: " + sum);
                         sum = 0;
                         String s = new String(bufferOS.toByteArray());
                         bufferOS.reset();
@@ -315,7 +336,7 @@ public class ProlificSerialDriver {
                             LogUtils.d("下位机返回的数据", data);
                             Message  msg=mHandler.obtainMessage();
                             msg.obj=data;
-                            msg.what=MicyocoEvent.COMMAND_ERROR;
+                            msg.what=MicyocoEvent.EXCEPTION_ERROR;
                             mHandler.sendMessage(msg);
                         }else if(data.equals(Instruction.ExceptionError.eNoTool)){//没有安装工具
                             LogUtils.d("下位机返回的数据", data);

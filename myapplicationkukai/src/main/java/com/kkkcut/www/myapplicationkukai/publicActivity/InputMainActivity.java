@@ -19,6 +19,7 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.kkkcut.www.myapplicationkukai.R;
+import com.kkkcut.www.myapplicationkukai.entity.KeyInfo;
 import com.kkkcut.www.myapplicationkukai.entity.MessageEvent;
 import com.kkkcut.www.myapplicationkukai.utils.EventBusUtils;
 import com.kkkcut.www.myapplicationkukai.utils.Tools;
@@ -36,15 +37,15 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
     private String   depths;
     private String  depthNames;
     private String[] depthNameArray;
-    private GridLayout mStorageIntegerButton, mDecimalskeyboard;
+    private GridLayout mStorageIntegerButton, mDecimalsKeyboard;
     String[] depthArray;
     private Button mChangeDecimal, mBackWantData, mCancelWindow, mLeftMove, mRightMove, mClearData, mRoundDecimals;
     private CheckBox mIsChangeAllDecimal;
     private View mDecorView;
     private boolean isShowDecimalKeyboard = true;
     private String dataLength;
-    private LinearLayout.LayoutParams layoutParams1;
-    private LinearLayout.LayoutParams layoutParams2;
+    private LinearLayout.LayoutParams integerLayoutParams;
+    private LinearLayout.LayoutParams decimalsLayoutParams;
     private int index = 0;
     private int position = -1;
     private int group = 0;
@@ -54,6 +55,9 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
     private HorizontalScrollView mDecimalsHorizontalScroll;
     private HashMap<String,String> languageMap;
     private ArrayList<String[]> keyToothCodeList;
+    private  boolean isHaveDecimals;
+    private KeyInfo ki;
+    private boolean[] isHaveZero;
 
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,8 +75,8 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
     private void initViews(){
         mDecorView = getWindow().getDecorView();
         //获得布局参数实例类
-        layoutParams1 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-        layoutParams2 = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        integerLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        decimalsLayoutParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         // 获得存储小数布局
         mStorageInteger = (LinearLayout) findViewById(R.id.ll_storage_integer);
         //获得存储小数布局
@@ -96,79 +100,115 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
         //保存数据长度 用来判断有组数
         dataLength = "";
         for (int i = 0; i < keyToothCodeList.size(); i++) {
-            String[] s = keyToothCodeList.get(i);
-            for (int j = 0; j < s.length; j++) {
+            String[] newStr = keyToothCodeList.get(i);
+            for (int j = 0; j < newStr.length; j++) {
                 position++;
-                if (s[j].contains(".")) {
-                    String[] s1 = s[j].split("\\.");
+                if (newStr[j].contains(".")) {
+                    isHaveDecimals=true;
+                    String[] s1 = newStr[j].split("\\.");
                     dataLength += s1[0];
-                    //存储整数
-                    TextView tv1 = new TextView(this);
-                    tv1.setText(s1[0]);
-                    tv1.setClickable(true);
-                    tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 40);
-                    tv1.setTag(position);
-                    tv1.setOnClickListener(integerClickListener);
-                    mStorageInteger.addView(tv1, layoutParams1);
-                    //存储小数
-                    TextView tv2 = new TextView(this);
-                    tv2.setText("." + s1[1]);
-                    tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 30);
-                    mStorageDecimal.addView(tv2, layoutParams2);
+                    if(isHaveZero[i]){
+                        //存储整数
+                        TextView tv1 = new TextView(this);
+                        tv1.setText(s1[0]);
+                        tv1.setClickable(true);
+                        tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP,40);
+                        tv1.setTag(position);
+                        tv1.setOnClickListener(integerClickListener);
+                        mStorageInteger.addView(tv1, integerLayoutParams);
+                        //存储小数
+                        TextView tv2 = new TextView(this);
+                        tv2.setText("." + s1[1]);
+                        tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP,30);
+                        mStorageDecimal.addView(tv2, decimalsLayoutParams);
+                    }else {   //没有0的
+                        //存储整数
+                        TextView tv1 = new TextView(this);
+                        if(s1[0].equals("0")){
+                            tv1.setText("X");
+                        }else {
+                            tv1.setText(s1[0]);
+                        }
+                        tv1.setClickable(true);
+                        tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP,40);
+                        tv1.setTag(position);
+                        tv1.setOnClickListener(integerClickListener);
+                        mStorageInteger.addView(tv1, integerLayoutParams);
+                        //存储小数
+                        TextView tv2 = new TextView(this);
+                        tv2.setText("." + s1[1]);
+                        tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP,30);
+                        mStorageDecimal.addView(tv2, decimalsLayoutParams);
+                    }
                 } else {
-                    dataLength += s[j];
-                    //存储整数
-                    TextView tv1 = new TextView(this);
-                    tv1.setClickable(true);
-                    tv1.setText(s[j]);
-                    tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 40);
-                    tv1.setOnClickListener(integerClickListener);
-                    tv1.setTag(position);
-                    mStorageInteger.addView(tv1, layoutParams1);
-                    //存储小数
-                    TextView tv2 = new TextView(this);
-                    tv2.setText(".0");
-                    tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 30);
-                    mStorageDecimal.addView(tv2, layoutParams2);
-                    Log.d("数量是好多？", "onCreate: " + mStorageDecimal.getChildCount());
+                    dataLength += newStr[j];
+                        if(isHaveZero[i]){
+                            //存储整数
+                            TextView tv1 = new TextView(this);
+                            tv1.setText(newStr[j]);
+                            tv1.setClickable(true);
+                            tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP,40);
+                            tv1.setTag(position);
+                            tv1.setOnClickListener(integerClickListener);
+                            mStorageInteger.addView(tv1, integerLayoutParams);
+                            //存储小数
+                            TextView tv2 = new TextView(this);
+                            tv2.setText(".0" );
+                            tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP,30);
+                            mStorageDecimal.addView(tv2, decimalsLayoutParams);
+                        }else {   //没有0的
+                            //存储整数
+                            TextView tv1 = new TextView(this);
+                            if(newStr[j].equals("0")){
+                                tv1.setText("X");
+                            }else {
+                                tv1.setText(newStr[j]);
+                            }
+                            tv1.setClickable(true);
+                            tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP,40);
+                            tv1.setTag(position);
+                            tv1.setOnClickListener(integerClickListener);
+                            mStorageInteger.addView(tv1, integerLayoutParams);
+                            //存储小数
+                            TextView tv2 = new TextView(this);
+                            tv2.setText(".0");
+                            tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP,30);
+                            mStorageDecimal.addView(tv2, decimalsLayoutParams);
+                        }
                 }
             }
             dataLength += "-";
             position++;
             //整数
-            Log.d("位置是好多？", "onCreate: " + position);
             TextView tv1 = new TextView(this);
             tv1.setText("-");
             tv1.setClickable(true);
             tv1.setTextSize(TypedValue.COMPLEX_UNIT_SP, 40);
             tv1.setOnClickListener(integerClickListener);
             tv1.setTag(position);
-            mStorageInteger.addView(tv1, layoutParams1);
+            mStorageInteger.addView(tv1, integerLayoutParams);
             //小数
             TextView tv2 = new TextView(this);
             tv2.setText("-");
             tv2.setTextSize(TypedValue.COMPLEX_UNIT_SP, 30);
-            mStorageDecimal.addView(tv2, layoutParams2);
+            mStorageDecimal.addView(tv2, decimalsLayoutParams);
         }
-        dataLength = dataLength.substring(0, dataLength.length() - 1);
+        dataLength = dataLength.substring(0,dataLength.length() - 1);
         //删除整数最后裔个view
         mStorageInteger.removeViewAt(mStorageInteger.getChildCount() - 1);
         //删除小数最后一个View
         mStorageDecimal.removeViewAt(mStorageDecimal.getChildCount() - 1);
-
-        for (int j = 0; j < keyToothCodeList.size(); j++) {
-            String[] s = keyToothCodeList.get(j);
-            for (int q = 0; q < s.length; q++) {
-                if (s[j].contains(".")) {
-                    //包涵小数点就显示 表示有小数
-                    mStorageDecimal.setVisibility(View.VISIBLE);
-                    //显示四舍五入
-                    mRoundDecimals.setVisibility(View.VISIBLE);
-                    break;
-                }
-            }
-            break;
-        }
+         if(isHaveDecimals){
+             //包涵小数点就显示 表示有小数
+             mStorageDecimal.setVisibility(View.VISIBLE);
+             //显示四舍五入
+             mRoundDecimals.setVisibility(View.VISIBLE);
+         }else {
+             //包涵小数点就显示 表示有小数
+             mStorageDecimal.setVisibility(View.INVISIBLE);
+             //显示四舍五入
+             mRoundDecimals.setVisibility(View.INVISIBLE);
+         }
         TextView tv1 = (TextView) mStorageInteger.getChildAt(index);
         tv1.setBackgroundColor(Color.BLUE);
         TextView tv2 = (TextView) mStorageDecimal.getChildAt(index);
@@ -181,7 +221,7 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
         mClearData.setOnClickListener(this);
         //获得网格布局
         mStorageIntegerButton = (GridLayout) findViewById(R.id.gl_integer_keyboard);
-        mDecimalskeyboard = (GridLayout) findViewById(R.id.gl_decimals_keyboard);
+        mDecimalsKeyboard = (GridLayout) findViewById(R.id.gl_decimals_keyboard);
     }
 
     /**
@@ -189,12 +229,11 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
      * @param context
      * @param languageMap
      */
-    public  static  void  startInputMainActivity(Context context, HashMap<String,String> languageMap,ArrayList<String[]> list,String depths,String depthNames){
+    public  static  void  startInputMainActivity(Context context, HashMap<String,String> languageMap,ArrayList<String[]> list,KeyInfo ki){
           Intent intent=new Intent(context,InputMainActivity.class);
           intent.putExtra("language",languageMap);
           intent.putExtra("toothDepthName",list);
-          intent.putExtra("depth",depths);
-          intent.putExtra("depthName",depthNames);
+          intent.putExtra("KeyInfo",ki);
           context.startActivity(intent);
     }
 
@@ -205,8 +244,24 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
         Intent intent = getIntent();//获得传过的意图
         languageMap= (HashMap<String, String>) intent.getSerializableExtra("language");
         keyToothCodeList= (ArrayList<String[]>) intent.getSerializableExtra("toothDepthName");
-        depths =intent.getStringExtra("depth");
-        depthNames=intent.getStringExtra("depthName");
+        ki=intent.getParcelableExtra("KeyInfo");
+        depths=ki.getDepth();
+        depthNames=ki.getDepth_name();
+        //分割;   求出深度有几组
+        depthArray = depths.split(";");
+        //分割;   求出深度名有几组
+        depthNameArray = depthNames.split(";");
+        isHaveZero =new boolean[depthNameArray.length];
+        for (int i = 0; i < depthNameArray.length; i++) {
+            String[] newStr=depthNameArray[i].split(",");
+            for (int j = 0; j <newStr.length ; j++) {
+                if(newStr[j].equals("0")){
+                    isHaveZero[i]=true;  //包含0;
+                    break;
+                }
+            }
+        }
+
     }
 
     @Override
@@ -225,13 +280,11 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
                 //得到１　就是第２组，得到０就是就是第一组
                 if (index != current) {
                     String[] newString = dataLength.substring(0, position + 1).split("-");
-                    Log.d("长度是好多？", "onClick: " + newString.length);
                     if (depthNameArray.length != 1) {
                         mStorageIntegerButton.removeAllViews();
                         loadDepthName(newString.length);
                     }
                     group = newString.length;
-                    Log.d("位子是多少？", "onClick: " + position);
                     TextView integerText = (TextView) mStorageInteger.getChildAt(position + 1);
                     integerText.setBackgroundColor(Color.BLUE);
                     integerText = (TextView) mStorageInteger.getChildAt(index);
@@ -239,14 +292,12 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
                     //小数的
                     TextView decimalsText = (TextView) mStorageDecimal.getChildAt(position + 1);
                     decimalsText.setBackgroundColor(Color.BLUE);
-                    Log.d("索引是好多？", "onClick: " + index);
                     decimalsText = (TextView) mStorageDecimal.getChildAt(index);
                     decimalsText.setBackground(null);
                     index = position + 1;
                 }
             } else {
                 String[] newString = dataLength.substring(0, position + 1).split("-");
-                Log.d("是第几组？", "onClick: " + newString.length);
                 //等于1 是第一组
                 if (newString.length == 1) {
                     depthNameIndex = 0;
@@ -254,17 +305,13 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
                     depthNameIndex = newString.length - 1;
                 }
                 if (group == depthNameIndex) {
-                    Log.d("不加载", "onClick: ");
                 } else {
                     group = depthNameIndex;
                     if (depthNameArray.length != 1) {
                         mStorageIntegerButton.removeAllViews();
                         loadDepthName(depthNameIndex);
-                        Log.d("加载", "onClick: ");
                     }
                 }
-                Log.d("位子是", "onClick: " + position);
-                Log.d("当前下标是？", "onClick: " +index );
                 if(position!=index){
                     //整数的
                     TextView integerText = (TextView) mStorageInteger.getChildAt(position);
@@ -303,7 +350,6 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
             layoutParams.height = 80;
             layoutParams.width = 73;
             mStorageIntegerButton.addView(btn, layoutParams);
-
         }
 
     }
@@ -314,14 +360,8 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
      */
 
     public void initLoadBtnView() {
-        //分割;   求出深度有几组
-        depthArray = depths.split(";");
-        //分割;   求出深度名有几组
-        depthNameArray = depthNames.split(";");
         // 默认加载第一组
         String[] depthName = depthNameArray[0].split(",");
-        Log.d("长度是多少？", "initLoadBtnView: " + depthName.length);
-        Log.d("depthArray[0]？", "initLoadBtnView: " + depthArray[0].length());
         for (int i = 0; i < depthArray[0].split(",").length; i++) {
             Button btn = new Button(this);
             btn.setBackgroundColor(Color.parseColor("#16A4FA"));
@@ -335,7 +375,7 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
             //                   GridLayout.Spec rowSpec = GridLayout.spec(i);     //设置它的行和列
 //                   GridLayout.Spec columnSpec=GridLayout.spec(j);
             GridLayout.LayoutParams layoutParams = new GridLayout.LayoutParams();
-            layoutParams.setMargins(0, 6, 6, 0);
+            layoutParams.setMargins(0, 0, 6, 0);
             layoutParams.height = 80;
             layoutParams.width = 73;
             mStorageIntegerButton.addView(btn, layoutParams);
@@ -350,8 +390,6 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
             TextView tv = (TextView) mStorageInteger.getChildAt(index);
             tv.setText(btn.getText());
             tv.setBackground(null);
-            Log.d("下标是", "onClick: " + index);
-            Log.d("深度名点击书记", "onClick: " + mStorageDecimal.getChildCount());
             TextView decimalsText = (TextView) mStorageDecimal.getChildAt(index);
             decimalsText.setBackground(null);
             index++;
@@ -370,7 +408,6 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
                     tv2.setBackgroundColor(Color.BLUE);
                     //得到１　就是第２组，
                     String[] newString = dataLength.substring(0, index).split("-");
-                    Log.d("数组的长度是？", "onClick: " + newString.length);
                     if (depthNameArray.length != 1) {
                         mStorageIntegerButton.removeAllViews();
                         loadDepthName(newString.length);
@@ -393,31 +430,31 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
         Button mBtnDecimal1  =(Button)findViewById(R.id.btn_decimal1);
         mBtnDecimal1.setOnClickListener(changeDecimalsClickListener);
 
-        Button mBtnDecimal2  =(Button)findViewById(R.id.btn_decimal2);
+        Button mBtnDecimal2  =(Button)findViewById(R.id.btn_2);
         mBtnDecimal2.setOnClickListener(changeDecimalsClickListener);
 
-        Button mBtnDecimal3  =(Button)findViewById(R.id.btn_decimal3);
+        Button mBtnDecimal3  =(Button)findViewById(R.id.btn_3);
         mBtnDecimal3.setOnClickListener(changeDecimalsClickListener);
 
-        Button mBtnDecimal4  =(Button)findViewById(R.id.btn_decimal4);
+        Button mBtnDecimal4  =(Button)findViewById(R.id.btn_4);
         mBtnDecimal4.setOnClickListener(changeDecimalsClickListener);
 
-        Button mBtnDecimal5  =(Button)findViewById(R.id.btn_decimal5);
+        Button mBtnDecimal5  =(Button)findViewById(R.id.btn_5);
         mBtnDecimal5.setOnClickListener(changeDecimalsClickListener);
 
-        Button mBtnDecimal6  =(Button)findViewById(R.id.btn_decimal6);
+        Button mBtnDecimal6  =(Button)findViewById(R.id.btn_6);
         mBtnDecimal6.setOnClickListener(changeDecimalsClickListener);
 
-        Button mBtnDecimal7  =(Button)findViewById(R.id.btn_decimal7);
+        Button mBtnDecimal7  =(Button)findViewById(R.id.btn_7);
         mBtnDecimal7.setOnClickListener(changeDecimalsClickListener);
 
-        Button mBtnDecimal8  =(Button)findViewById(R.id.btn_decimal8);
+        Button mBtnDecimal8  =(Button)findViewById(R.id.btn_8);
         mBtnDecimal8.setOnClickListener(changeDecimalsClickListener);
 
-        Button mBtnDecimal9  =(Button)findViewById(R.id.btn_decimal9);
+        Button mBtnDecimal9  =(Button)findViewById(R.id.btn_9);
         mBtnDecimal9.setOnClickListener(changeDecimalsClickListener);
 
-        Button mBtnDecimal0  =(Button)findViewById(R.id.btn_decimal0);
+        Button mBtnDecimal0  =(Button)findViewById(R.id.btn_0);
         mBtnDecimal0.setOnClickListener(changeDecimalsClickListener);
 
 
@@ -458,7 +495,7 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
                     //显示存储小数的布局
                     mStorageDecimal.setVisibility(View.VISIBLE);
                     //显示小数的键盘
-                    mDecimalskeyboard.setVisibility(View.VISIBLE);
+                    mDecimalsKeyboard.setVisibility(View.VISIBLE);
                     //设置为黄色
                     mIntegerHorizontalScroll.setBackgroundResource(R.drawable.edit_no_background_border);
                     //设置为白色
@@ -478,7 +515,7 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
                     //隐藏小数全部一起改变的选择
                     mIsChangeAllDecimal.setVisibility(View.INVISIBLE);
                     //隐藏小数的键盘
-                    mDecimalskeyboard.setVisibility(View.GONE);
+                    mDecimalsKeyboard.setVisibility(View.GONE);
                     mDecimalsHorizontalScroll.setBackgroundColor(Color.parseColor("#FBBE01"));
                     isShowDecimalKeyboard = true;
                 }
@@ -579,16 +616,18 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
                 mDecimalsHorizontalScroll.setBackgroundColor(Color.parseColor("#FBBE01"));
                 traversalViewsToInit(mStorageInteger);
                 traversalViewsToInit(mStorageDecimal);
+                mRoundDecimals.setVisibility(View.INVISIBLE);
                 mStorageDecimal.setVisibility(View.INVISIBLE);
                 isShowDecimalKeyboard = true;
                 //显示整数键盘
                 mScrollView.setVisibility(View.VISIBLE);
                 //隐藏小数的键盘
-                mDecimalskeyboard.setVisibility(View.GONE);
+                mDecimalsKeyboard.setVisibility(View.GONE);
                 break;
             case R.id.btn_round:   //四舍五入小数
                 roundOff();
-                Log.d("点击了四舍五入小数", "onClick: ");
+                mIntegerHorizontalScroll.setBackgroundResource(R.drawable.edit_shape);
+                mDecimalsHorizontalScroll.setBackgroundColor(Color.parseColor("#FBBE01"));
                 break;
         }
     }
@@ -633,8 +672,7 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
             }
         }
         mStorageDecimal.setVisibility(View.INVISIBLE);
-        mDecimalskeyboard.setVisibility(View.GONE);
-        mStorageInteger.setBackgroundResource(R.drawable.edit_shape);
+        mDecimalsKeyboard.setVisibility(View.GONE);
         mScrollView.setVisibility(View.VISIBLE);
         mRoundDecimals.setVisibility(View.INVISIBLE);
         isShowDecimalKeyboard = true;
@@ -667,15 +705,27 @@ public class InputMainActivity extends AppCompatActivity implements View.OnClick
         String data = "";
         TextView integer;
         TextView decimal;
+        int k=0;
         for (int i = 0; i < mStorageInteger.getChildCount(); i++) {
             integer = (TextView) mStorageInteger.getChildAt(i);
             decimal = (TextView) mStorageDecimal.getChildAt(i);
-            if (!integer.getText().toString().equals("-")) {
-                if (decimal.getText().toString().equals(".0")) {
-                    data += integer.getText() + ",";
-                } else {
-                    data += (integer.getText() + "" + decimal.getText() + ",");
-                }
+            String str=integer.getText().toString();
+            if (!str.equals("-")) {
+                if(isHaveZero[k]){
+                        if (decimal.getText().toString().equals(".0")) {
+                            data += str + ",";
+                        }else {
+                            data+=( str + decimal.getText() + ",");
+                        }
+                }else {
+                        if (decimal.getText().toString().equals(".0")) {
+                            data += str + ",";
+                        }else {
+                            data+=(str + decimal.getText() + ",");
+                        }
+                    }
+            }else {
+                k++;
             }
         }
         return data;

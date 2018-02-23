@@ -26,7 +26,7 @@
             />
         <TextView
             android:padding="4dp"
-            android:id="@+id/tv_text"
+            android:id="@+id/tv_title"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -37,43 +37,43 @@
             android:textStyle="bold" />
     </LinearLayout>
 
-    <FrameLayout
-        android:id="@+id/flll"
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_weight="1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp">
         <LinearLayout
+            android:layout_weight="1"
             android:orientation="vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-            <!--   1 .-->
+            android:layout_width="0dp"
+            android:layout_height="match_parent">
             <LinearLayout
                 android:background="@drawable/edit_shape"
                 android:orientation="vertical"
                 android:id="@+id/ll_put_image"
-                android:layout_width="750dp"
+                android:layout_width="match_parent"
                 android:layout_height="340dp">
                 <TextView
                     android:visibility="gone"
                     android:layout_marginTop="16dp"
                     android:layout_gravity="right"
-                    android:text="dsadadsadddddddddddd"
                     android:textStyle="bold"
                     android:textColor="#020701"
                     android:id="@+id/tv_hint"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>
-            <!--   2 .-->
             <LinearLayout
+                android:layout_weight="1"
                 android:orientation="horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_width="match_parent"
+                android:layout_height="0dp">
                 <TextView
                     android:textStyle="bold"
                     android:textColor="#003399"
                     android:text="Key Blanks:"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="104dp" />
                 <TextView
                     android:textStyle="bold"
                     android:textSize="12sp"
@@ -82,25 +82,24 @@
                     android:layout_width="wrap_content"
                     android:layout_height="104dp" />
             </LinearLayout>
+            <Button
+                android:layout_gravity="left|bottom"
+                android:id="@+id/btn_frm_menu"
+                android:background="@drawable/btn_menu_bg_effect"
+                android:textAllCaps="false"
+                android:gravity="bottom|center"
+                android:paddingBottom="3dp"
+                android:text="Menu"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </LinearLayout>
-        <Button
-            android:layout_gravity="left|bottom"
-            android:id="@+id/btn_cut_menu"
-            android:background="@drawable/btn_menu_bg_effect"
-            android:textAllCaps="false"
-            android:gravity="bottom|center"
-            android:paddingBottom="3dp"
-            android:text="Menu"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
         <LinearLayout
-              android:layout_marginRight="6dp"
-              android:id="@+id/lllll"
+           android:paddingRight="5dp"
             android:orientation="vertical"
             android:layout_gravity="right"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
-            <!--   android:textAllCaps="false"  由于5.0的特性把button的字体全部变为大写 所以要设置false变为可以大小写兼容 -->
+            android:gravity="right"
+            android:layout_width="160dp"
+            android:layout_height="match_parent">
             <Button
                 android:id="@+id/btnInput"
                 android:layout_marginTop="10dp"
@@ -164,5 +163,5 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
-    </FrameLayout>
+    </LinearLayout>
 </LinearLayout>

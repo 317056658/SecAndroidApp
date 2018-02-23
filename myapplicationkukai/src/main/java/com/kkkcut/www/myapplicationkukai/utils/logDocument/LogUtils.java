@@ -37,12 +37,9 @@ public class LogUtils {
             return mValue;
         }
     }
-
     private static final int CACHE_QUEUE_SIZE = 1; //缓存最多1条log信息后输出到文件
     private static final SimpleDateFormat LOG_DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-
     private static ExecutorService sLogExecutor = Executors.newSingleThreadExecutor();
-
     private static final String PREFIX = "(YOUR PREFIX):";
     private static boolean sLogEnable = true;
     private static LogLevel sLogLevel = LogLevel.DEBUG;
@@ -74,7 +71,6 @@ public class LogUtils {
         }
         sLogFileManager = new LogFileManager(dirPath);
     }
-
     /**
      * 程序退出时调用该方法
      *
@@ -90,7 +86,6 @@ public class LogUtils {
             });
         }
     }
-
     /**
      * log for debug
      *  这个 够用咯
@@ -107,7 +102,6 @@ public class LogUtils {
             writeToFileIfNeeded(tag, msg, LogLevel.DEBUG);
         }
     }
-
     /**
      * log for debug
      *   这个找错误  传异常错误的
@@ -123,7 +117,6 @@ public class LogUtils {
             writeToFileIfNeeded(tag, msg + "\n" + Log.getStackTraceString(throwable), LogLevel.DEBUG);
         }
     }
-
     /**
      * log for debug
      *
@@ -139,7 +132,6 @@ public class LogUtils {
             writeToFileIfNeeded(tag, msg, LogLevel.DEBUG);
         }
     }
-
     /**
      * log for warning
      *
@@ -154,7 +146,6 @@ public class LogUtils {
             writeToFileIfNeeded(tag, msg, LogLevel.WARN);
         }
     }
-
     /**
      * log for warning
      *
@@ -168,7 +159,6 @@ public class LogUtils {
             writeToFileIfNeeded(tag, Log.getStackTraceString(throwable), LogLevel.WARN);
         }
     }
-
     /**
      * log for warning
      *
@@ -184,7 +174,6 @@ public class LogUtils {
             writeToFileIfNeeded(tag, msg + "\n" + Log.getStackTraceString(throwable), LogLevel.WARN);
         }
     }
-
     /**
      * log for warning
      *
@@ -200,7 +189,6 @@ public class LogUtils {
             writeToFileIfNeeded(tag, msg, LogLevel.WARN);
         }
     }
-
     /**
      * log for error
      *
@@ -215,7 +203,6 @@ public class LogUtils {
             writeToFileIfNeeded(tag, msg, LogLevel.ERROR);
         }
     }
-
     /**
      * log for error
      *
@@ -231,7 +218,6 @@ public class LogUtils {
             writeToFileIfNeeded(tag, msg + "\n" + Log.getStackTraceString(throwable), LogLevel.ERROR);
         }
     }
-
     /**
      * log for error
      *
@@ -247,7 +233,6 @@ public class LogUtils {
             writeToFileIfNeeded(tag, msg, LogLevel.ERROR);
         }
     }
-
     /**
      * log for information
      *
@@ -262,7 +247,6 @@ public class LogUtils {
             writeToFileIfNeeded(tag, msg, LogLevel.INFO);
         }
     }
-
     /**
      * log for information
      *
@@ -278,7 +262,6 @@ public class LogUtils {
             writeToFileIfNeeded(tag, msg + "\n" + Log.getStackTraceString(throwable), LogLevel.INFO);
         }
     }
-
     /**
      * log for information
      *
@@ -294,7 +277,6 @@ public class LogUtils {
             writeToFileIfNeeded(tag, msg, LogLevel.INFO);
         }
     }
-
     /**
      * log for verbos
      *
@@ -309,7 +291,6 @@ public class LogUtils {
             writeToFileIfNeeded(tag, msg, LogLevel.VERBOSE);
         }
     }
-
     /**
      * log for verbose
      *
@@ -325,7 +306,6 @@ public class LogUtils {
             writeToFileIfNeeded(tag, msg + "\n" + Log.getStackTraceString(throwable), LogLevel.VERBOSE);
         }
     }
-
     /**
      * log for verbose
      *
@@ -341,7 +321,6 @@ public class LogUtils {
             writeToFileIfNeeded(tag, msg, LogLevel.VERBOSE);
         }
     }
-
     private static void writeToFileIfNeeded(final String tag, final String msg, LogLevel logLevel) {
         if (logLevel.getValue() < sLogLevel.getValue() || sLogFileManager == null) {
             return;
@@ -353,7 +332,6 @@ public class LogUtils {
             }
         });
     }
-
     private static void appendLog(String tag, String msg) {
         String logMsg = formatLog(tag, msg);
         sMsgQueue.add(logMsg);
@@ -362,7 +340,6 @@ public class LogUtils {
             flushLogToFile();
         }
     }
-
     private static void flushLogToFile() {
         StringBuilder stringBuilder = new StringBuilder();
         for (String message : sMsgQueue) {
@@ -371,7 +348,6 @@ public class LogUtils {
         sLogFileManager.writeLogToFile(stringBuilder.toString());
         sMsgQueue.clear();
     }
-
     private static String formatLog(String tag, String msg) {
         return String.format("%s %s: %s\n", LOG_DATE_TIME_FORMAT.format(new Date()),tag, msg);
     }

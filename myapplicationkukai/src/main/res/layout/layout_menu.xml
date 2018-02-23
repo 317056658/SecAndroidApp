@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
-    android:id="@+id/id_pop_layout"
+    android:id="@+id/ll_menu_layout"
     android:background="#FDDE81"
     android:padding="5dp"
-    android:layout_width="wrap_content"
-    android:layout_height="105dp">
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
     <Button
         android:id="@+id/btn_home"
-      android:paddingTop="38dp"
+        android:paddingTop="38dp"
         android:textAllCaps="false"
         android:text="Home"
         android:background="@drawable/btnhomeimage2"
@@ -72,7 +72,7 @@
         android:layout_height="95px" />
 
     <Button
-        android:id="@+id/btn_stop"
+        android:id="@+id/btn_stop_operate"
         android:paddingTop="38dp"
         android:text="Stop"
         android:textAllCaps="false"
@@ -80,6 +80,4 @@
         android:layout_marginLeft="50dp"
         android:layout_width="95px"
         android:layout_height="95px" />
-
-
 </LinearLayout>

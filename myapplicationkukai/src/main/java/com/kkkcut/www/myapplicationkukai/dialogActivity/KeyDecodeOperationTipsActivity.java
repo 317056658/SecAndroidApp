@@ -20,7 +20,7 @@ public class KeyDecodeOperationTipsActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_clamp_operation_tips);
-        serialDriver=ProlificSerialDriver.getInstance();
+        serialDriver=ProlificSerialDriver.getInstance(getApplicationContext());
         //可以点击外面取消窗口
         this.setFinishOnTouchOutside(true);
         ImageView  mImgHint=(ImageView)findViewById(R.id.iv_hint);

@@ -28,12 +28,12 @@ public class Instruction {//操作完成
     //夹具移动
     public static  final String  FIXTURE_MOVE="!SC;!BP1;";
     //主轴启动 延迟2秒，无返回值
-    public static  final String  SPINDLE_START="!SR1,2000,0;!BP1";
+    public static  final String  SPINDLE_START="!SR1,2000,0;";
     //主轴停止 延迟2秒，无返回值
-    public static  final String  SPINDLE_END="!SR0,2000,0;!BP1";
+    public static  final String  SPINDLE_END="!SR0,2000,0;";
     public static  final String  DECODE="!SB";
     //鸟叫短三声
-    public static  final String TWEET_SHORT_THREE_SOUND="!BP1";
+    public static  final String TWEET_SHORT_THREE_SOUND="!BP1;";
 
         //1到4号夹具指令
     public static String sendFixtureCalibration(String s){

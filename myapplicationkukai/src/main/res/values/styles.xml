@@ -21,7 +21,6 @@
         <item name="android:windowEnterAnimation">@anim/popup_in</item>
         <item name="android:windowExitAnimation">@anim/popup_out</item>
     </style>
-    <!--版本更新的activity   设置为Dialog-->
     <style name="dialog" parent="Theme.AppCompat.Light.Dialog">
         <!-- 去黑边 -->
         <item name="android:windowFrame">@null</item>
@@ -58,6 +57,37 @@
         <!-- 点击空白部分activity不消失 -->
         <item name="android:windowCloseOnTouchOutside">false</item>
         <item name="android:textSize">25sp</item>
+    </style>
+    <!--版本更新的activity   设置为Dialog-->
+    <style name="AppUpdateDialog" parent="Theme.AppCompat.Light.Dialog">
+        <!-- 去黑边 -->
+        <item name="android:windowFrame">@null</item>
+        <!-- 设置是否可滑动 -->
+        <item name="android:windowIsFloating">true</item>
+        <!-- 设置是否透明 -->
+        <item name="android:windowIsTranslucent">false</item>
+        <!-- 无标题 -->
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowActionBar">false</item>
+        <!-- 背景 -->
+        <item name="android:background">@null</item>
+        <!-- 是否变暗 -->
+        <item name="android:backgroundDimEnabled">true</item>
+        <!-- 点击空白部分activity不消失 -->
+        <item name="android:windowCloseOnTouchOutside">false</item>
+        <item name="android:textSize">25sp</item>
+    </style>
+    <style name="ProgressBarWithPercent_Default">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="progress_max">100</item>
+        <item name="progress_current">0</item>
+        <item name="progress_unreached_color">#CCCCCC</item>
+        <item name="progress_reached_color">#3498DB</item>
+        <item name="progress_text_size">10sp</item>
+        <item name="progress_text_color">#3498DB</item>
+        <item name="progress_reached_bar_height">1.5dp</item>
+        <item name="progress_unreached_bar_height">0.75dp</item>
     </style>
 
 </resources>

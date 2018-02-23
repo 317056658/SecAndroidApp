@@ -72,14 +72,13 @@
                 android:orientation="horizontal">
 
                 <EditText
-                    android:id="@+id/et_input"
+                    android:id="@+id/et_text_input"
                     android:layout_width="208dp"
                     android:layout_height="40dp"
                     android:background="#ffffff"
                     android:hint="Key Blank"
                     android:inputType="textNoSuggestions"
                     android:maxLength="15" />
-
                 <Button
                     android:id="@+id/btn_key_blank"
                     android:layout_width="77dp"

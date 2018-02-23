@@ -2,12 +2,14 @@ package com.example.xiemintest;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.text.InputType;
 import android.util.Base64;
 import android.util.Log;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import java.lang.reflect.Method;
 import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
@@ -37,7 +39,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         String sss=  "dsadasab321311112313;";
-
+      EditText et=  (EditText)findViewById(R.id.et_text);
+        if (android.os.Build.VERSION.SDK_INT <= 10) {
+            et.setInputType(InputType.TYPE_NULL);
+        } else {
+            Class<EditText> cls = EditText.class;
+            Method method;
+            try {
+                method = cls.getMethod("setShowSoftInputOnFocus", boolean.class);
+                method.setAccessible(true);
+                method.invoke(et, false);
+            } catch (Exception e) {
+            }
+            try {
+                method = cls.getMethod("setSoftInputShownOnFocus", boolean.class);
+                method.setAccessible(true);
+                method.invoke(et, false);
+            } catch (Exception e) {
+            }
+        }
         Log.d("字符串", "onCreate: "+sss.contains("32"));
     }
     protected void onStart() {

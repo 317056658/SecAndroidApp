@@ -31,7 +31,7 @@
             android:text="home"
             android:paddingRight="10dp"
             android:layout_alignParentRight="true"
-            android:id="@+id/btn_home"
+            android:id="@+ids/btn_home"
             android:background="@drawable/homeimage"
             android:layout_width="wrap_content"
             android:layout_height="match_parent" />

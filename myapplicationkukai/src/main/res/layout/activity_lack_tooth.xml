@@ -5,13 +5,13 @@
     android:id="@+id/activity_lack_tooth"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.kkkcut.www.myapplicationkukai.publicActivity.LackToothActivity">
+    tools:context="com.kkkcut.www.myapplicationkukai.publicActivity.LackToothFindActivity">
      <RelativeLayout
          android:background="#16A4FA"
          android:layout_width="match_parent"
          android:layout_height="60dp">
          <TextView
-             android:id="@+id/Ltv"
+             android:id="@+id/tv_title"
              android:textStyle="bold"
              android:textSize="24sp"
              android:textColor="#090100"
@@ -19,4 +19,12 @@
              android:layout_width="wrap_content"
              android:layout_height="wrap_content" />
      </RelativeLayout>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="600dp"
+            android:layout_height="400dp"></android.support.v7.widget.RecyclerView>
+    </RelativeLayout>
 </LinearLayout>

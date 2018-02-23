@@ -18,10 +18,10 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.kkkcut.www.myapplicationkukai.PublicClass.JPushReceiver.TextActivity;
+import com.kkkcut.www.myapplicationkukai.publicClass.JPushReceiver.TextActivity;
 import com.kkkcut.www.myapplicationkukai.R;
 import com.kkkcut.www.myapplicationkukai.adapter.msgAdapter;
-import com.kkkcut.www.myapplicationkukai.dao.SQLiteDao1;
+import com.kkkcut.www.myapplicationkukai.dao.SQLiteDao;
 import com.kkkcut.www.myapplicationkukai.entity.JMessage;
 import com.kkkcut.www.myapplicationkukai.entity.TempInfo;
 
@@ -72,7 +72,7 @@ public class msgActivity extends AppCompatActivity implements SwipeRefreshLayout
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
                 Toast.makeText(msgActivity.this, list.get(position).getTime(), Toast.LENGTH_SHORT).show();
-                SQLiteDao1 sql=new SQLiteDao1(msgActivity.this);
+                SQLiteDao sql=new SQLiteDao(msgActivity.this);
                 sql.updateState(list.get(position).getId());
                 //代表文本网络显示
                 if(list.get(position).getType()==1)
@@ -114,7 +114,7 @@ public class msgActivity extends AppCompatActivity implements SwipeRefreshLayout
 
     protected void onStart() {
         super.onStart();
-        SQLiteDao1 sql = new SQLiteDao1(this);
+        SQLiteDao sql = new SQLiteDao(this);
         boolean lean = sql.query();
         if (lean) {
             //查询全部
@@ -139,7 +139,7 @@ public class msgActivity extends AppCompatActivity implements SwipeRefreshLayout
                 builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        SQLiteDao1 sqlDelete = new SQLiteDao1(msgActivity.this);
+                        SQLiteDao sqlDelete = new SQLiteDao(msgActivity.this);
                         //根据时间删除
                         sqlDelete.Delete(list.get(info.position).getTime());
                         list.remove(info.position);
@@ -157,7 +157,7 @@ public class msgActivity extends AppCompatActivity implements SwipeRefreshLayout
                 builder1.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        SQLiteDao1 sqlDelete1 = new SQLiteDao1(msgActivity.this);
+                        SQLiteDao sqlDelete1 = new SQLiteDao(msgActivity.this);
                         sqlDelete1.DeleteAll();
                         //清空listView
                         lv.setAdapter(null);
@@ -182,7 +182,7 @@ public class msgActivity extends AppCompatActivity implements SwipeRefreshLayout
     @Override
     public void onRefresh() {
         Log.d("aa", "onRefresh:动了 ");
-        SQLiteDao1 sql = new SQLiteDao1(this);
+        SQLiteDao sql = new SQLiteDao(this);
         //查询数据库按时间排序 返回一个List<JMessage>  集合
         list = sql.queryAllsort();
         new Thread(new Runnable() {

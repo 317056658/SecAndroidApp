@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.os.StrictMode;
 
 import com.bandeng.MyEventBusIndex;
+import com.kkkcut.www.myapplicationkukai.dao.SaveDataDaoManager;
 import com.kkkcut.www.myapplicationkukai.entity.KeyInfo;
 import com.kkkcut.www.myapplicationkukai.utils.VersionUtils;
 import com.kkkcut.www.myapplicationkukai.utils.logDocument.LogUtils;
@@ -28,12 +29,12 @@ import cn.jpush.android.api.JPushInterface;
 public class MyApplication extends Application {
     public static  String GESTURE_PASSWORD="gesturePassword";  //
     //图片状态
-    public  static int clampLocatingIndex;   //定义一个全局的夹具定位索引
     private static Context mContext;
     public static KeyInfo   ki;         //缓存钥匙信息
     public static String stepText;  //缓存步骤文本
     public static int startFlag;
     private  boolean DEBUG_MODE=true;  //严苛模式
+    public   static  final boolean  isCreation=true;
     public void onCreate() {
         super.onCreate();
         //推送
@@ -44,7 +45,8 @@ public class MyApplication extends Application {
             e.printStackTrace();
         }
         mContext=this;
-
+        // 初始化数据库
+        SaveDataDaoManager.getInstance();
         // 启用EventBus3.0加速功能
    EventBus.builder().addIndex(new MyEventBusIndex()).installDefaultEventBus();
 
@@ -85,11 +87,7 @@ public class MyApplication extends Application {
             e.printStackTrace();
         }
          intLog();
-
     }
-
-
-
     public static Context getContext() {
         return mContext;
     }
@@ -106,7 +104,9 @@ public class MyApplication extends Application {
         }
     }
 
-
-
-
+    @Override
+    public void onLowMemory() {
+        super.onLowMemory();
+        System.gc();
+    }
 }

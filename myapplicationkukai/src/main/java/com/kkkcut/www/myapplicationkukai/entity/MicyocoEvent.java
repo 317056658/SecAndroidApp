@@ -31,6 +31,7 @@ public class MicyocoEvent {
     public static   final int Z_SENSOR_ERROR=18; ///Z轴传感器错误
     public static   final int CLAMP_NOT_CALIBRATED=19;//请设定夹具的原点
     public static  final  int VERSION_NOT_MATCHED=20; //版本不匹配
+    public static   final int EXCEPTION_ERROR=110;  //异常错误
     private String msg;
     private int  what;
     public String getMsg() {

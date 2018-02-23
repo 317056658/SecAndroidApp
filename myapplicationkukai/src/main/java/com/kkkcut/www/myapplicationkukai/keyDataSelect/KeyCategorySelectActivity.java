@@ -2,11 +2,13 @@ package com.kkkcut.www.myapplicationkukai.keyDataSelect;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,7 +27,8 @@ import android.widget.Toast;
 
 import com.kkkcut.www.myapplicationkukai.R;
 import com.kkkcut.www.myapplicationkukai.adapter.SortGroupMemberAdapter;
-import com.kkkcut.www.myapplicationkukai.dao.SQLiteKeyDao;
+import com.kkkcut.www.myapplicationkukai.dao.KeyInfoDaoManager;
+
 import com.kkkcut.www.myapplicationkukai.entity.KeyInfo;
 import com.kkkcut.www.myapplicationkukai.entity.Mfg;
 import com.kkkcut.www.myapplicationkukai.entity.Model;
@@ -54,7 +57,6 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
     public  static final int KEY_DATA_LOAD_TYPE_MODEL=1; //钥匙数据类型 型号
     public  static final int  KEY_DATA_LOAD_TYPE_KEY_INFO=2;
     private ImageView img;
-
     /**
      * 上次第一个可见元素，用于滚动时记录标识。
      */
@@ -84,12 +86,11 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
     InputMethodManager imm;
     //装饰类
     private View mDecorView;
-    private SQLiteKeyDao database;
     private Button mBtnBack;
     private int selectType;
     private int mDataLoadingType;  //数据加载类型
-    private HashMap<String,String> languageMap;
-
+    private HashMap<String,String> languageMap;  // 保存传过来的语言类型数据
+    private KeyInfoDaoManager  keyInfoDaoManage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,13 +99,10 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
         //获得装饰类
         mDecorView = getWindow().getDecorView();
         this.getIntentData();
-        //初始化数据库
-        database = new SQLiteKeyDao(this,"SEC1.db");
+        //获得数据库对象
+        keyInfoDaoManage=KeyInfoDaoManager.getInstance();
         //实例化汉字转拼音类
         characterParser = CharacterParser.getInstance();
-        database.setCharacterParser(characterParser);
-
-
         //初始化view
         initViews();
         // 默认软键盘不主动弹出
@@ -120,7 +118,7 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
     private  void  getIntentData(){
         //获得传过来的意图数据
         Intent intent=getIntent();
-        selectType = intent.getIntExtra("selectType", 1);
+        selectType = intent.getIntExtra("selectType", -1);
         languageMap= (HashMap<String, String>) intent.getSerializableExtra("language");
     }
 
@@ -137,7 +135,6 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
         intent.putExtra("language",languageMap);
         context.startActivity(intent);
     }
-
     /**
      * 根据类型查询钥匙类型
      * 查询钥匙制造商数据
@@ -145,15 +142,15 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
      * @param type
      */
     private List<Mfg> queryManufacturerData(int type) {
-        return  database.mfgByCategory(type);
+        return  keyInfoDaoManage.mfgByCategoryQuery(type);
     }
 
     /**
-     * 根据id
+     * 根据id(CardNumber)
      * 查询钥匙型号数据
      */
     private List<Model> queryModelData(int id) {
-        return  database.modelByMfgID(id);
+        return  keyInfoDaoManage.modelByMfgCardNumberQuery(id);
     }
 
     /**
@@ -162,7 +159,7 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
      * @param id
      */
     private List<KeyInfo> querySeriesAndProfileData(int id, int keyCategory) {
-       return  database.seriesAndProfileByModelID(id, keyCategory);
+       return  keyInfoDaoManage.QuerySeriesAndProfileByModelID(id, keyCategory);
     }
 
     //返回到主界面
@@ -173,7 +170,7 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
     private void initViews() {
         // 获得 头部标题线性布局
         mHeadTitle = (RelativeLayout) findViewById(R.id.ll_title);
-        traversalViewsSetTest(mHeadTitle);
+        traversalViewsSetText(mHeadTitle);
         //1。获得线性布局
         titleLayout = (LinearLayout) findViewById(R.id.title_layout);
         title = (TextView) this.findViewById(R.id.title_layout_catalog);
@@ -199,8 +196,8 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
             @Override
             public void onTouchingLetterChanged(String s) {
                 // 该字母首次出现的位置
+
                 int position = adapter.getPositionForSection(s.charAt(0));
-                Log.d("触摸了", "onTouchingLetterChanged: ");
                 if (position != -1) {
                     sortListView.setSelection(position);
                 }
@@ -208,7 +205,7 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
         });
 
         //存储名字的ListView
-        sortListView = (ListView) findViewById(R.id.lv_store_name);
+        sortListView = (ListView) findViewById(R.id.lv_store);
         //ListView  item点击事件
         sortListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -218,31 +215,35 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
                 if (mDataLoadingType == KEY_DATA_LOAD_TYPE_MFG) {  // listViewItem动作等于0 代表钥匙型号数据加载
                     mDataLoadingType =KEY_DATA_LOAD_TYPE_MODEL;
                     mModelList= queryModelData(mMfgList.get(position).getId());
+                    formLanguageSetListViewShowData();
                     // 根据a-z进行排序源数据
                     Collections.sort(mModelList,modelPinyinComparato);
                     lastFirstVisibleItem = -1;
                     //刷新ListView
                     adapter.setDataSource(mModelList, mDataLoadingType);
                     adapter.notifyDataSetChanged();
+                    sortListView.setSelectionAfterHeaderView();
                     //显示返回键
                     mBtnBack.setVisibility(View.VISIBLE);
                     backMfgData = true;
-                    mTvStepText.setText(mMfgList.get(position).getName());
+                    mTvStepText.setText(mMfgList.get(position).getShowName());
                 } else if (mDataLoadingType == KEY_DATA_LOAD_TYPE_MODEL) {  // 代表查询系列
-                    mKeyInfoList= querySeriesAndProfileData(mModelList.get(position).get_id(), selectType);
+                    mKeyInfoList= querySeriesAndProfileData(mModelList.get(position).getId(), selectType);
+                    mDataLoadingType =KEY_DATA_LOAD_TYPE_KEY_INFO;
+                    formLanguageSetListViewShowData();
                     lastFirstVisibleItem = -1;
                     //准备好数据源
                     // 根据a-z进行排序源数据
                     Collections.sort(mKeyInfoList,keyInfoPinyinComparato);
                     //刷新ListView
-                    mDataLoadingType =KEY_DATA_LOAD_TYPE_KEY_INFO;
                     adapter.setDataSource(mKeyInfoList, mDataLoadingType);
                     adapter.notifyDataSetChanged();
+                    sortListView.setSelectionAfterHeaderView();
                     backMfgData = false;
                     backModelData = true;
-                    mTvStepText.setText(mTvStepText.getText().toString() + ">" +mModelList.get(position).getName());
+                    mTvStepText.setText(mTvStepText.getText().toString() + ">" +mModelList.get(position).getShowName());
                 } else if (mDataLoadingType == KEY_DATA_LOAD_TYPE_KEY_INFO) {
-                    String step=mTvStepText.getText().toString() + ">" + mKeyInfoList.get(position).getCombinationName();
+                    String step=mTvStepText.getText().toString() + ">" + mKeyInfoList.get(position).getCombinationText();
                     FrmKeyCutMainActivity.startFrmKeyCutMainActivity(KeyCategorySelectActivity.this,mKeyInfoList.get(position),
                             step,languageMap,1);
                 }
@@ -251,6 +252,7 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
         });
 
         mMfgList=queryManufacturerData(selectType);
+        this.formLanguageSetListViewShowData();
         mDataLoadingType =0;
         // 根据a-z进行排序源数据
         Collections.sort(mMfgList, mfgComparator);
@@ -263,8 +265,10 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
             //用于监听ListView滑动状态的变化
             public void onScrollStateChanged(AbsListView view, int scrollState) {
                 //ListView一滑动就隐藏软键盘
-                imm.hideSoftInputFromWindow(mClearEditText.getWindowToken(), 0);
-                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN);
+                  if(isSoftShowing()){
+                      imm.hideSoftInputFromWindow(mClearEditText.getWindowToken(),0);
+                      Tools.hideBottomUIMenu(mDecorView);
+                  }
             }
 
             /**
@@ -276,7 +280,7 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
             @Override
             public void onScroll(AbsListView view, int firstVisibleItem,
                                  int visibleItemCount, int totalItemCount) {
-                if(mDataLoadingType ==0){
+                if(mDataLoadingType ==KEY_DATA_LOAD_TYPE_MFG){
                     if (mMfgList.size() >= 2) {
                         int section = getSectionForPosition(firstVisibleItem);
                         int nextSection = getSectionForPosition(firstVisibleItem + 1);//下一位item
@@ -309,12 +313,9 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
                             }
                         }
                         lastFirstVisibleItem = firstVisibleItem;
-                    } else {   //数据源小于2不需要滚动变化
-                        // 这个时候不需要挤压效果 就把他隐藏掉
-                        titleLayout.setVisibility(View.GONE);
                     }
 
-                }else if(mDataLoadingType ==1){
+                }else if(mDataLoadingType ==KEY_DATA_LOAD_TYPE_MODEL){
                     if (mModelList.size() >= 2) {
                         int section = getSectionForPosition(firstVisibleItem);
                         int nextSection = getSectionForPosition(firstVisibleItem + 1);//下一位item
@@ -335,7 +336,6 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
                                 ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) titleLayout
                                         .getLayoutParams();
                                 if (bottom < titleHeight) {
-
                                     float pushedDistance = bottom - titleHeight;  //计算得到推开多少距离
                                     params.topMargin = (int) pushedDistance;
                                     titleLayout.setLayoutParams(params);
@@ -348,11 +348,7 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
                             }
                         }
                         lastFirstVisibleItem = firstVisibleItem;
-                    } else {   //数据源小于2不需要滚动变化
-                        // 这个时候不需要挤压效果 就把他隐藏掉
-                        titleLayout.setVisibility(View.GONE);
                     }
-
                 }else {
                     if (mKeyInfoList.size() >= 2) {
                         int section = getSectionForPosition(firstVisibleItem);
@@ -387,9 +383,6 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
                             }
                         }
                         lastFirstVisibleItem = firstVisibleItem;
-                    } else {   //数据源小于2不需要滚动变化
-                        // 这个时候不需要挤压效果 就把他隐藏掉
-                        titleLayout.setVisibility(View.GONE);
                     }
                 }
             }
@@ -416,8 +409,31 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
             public void afterTextChanged(Editable s) {
             }
         });
-    }
 
+    }
+    private boolean isSoftShowing() {
+        //获取当前屏幕内容的高度
+        int screenHeight = getWindow().getDecorView().getHeight();
+        //获取View可见区域的bottom
+        Rect rect = new Rect();
+        mDecorView.getWindowVisibleDisplayFrame(rect);
+
+        return (screenHeight - rect.bottom)!= 0;
+    }
+    private int getSoftButtonsBarHeight() {
+        DisplayMetrics metrics = new DisplayMetrics();
+        //这个方法获取可能不是真实屏幕的高度
+        this.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        int usableHeight = metrics.heightPixels;
+        //获取当前屏幕的真实高度
+        this.getWindowManager().getDefaultDisplay().getRealMetrics(metrics);
+        int realHeight = metrics.heightPixels;
+        if (realHeight > usableHeight) {
+            return realHeight - usableHeight;
+        } else {
+            return 0;
+        }
+    }
 
     /**
      * 根据输入框中的值来过滤数据并更新ListView
@@ -425,35 +441,33 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
      * @param filterStr
      */
     private void filterData(String filterStr) {
-        if(mDataLoadingType ==0){
-            List<Mfg> filterDateList = new ArrayList();
+        if(mDataLoadingType ==KEY_DATA_LOAD_TYPE_MFG){
+            List<Mfg> filterDataList = new ArrayList();
             if (TextUtils.isEmpty(filterStr)) {
-                filterDateList = mMfgList;
+                filterDataList = mMfgList;
             } else {
-                filterDateList.clear();
                 for (Mfg mfg : mMfgList) {
                     String name = mfg.getName();
                     if (name.indexOf(filterStr.toString()) != -1
                             || characterParser.getSelling(name).startsWith(
                             filterStr.toString())) {
-                        filterDateList.add(mfg);
+                        filterDataList.add(mfg);
                     }
                 }
             }
-
+            mMfgList = filterDataList;
             // 根据a-z进行排序
-            Collections.sort(filterDateList, mfgComparator);
-            adapter.setDataSource(filterDateList, mDataLoadingType);
+            Collections.sort(mMfgList, mfgComparator);
+            adapter.setDataSource(mMfgList, mDataLoadingType);
             adapter.notifyDataSetChanged();
-            if (filterDateList.size() == 0) {
+            if (filterDataList.size() == 0) {
                 Toast.makeText(this, "No data was found", Toast.LENGTH_SHORT).show();
             }
-        }else if(mDataLoadingType ==1){
+        }else if(mDataLoadingType ==KEY_DATA_LOAD_TYPE_MODEL){
             List<Model> filterDateList = new ArrayList();
             if (TextUtils.isEmpty(filterStr)) {
                 filterDateList = mModelList;
             } else {
-                filterDateList.clear();
                 for (Model model : mModelList) {
                     String name = model.getName();
                     if (name.indexOf(filterStr.toString()) != -1
@@ -463,9 +477,10 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
                     }
                 }
             }
+            mModelList = filterDateList;
             // 根据a-z进行排序
-            Collections.sort(filterDateList, modelPinyinComparato);
-            adapter.setDataSource(filterDateList, mDataLoadingType);
+            Collections.sort(mModelList, modelPinyinComparato);
+            adapter.setDataSource(mModelList, mDataLoadingType);
             adapter.notifyDataSetChanged();
             if (filterDateList.size() == 0) {
                 Toast.makeText(this, "No data was found", Toast.LENGTH_SHORT).show();
@@ -475,9 +490,8 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
             if (TextUtils.isEmpty(filterStr)) {
                 filterDateList = mKeyInfoList;
             } else {
-                filterDateList.clear();
                 for (KeyInfo ki : mKeyInfoList) {
-                    String name = ki.getCombinationName();
+                    String name = ki.getCombinationText();
                     if (name.indexOf(filterStr.toString()) != -1
                             || characterParser.getSelling(name).startsWith(
                             filterStr.toString())) {
@@ -485,9 +499,10 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
                     }
                 }
             }
+            mKeyInfoList = filterDateList;
             // 根据a-z进行排序
-            Collections.sort(filterDateList,keyInfoPinyinComparato);
-            adapter.setDataSource(filterDateList, mDataLoadingType);
+            Collections.sort(mKeyInfoList,keyInfoPinyinComparato);
+            adapter.setDataSource(mKeyInfoList, mDataLoadingType);
             adapter.notifyDataSetChanged();
             if (filterDateList.size() == 0) {
                 Toast.makeText(this, "No data was found", Toast.LENGTH_SHORT).show();
@@ -536,7 +551,6 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
                 }
             }
             return -1;
-
         }else {
             for (int i = 0; i < mKeyInfoList.size(); i++) {
                 String sortStr = mKeyInfoList.get(i).getSortLetters();
@@ -549,39 +563,102 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
         }
     }
 
+    /**
+     * 根据语言类型  设置ListView数据源 显示的名字
+     */
+
+    private void formLanguageSetListViewShowData(){
+            if(mDataLoadingType ==KEY_DATA_LOAD_TYPE_MFG){  //品牌的名字
+                String str;
+               for (int i = 0; i <mMfgList.size() ; i++) {
+                    Mfg mfg= mMfgList.get(i);
+                   str=languageMap.get(mfg.getName());
+                   if(TextUtils.isEmpty(str)){
+                       mfg.setShowName(mfg.getName());
+                   }else {
+                       mfg.setShowName(str);
+                   }
+                   // 汉字转换成拼音
+                   String pinyin = characterParser.getSelling(mfg.getShowName());
+                   // 截取第一个字符转为大写
+                   String sortString = pinyin.substring(0, 1).toUpperCase();
+                   // 正则表达式，判断首字母是否是英文字母
+                   if (sortString.matches("[A-Z]")) {
+                       mfg.setSortLetters(sortString.toUpperCase());
+                   } else {
+                       mfg.setSortLetters("#");
+                   }
+               }
+            }else if(mDataLoadingType==KEY_DATA_LOAD_TYPE_MODEL){  //型号的名字
+                String str;
+                for (int i = 0; i <mModelList.size() ; i++) {
+                    Model model= mModelList.get(i);
+                    str=languageMap.get(model.getName());
+                    if(TextUtils.isEmpty(str)){
+                        model.setShowName(model.getName());
+                    }else {
+                        model.setShowName(str);
+                    }
+                    String pinyin = characterParser.getSelling(model.getShowName());
+                    Log.d("显示的名字123", "formLanguage: "+model.getShowName());
+                    // 截取第一个字符转为大写
+                    String sortString = pinyin.substring(0, 1).toUpperCase();
+                    // 正则表达式，判断首字母是否是英文字母
+                    if (sortString.matches("[A-Z]")) {
+                        model.setSortLetters(sortString.toUpperCase());
+                    } else {
+                        model.setSortLetters("#");
+                    }
+                }
+
+            }else if(mDataLoadingType==KEY_DATA_LOAD_TYPE_KEY_INFO){   //这个不用判断
+                for (int i = 0; i <mKeyInfoList.size() ; i++) {
+                    KeyInfo ki=mKeyInfoList.get(i);
+                    // 汉字转换成拼音
+                    String pinyin = characterParser.getSelling(ki.getCombinationText());
+                    // 截取第一个字符转为大写
+                    String sortString = pinyin.substring(0, 1).toUpperCase();
+                    // 正则表达式，判断首字母是否是英文字母
+                    if (sortString.matches("[A-Z]")) {
+                        ki.setSortLetters(sortString.toUpperCase());
+                    } else {
+                        ki.setSortLetters("#");
+                    }
+                }
+            }
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
         Tools.hideBottomUIMenu(mDecorView);
+
     }
 
 
     /**
-     * 遍历 View ，设置setTest;
+     * 遍历 View ，设置setText;
      *
      * @param viewGroup
      */
-    private void traversalViewsSetTest(ViewGroup viewGroup) {
+    private void traversalViewsSetText(ViewGroup viewGroup) {
         int count = viewGroup.getChildCount();//获得这个view下面的所以子view的数量
         for (int i = 0; i < count; i++) {
             View view = viewGroup.getChildAt(i);
             if (view instanceof Button) { // 若是Button记录下
                 Button btn = (Button) view;
-                if (TextUtils.isEmpty(languageMap.get(btn.getText().toString()))) {
-                    //等于空就是默认值
-                } else {
+                if (!TextUtils.isEmpty(languageMap.get(btn.getText().toString()))) {
                     btn.setText(languageMap.get(btn.getText().toString()));
                 }
             } else if (view instanceof TextView) {
                 TextView tv = (TextView) view;
-                if (TextUtils.isEmpty(languageMap.get(tv.getText().toString()))) {
+                if (!TextUtils.isEmpty(languageMap.get(tv.getText().toString()))) {
                     //等于空就是默认值
-                } else {
                     tv.setText(languageMap.get(tv.getText().toString()));
                 }
             } else if (view instanceof ViewGroup) {
                 // 若是布局控件（LinearLayout或RelativeLayout）,继续查询子View
-                this.traversalViewsSetTest((ViewGroup) view);
+                this.traversalViewsSetText((ViewGroup) view);
             }
         }
     }
@@ -615,11 +692,10 @@ public class KeyCategorySelectActivity extends AppCompatActivity implements Sect
                     lastFirstVisibleItem = -1;
                 } else if (backModelData) {
                     int index = mTvStepText.getText().toString().indexOf(">");
-                    Log.d("下标是好多？", "onClick: " + index);
                     mTvStepText.setText(mTvStepText.getText().toString().substring(0, index));
                     mDataLoadingType = 1;
                     adapter.setDataSource(mModelList, mDataLoadingType);
-                    adapter.notifyDataSetChanged();
+                    sortListView.setAdapter(adapter);
                     backModelData = false;
                     backMfgData = true;
                     lastFirstVisibleItem = -1;

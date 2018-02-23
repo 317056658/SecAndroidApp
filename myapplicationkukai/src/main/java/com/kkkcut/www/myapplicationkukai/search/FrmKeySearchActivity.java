@@ -20,9 +20,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.kkkcut.www.myapplicationkukai.R;
-import com.kkkcut.www.myapplicationkukai.serialDriverCommunication.ProlificSerialDriver;
 import com.kkkcut.www.myapplicationkukai.adapter.KeyBlankAdapter;
-import com.kkkcut.www.myapplicationkukai.dao.SQLiteKeyDao;
+import com.kkkcut.www.myapplicationkukai.dao.KeyInfoDaoManager;
 import com.kkkcut.www.myapplicationkukai.dialogActivity.MessageTipsActivity;
 import com.kkkcut.www.myapplicationkukai.dialogActivity.TransformProbeActivity;
 import com.kkkcut.www.myapplicationkukai.entity.DividerItemDecoration;
@@ -30,6 +29,7 @@ import com.kkkcut.www.myapplicationkukai.entity.KeyBlankMfg;
 import com.kkkcut.www.myapplicationkukai.entity.KeyInfo;
 import com.kkkcut.www.myapplicationkukai.entity.MicyocoEvent;
 import com.kkkcut.www.myapplicationkukai.publicKeyCut.FrmKeyCutMainActivity;
+import com.kkkcut.www.myapplicationkukai.serialDriverCommunication.ProlificSerialDriver;
 import com.kkkcut.www.myapplicationkukai.utils.Tools;
 
 import java.lang.ref.WeakReference;
@@ -44,9 +44,9 @@ public class FrmKeySearchActivity extends AppCompatActivity {
    private Button mBtn1, mBtn2, mBtn3, mBtn4, mBtn5, mBtn6, mBtn7, mBtn8, mBtn9, mBtn0;
 
     private List mList = new ArrayList<>();
-   private EditText mEtInput;
-   private Button IcCard;
-    private  TextView mInputText, mSearchMode;
+    private EditText mEtInput;
+    private Button IcCard;
+    private TextView mInputText, mSearchMode;
     private String tempStr;
     private KeyBlankAdapter adapter;
     private GridLayout mDl;
@@ -57,7 +57,6 @@ public class FrmKeySearchActivity extends AppCompatActivity {
     private   Button mBtnBack;
     private View mDecorView;
     private Editable editable;
-    private SQLiteKeyDao database;
     private int dataLoadingType;
     private String  stepText;
     private HashMap<String,String> languageMap;
@@ -89,15 +88,16 @@ public class FrmKeySearchActivity extends AppCompatActivity {
     }
     private ProlificSerialDriver serialDriver;
     private Context mContext;
+    private KeyInfoDaoManager keyInfoDaoManager;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
         mContext=this;
         getIntentData();
         initViews();//初始化View
-//        serialDriver=ProlificSerialDriver.getInstance();
-        database = new SQLiteKeyDao(this,"SEC1.db");
         initRecyclerView();
+        //获得dao对象
+       keyInfoDaoManager  =KeyInfoDaoManager.getInstance();
     }
 
     /**
@@ -138,16 +138,16 @@ public class FrmKeySearchActivity extends AppCompatActivity {
                 if(dataLoadingType ==1){  //等于1  加载钥匙坯钥匙信息
                     mBtnBack.setVisibility(View.VISIBLE);
                     KeyBlankMfg kbm=(KeyBlankMfg) kbmList.get(position);
-                    String  manufacturerName  =kbm.getName();  //获得厂商名字
-                    mInputText.setText(manufacturerName);
-                    kiList =database.keyInfoByKeyBlank(editable.toString(),manufacturerName);
+                    String mfgName =kbm.getName();  //获得厂商名字
+                    mInputText.setText(mfgName);
+                    kiList =keyInfoDaoManager.keyInfoByMfgIdQuery(kbm.getId());
                     adapter.setData(kiList, dataLoadingType);
                     adapter.notifyDataSetChanged();//通知数据设置改变了，重新加载
                     dataLoadingType =2;
                     mBtnBack.setVisibility(View.VISIBLE);
                 }else if(dataLoadingType ==2){  //等于2 获得钥匙基础信息 跳转Activity
                     KeyInfo ki  =(KeyInfo)kiList.get(position);
-                    stepText=ki.getManufacturerName()+">"+ki.getCombinationName();
+                    stepText=mInputText.getText().toString()+">"+ki.getCombinationText();
                     FrmKeyCutMainActivity.startFrmKeyCutMainActivity(FrmKeySearchActivity.this,ki,stepText,languageMap,2);
                 }
             }
@@ -167,7 +167,7 @@ public class FrmKeySearchActivity extends AppCompatActivity {
         IcCard.setOnClickListener(clickListener);
         mBtnKeyBlank = (Button) findViewById(R.id.btn_key_blank);
         mBtnKeyBlank.setOnClickListener(clickListener);
-        mEtInput = (EditText) findViewById(R.id.et_input);
+        mEtInput = (EditText) findViewById(R.id.et_text_input);
         Tools.disableShowSoftInput(mEtInput);//禁止Edittext弹出软件盘，光标依然正常显示\
         Tools.disableShearPlate(mEtInput);//禁止Edittext弹出剪切板
         editable = mEtInput.getText();
@@ -521,7 +521,6 @@ public class FrmKeySearchActivity extends AppCompatActivity {
                     break;
                 case R.id.btn_clear:
                     editable.clear();//情况所有内容
-
                     if (SEARCH_STATUS == 0) {  //0 是 钥匙胚查询
                         dataLoadingType =0;
                         recoverBtnClickable(mDl);//回到 初始状态
@@ -529,7 +528,7 @@ public class FrmKeySearchActivity extends AppCompatActivity {
                     //删除RecyclerView里面的所以view
                     mSearchRecyclerView.removeAllViews();
                     //清空list集合所以数据 释放内存
-                    adapter.list.clear();
+                    adapter.mList.clear();
                     //重新加载RecyclerView
                     adapter.notifyDataSetChanged();
                     //隐藏返回按钮
@@ -562,9 +561,9 @@ public class FrmKeySearchActivity extends AppCompatActivity {
                         return;
                     }
                     if (SEARCH_STATUS == 0) {   //钥匙胚查询
-                        kbmList = database.KeyBlankMfgByKeyBlankName(editable.toString());  //根据钥匙胚型号查询厂商
+                        kbmList = keyInfoDaoManager.KeyBlankMfgByKeyBlankName(editable.toString());  //根据钥匙胚型号查询厂商
                         if(kbmList.size()==0){
-                            MessageTipsActivity.startMessageTipsActivity(mContext,MessageTipsActivity.UNFOUND_KEY_TIPS);
+                            MessageTipsActivity.startMessageTipsActivityForResult(mContext,MessageTipsActivity.UNFOUND_KEY_TIPS);
                         }else {
                             dataLoadingType =0;
                             mInputText.setText(editable.toString()+"～");
@@ -574,15 +573,13 @@ public class FrmKeySearchActivity extends AppCompatActivity {
                         }
                     } else if (SEARCH_STATUS == 1) {  //等于1就是  id 查询
                         //根据id查询   只会返回一条数据
-                        KeyInfo ki = database.profileByID(editable.toString().trim());
+                        KeyInfo ki = keyInfoDaoManager.profileByID(editable.toString().trim());
                         if (ki.getSpace() != null) {
-                            stepText ="IC Card "+ki.getId()+">";
+                            stepText ="IC Card "+ki.getCardNumber()+">";
                             FrmKeyCutMainActivity.startFrmKeyCutMainActivity(FrmKeySearchActivity.this,ki,stepText,languageMap,0);
                         } else {
                             //没有找到数据
-                            Intent intent = new Intent(FrmKeySearchActivity.this, MessageTipsActivity.class);
-                            intent.putExtra("Type",2);
-                            startActivity(intent);
+                            MessageTipsActivity.startItselfActivity(FrmKeySearchActivity.this,MessageTipsActivity.KEY_INFO_UNFOUND_TIPS,-1);
                         }
                     }
                     break;
@@ -723,7 +720,7 @@ public class FrmKeySearchActivity extends AppCompatActivity {
         if (TextUtils.isEmpty(editable.toString()) || SEARCH_STATUS == 1) {
             return;
         }
-        mList = database.firstQuery(editable.toString());
+        mList = keyInfoDaoManager.firstQuery(editable.toString());
         if (mList == null) {
             return;
         }

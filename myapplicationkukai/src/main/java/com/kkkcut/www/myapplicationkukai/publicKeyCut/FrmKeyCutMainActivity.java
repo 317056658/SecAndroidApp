@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
@@ -22,18 +23,12 @@ import android.widget.TextView;
 
 import com.kkkcut.www.myapplicationkukai.MainActivity;
 import com.kkkcut.www.myapplicationkukai.MenuModule.KeyBaseInfoActivity;
-import com.kkkcut.www.myapplicationkukai.publicActivity.CodeCheckToothActivity;
-import com.kkkcut.www.myapplicationkukai.publicActivity.CutKeyActivity;
-import com.kkkcut.www.myapplicationkukai.publicActivity.DecodeActivity;
-import com.kkkcut.www.myapplicationkukai.publicActivity.InputMainActivity;
-import com.kkkcut.www.myapplicationkukai.publicActivity.LackToothActivity;
-import com.kkkcut.www.myapplicationkukai.publicActivity.ToothCheckCodeActivity;
 import com.kkkcut.www.myapplicationkukai.R;
 import com.kkkcut.www.myapplicationkukai.application.MyApplication;
-import com.kkkcut.www.myapplicationkukai.dao.SQLiteKeyDao;
+import com.kkkcut.www.myapplicationkukai.dao.KeyInfoDaoManager;
 import com.kkkcut.www.myapplicationkukai.dialogActivity.ExceptionActivity;
-import com.kkkcut.www.myapplicationkukai.dialogActivity.MeasureToolActivity;
 import com.kkkcut.www.myapplicationkukai.dialogActivity.MessageTipsActivity;
+import com.kkkcut.www.myapplicationkukai.dialogActivity.ProbeAndCutterMeasurementActivity;
 import com.kkkcut.www.myapplicationkukai.drawKeyImg.AngleKey;
 import com.kkkcut.www.myapplicationkukai.drawKeyImg.BilateralKey;
 import com.kkkcut.www.myapplicationkukai.drawKeyImg.ConcaveDotKey;
@@ -45,13 +40,22 @@ import com.kkkcut.www.myapplicationkukai.drawKeyImg.MonorailInsideGrooveKey;
 import com.kkkcut.www.myapplicationkukai.drawKeyImg.MonorailOuterGrooveKey;
 import com.kkkcut.www.myapplicationkukai.drawKeyImg.SideToothKey;
 import com.kkkcut.www.myapplicationkukai.drawKeyImg.UnilateralKey;
+import com.kkkcut.www.myapplicationkukai.entity.ConstantValue;
 import com.kkkcut.www.myapplicationkukai.entity.Instruction;
 import com.kkkcut.www.myapplicationkukai.entity.KeyInfo;
 import com.kkkcut.www.myapplicationkukai.entity.KeyType;
 import com.kkkcut.www.myapplicationkukai.entity.MessageEvent;
 import com.kkkcut.www.myapplicationkukai.entity.MicyocoEvent;
+import com.kkkcut.www.myapplicationkukai.publicActivity.CodeFindToothActivity;
+import com.kkkcut.www.myapplicationkukai.publicActivity.CutKeyActivity;
+import com.kkkcut.www.myapplicationkukai.publicActivity.DecodeKeyActivity;
+import com.kkkcut.www.myapplicationkukai.publicActivity.InputMainActivity;
+import com.kkkcut.www.myapplicationkukai.publicActivity.LackToothFindActivity;
+import com.kkkcut.www.myapplicationkukai.publicActivity.ToothFindCodeActivity;
 import com.kkkcut.www.myapplicationkukai.serialDriverCommunication.ProlificSerialDriver;
 import com.kkkcut.www.myapplicationkukai.setup.FrmMaintenanceActivity;
+import com.kkkcut.www.myapplicationkukai.utils.CacheActivityUtils;
+import com.kkkcut.www.myapplicationkukai.utils.DensityUtils;
 import com.kkkcut.www.myapplicationkukai.utils.EventBusUtils;
 import com.kkkcut.www.myapplicationkukai.utils.Tools;
 
@@ -60,24 +64,22 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
-import java.util.List;
 
 public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnClickListener {
-    private Button mMenu, mChangeDepth, mCodeFindKey, mDecodeKey, mToothFindCode, mLackToothFind, mKeyCut, mBack, mMeasure;
-    private   String title,keyBlanks;
+    private Button mBtnMenu, mChangeDepth, mCodeFindKey, mDecodeKey, mToothFindCode, mLackToothFind, mKeyCut, mBack, mMeasure;
+    private String title,keyBlanks;
     private TextView  mDecodeName, mHint;
     private KeyInfo ki;
-    View rootView;
+    private View rootView;
     public int isShowMenu = 0;
     private PopupWindow mMenuWindow;
     private PopupWindow mSelectKeySpaceWindow;  //选择几个齿位窗口
     private View mDecorView;
     private Key mKey;
     private boolean isShowKeySpaceSelectWindow;  //只第一次进来显示
-    private LinearLayout mSpaceGroup;
+    private LinearLayout mVariableCount;
     private TextView mTvStep;
     private String[] strArray;
-    private SQLiteKeyDao database;
     private TextView mTvKeyBlanksContent;
     private MyHandler mHandler = new MyHandler(this);
     private static  final  String TAG="FrmKeyCutMainActivity";
@@ -89,6 +91,7 @@ public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnC
     private ProlificSerialDriver serialDriver;
     private Context mContext;
     private  Intent intent;
+    private int width, height;
 
     /**
      *  本Activity按钮点击事件
@@ -138,114 +141,122 @@ public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_frm_key_cut);
+        CacheActivityUtils.addActivity(this);
         mContext =this;
         this.getIntentData();
         this.temporaryGlobalSave();
         EventBusUtils.register(this);  //注册EventBus
+        this.initPopupWindow();
         this.initViews();
-        Log.d("是好多？", "getIntentData: "+startFlag);
         this.setKeyBlanksInformationAndStep(startFlag);  //设置钥匙胚信息和步骤
         //初始化按钮
         //获得线性布局
         LinearLayout mPutImg = (LinearLayout) findViewById(R.id.ll_put_image);
-        MyApplication.clampLocatingIndex = 100;      // 夹具定位下标 默认值为100
                 switch (ki.getType()) {
                     case KeyType.UNILATERAL_KEY://加载单边钥匙
                         mKey = new UnilateralKey(this,ki);
-                        mKey.setLayoutParams(new LinearLayout.LayoutParams(680,320));
-                        mKey.setDrawPatternSize(640,280);
-                        mKey.setBackgroundResource(R.drawable.edit_shape);
+                        mKey.setLayoutParams(new LinearLayout.LayoutParams(680,285));
+                        mKey.setDrawPatternSize(660,280);
+                        mKey.setToothCode(ki.getKeyToothCode());
                         mPutImg.addView(mKey);
                         break;
                     case KeyType.BILATERAL_KEY:  //加载双边钥匙
                         mKey = new BilateralKey(this,ki);
-                        mKey.setToothCodeDefault();
-                        mKey.setToothDepthName(ki.getKeyToothCode());
-                        mKey.setLayoutParams(new LinearLayout.LayoutParams(740,330));
-                        mKey.setBackgroundResource(R.drawable.edit_shape);
+                        mKey.setLayoutParams(new LinearLayout.LayoutParams(715,310));
+                        mKey.setDrawPatternSize(700,290);
+                        mKey.setToothCode(ki.getKeyToothCode());
                         mPutImg.addView(mKey);
                         break;
                     case KeyType.DUAL_PATH_INSIDE_GROOVE_KEY:  //加载双轨内槽钥匙
-                        mKey = new DualPathInsideGrooveKey(this);
-                        mKey.setLayoutParams(new LinearLayout.LayoutParams(740, 330));
+                        mKey = new DualPathInsideGrooveKey(this,ki);
+                        mKey.setLayoutParams(new LinearLayout.LayoutParams(DensityUtils.dip2px(this,640), DensityUtils.dip2px(this,250)));
+                        mKey.setDrawPatternSize(DensityUtils.dip2px(this,630),DensityUtils.dip2px(this,245));
                         mKey.setBackgroundResource(R.drawable.edit_shape);
-                        mKey.setNeededDrawAttribute(ki);
-                        mKey.setToothCodeDefault();
-                        mKey.setToothDepthName(ki.getKeyToothCode());
+                        mKey.setToothCode(ki.getKeyToothCode());
                         mPutImg.addView(mKey);
                         break;
                     case KeyType.MONORAIL_OUTER_GROOVE_KEY:  //加载单轨外槽
-                        mKey = new MonorailOuterGrooveKey(this);
-                        mKey.setNeededDrawAttribute(ki);
-                        mKey.setToothCodeDefault();
-                        mKey.setLayoutParams(new LinearLayout.LayoutParams(740, 300));
+                        mKey = new MonorailOuterGrooveKey(this,ki);
+                        mKey.setLayoutParams(new LinearLayout.LayoutParams(DensityUtils.dip2px(this,710),DensityUtils.dip2px(this,300)));
+                        mKey.setDrawPatternSize(DensityUtils.dip2px(this,680),DensityUtils.dip2px(this,230));
+                        mKey.setToothCode(ki.getKeyToothCode());
                         mKey.setBackgroundResource(R.drawable.edit_shape);
                         mPutImg.addView(mKey);
                         break;
                     case KeyType.DUAL_PATH_OUTER_GROOVE_KEY:  //加载双轨外槽钥匙
-                        mKey = new DualPathOuterGrooveKey(this);
-                        mKey.setNeededDrawAttribute(ki);
-                        mKey.setToothCodeDefault();
-                        mKey.setToothDepthName(ki.getKeyToothCode());
-                        mKey.setLayoutParams(new LinearLayout.LayoutParams(740, 310));
+                        mKey = new DualPathOuterGrooveKey(this,ki);
+                        mKey.setLayoutParams(new LinearLayout.LayoutParams(DensityUtils.dip2px(this,620), DensityUtils.dip2px(this,216)));
+                        mKey.setDrawPatternSize(DensityUtils.dip2px(this,610),DensityUtils.dip2px(this,215));
+                        mKey.setToothCode(ki.getKeyToothCode());
                         mKey.setBackgroundResource(R.drawable.edit_shape);
                         mPutImg.addView(mKey);
                         break;
                     case KeyType.MONORAIL_INSIDE_GROOVE_KEY: //加载单轨内槽钥匙
-                        mKey = new MonorailInsideGrooveKey(this);
-                        mKey.setNeededDrawAttribute(ki);
-                        mKey.setToothCodeDefault();
-                        mKey.setToothDepthName(ki.getKeyToothCode());
-                        mKey.setLayoutParams(new LinearLayout.LayoutParams(740, 300));
-                        mKey.setBackgroundResource(R.drawable.edit_shape);
-                        mPutImg.addView(mKey);
+                            mKey = new MonorailInsideGrooveKey(this,ki);
+                            mKey.setLayoutParams(new LinearLayout.LayoutParams(740, 300));
+                            mKey.setDrawPatternSize(736,296);
+                            mKey.setToothCode(ki.getKeyToothCode());
+                            mKey.setBackgroundResource(R.drawable.edit_shape);
+                            mPutImg.addView(mKey);
                         break;
                     case KeyType.CONCAVE_DOT_KEY:  //加载凹点钥匙
-                        mKey = new ConcaveDotKey(this);
-                        mKey.setNeededDrawAttribute(ki);
-                        mKey.setToothCodeDefault();
-                        mKey.setToothDepthName(ki.getKeyToothCode());
-                        mKey.setLayoutParams(new LinearLayout.LayoutParams(740,360));
-                        mKey.setBackgroundResource(R.drawable.edit_shape);
-                        mPutImg.addView(mKey);
+                        String[] newStr=ki.getRow_pos().split(";");
+                        if(ki.getRowCount()==1&&Integer.parseInt(newStr[0])<0){
+                            mKey = new ConcaveDotKey(this,ki);
+                            LinearLayout.LayoutParams layoutParam=new LinearLayout.LayoutParams(DensityUtils.dip2px(this,550), DensityUtils.dip2px(this,80));
+                            layoutParam.setMargins(0,DensityUtils.dip2px(this,90),0,0);
+                            mKey.setLayoutParams(layoutParam);
+                            mKey.setOnlyDrawSidePatternSize(DensityUtils.dip2px(this,548),DensityUtils.dip2px(this,78));
+                            mKey.setDrawBigCircleAndInnerCircleSize(14,6);
+                            mKey.setToothCode(ki.getKeyToothCode());
+                            mKey.setBackgroundResource(R.drawable.edit_shape);
+                            mPutImg.addView(mKey);
+                        }else {
+                            mKey = new ConcaveDotKey(this,ki);
+                            mKey.setLayoutParams(new LinearLayout.LayoutParams(DensityUtils.dip2px(this,620), DensityUtils.dip2px(this,270)));
+                            mKey.setDrawPatternSize(DensityUtils.dip2px(this,618),DensityUtils.dip2px(this,266));
+                            mKey.setDrawBigCircleAndInnerCircleSize(14,6);
+                            mKey.setToothCode(ki.getKeyToothCode());
+                            mKey.setBackgroundResource(R.drawable.edit_shape);
+                            mPutImg.addView(mKey);
+                        }
                         break;
                     case KeyType.ANGLE_KEY: //角度钥匙
-                        mKey =new AngleKey(this);
-                        mKey.setNeededDrawAttribute(ki);
-                        mKey.setToothCodeDefault();
-                        mKey.setToothDepthName(ki.getKeyToothCode());
-                        mKey.setLayoutParams(new LinearLayout.LayoutParams(740, 300));
-                        mKey.setBackgroundResource(R.drawable.edit_shape);
+                        LinearLayout.LayoutParams layoutParam=new LinearLayout.LayoutParams(740,240 );
+                        layoutParam.setMargins(0,DensityUtils.dip2px(this,60),0,0);
+                        mKey =new AngleKey(this,ki);
+                        mKey.setLayoutParams(layoutParam);
+                        mKey.setDrawPatternSize(738,238);
+                        mKey.setToothCode(ki.getKeyToothCode());
                         mPutImg.addView(mKey);
                         mDecodeKey.setVisibility(View.INVISIBLE);  //隐藏
                         break;
                     case KeyType.CYLINDER_KEY: //圆筒钥匙
-                        mKey =new CylinderKey(this);
-                        mKey.setNeededDrawAttribute(ki);
-                        mKey.setToothCodeDefault();
-                        mKey.setToothDepthName(ki.getKeyToothCode());
-                        mKey.setLayoutParams(new LinearLayout.LayoutParams(740, 340));
-                        mKey.setBackgroundResource(R.drawable.edit_shape);
+                        mKey =new CylinderKey(this,ki);
+                        LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(305,305);
+                        layoutParams.gravity=Gravity.CENTER;
+                        mKey.setLayoutParams(layoutParams);
+                        mKey.setDrawPatternSize(300,300);
+                        mKey.setToothCode(ki.getKeyToothCode());
                         mPutImg.addView(mKey);
                         break;
                     case KeyType.SIDE_TOOTH_KEY:  //侧齿钥匙
-                        mKey =new SideToothKey(this);
-                        mKey.setNeededDrawAttribute(ki);
-                        mKey.setToothCodeDefault();
-                        mKey.setToothDepthName(ki.getKeyToothCode());
-                        mKey.setLayoutParams(new LinearLayout.LayoutParams(800,300));
+                        mKey =new SideToothKey(this,ki);
+                        mKey.setLayoutParams(new LinearLayout.LayoutParams(740,250));
+                        mKey.setDrawPatternSize(730,248);
+                        mKey.setToothCode(ki.getKeyToothCode());
                         mKey.setBackgroundResource(R.drawable.edit_shape);
                         mPutImg.addView(mKey);
                         mDecodeKey.setVisibility(View.INVISIBLE);  //隐藏
                         break;
                 }
-        if(ki.getVariableSpace()!=null){
-            strArray = ki.getVariableSpace().split(",");
-            isShowKeySpaceSelectWindow = true;  //只第一次进去
-        }
+                if(ki.getVariableSpace()!=null&&ki.isVariableSpace()==false){
+                    strArray = ki.getVariableSpace().split(",");
+                    isShowKeySpaceSelectWindow = true;  //只第一次进去
+                }
         //判断有不有描述。有描述就打开一个窗口提示
         if (!TextUtils.isEmpty(ki.getDesc())) {
-            MessageTipsActivity.startMessageTipsActivity(this,MessageTipsActivity.KEY_SPECIAL_DESCRIPTION_TIPS,ki,null,-10);
+            MessageTipsActivity.startMessageTipsActivity(this,MessageTipsActivity.KEY_SPECIAL_DESCRIPTION_TIPS,ki);
         }
     }
 
@@ -270,19 +281,20 @@ public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnC
             }
             // 设置钥匙胚内容
             mTvKeyBlanksContent.setText(keyBlanks);
-            mTvStep.setText(stepText+"—IC Card:"+ki.getId());
+            mTvStep.setText(stepText+"—IC Card:"+ki.getCardNumber());
         }else if(startFlag==KEY_BLANKS_SEARCH){  //等于钥匙胚搜索
-            database =new SQLiteKeyDao(this,"SEC1.db");
-            keyBlanks= database.queryKeyBlanks(ki.getId());
+            KeyInfoDaoManager keyInfoDaoManager=KeyInfoDaoManager.getInstance();
+            keyBlanks= keyInfoDaoManager.queryKeyBlanks(ki.getCardNumber());
             // 设置钥匙胚内容
             mTvKeyBlanksContent.setText(keyBlanks);
-            mTvStep.setText(stepText+"—IC Card:"+ki.getId());
+            mTvStep.setText(stepText+"—IC Card:"+ki.getCardNumber());
         }else {  //最后等于id搜索
             keyBlanks="";
             // 设置钥匙胚内容
             mTvKeyBlanksContent.setText(keyBlanks);
-            mTvStep.setText(stepText+"—IC Card:"+ki.getId());
+            mTvStep.setText(stepText+"—IC Card:"+ki.getCardNumber());
         }
+        ki.setStep(stepText);
     }
 
     /**
@@ -320,16 +332,12 @@ public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnC
         if(serialDriver!=null){
             serialDriver.setHandler(mHandler);
         }
-        Log.e(TAG, "onStart: " );
     }
     @Override
     protected void onResume() {
         super.onResume();
         if (mDecorView != null) {
             Tools.hideBottomUIMenu(mDecorView);
-        }
-        if (mMenuWindow == null) {
-            initPopupWindow();
         }
         Log.e(TAG, "onResume: " );
     }
@@ -349,12 +357,12 @@ public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnC
         }
 
     }
-
+  private   LinearLayout  linearLayout;
     private void initPopupWindow() {
         //在那个窗口上显示
         rootView = LayoutInflater.from(this).inflate(R.layout.activity_frm_key_cut, null);
         //菜单窗口
-        View menuContentView = LayoutInflater.from(this).inflate(R.layout.layout_menu, null);
+        View   menuContentView = LayoutInflater.from(this).inflate(R.layout.layout_menu, null);
         mMenuWindow = new PopupWindow(this);
         mMenuWindow.setContentView(menuContentView);
         // 设置弹出窗体的宽和高
@@ -364,6 +372,7 @@ public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnC
         mMenuWindow.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#00000000")));
         // 设置弹出窗体显示时的动画，从底部向上弹出
         mMenuWindow.setAnimationStyle(R.style.PopupAnimation);
+        linearLayout=(LinearLayout)menuContentView.findViewById(R.id.ll_menu_layout);
         Button mBackHome = (Button) menuContentView.findViewById(R.id.btn_home);
         mBackHome.setOnClickListener(menuItemClickListener);
         Button mInfo = (Button) menuContentView.findViewById(R.id.btn_info);
@@ -378,7 +387,7 @@ public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnC
         mMove.setOnClickListener(menuItemClickListener);
         Button mSave = (Button) menuContentView.findViewById(R.id.btn_save);
         mSave.setOnClickListener(menuItemClickListener);
-        Button mStop = (Button) menuContentView.findViewById(R.id.btn_stop);
+        Button mStop = (Button) menuContentView.findViewById(R.id.btn_stop_operate);
         mStop.setOnClickListener(menuItemClickListener);
         View selectKeySpaceContentView = LayoutInflater.from(this).inflate(R.layout.popupwindow_select_key_spaces, null);
         mSelectKeySpaceWindow = new PopupWindow(this);
@@ -387,7 +396,7 @@ public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnC
         mSelectKeySpaceWindow.setHeight(ViewGroup.LayoutParams.WRAP_CONTENT);
         mSelectKeySpaceWindow.setWidth(ViewGroup.LayoutParams.WRAP_CONTENT);
         mSelectKeySpaceWindow.setFocusable(false);
-        mSpaceGroup = (LinearLayout) selectKeySpaceContentView.findViewById(R.id.ll_space_group);
+        mVariableCount = (LinearLayout) selectKeySpaceContentView.findViewById(R.id.ll_space_group);
     }
 
 
@@ -397,12 +406,11 @@ public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnC
             isShowMenu = 0;
             mMenuWindow.dismiss();
         }
-        Log.d("触摸了？", "onTouchEvent: ");
         return  super.onTouchEvent(event);
     }
 
     public void initViews() {
-//        serialDriver=ProlificSerialDriver.getInstance();  //获得串口驱动
+       serialDriver=ProlificSerialDriver.getInstance(getApplicationContext());  //获得串口驱动
         mBack = (Button) findViewById(R.id.btnBack);
         mBack.setOnClickListener(clickListener);
         //改变钥匙齿位深度
@@ -423,8 +431,8 @@ public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnC
         //切割
         mKeyCut = (Button) findViewById(R.id.btn_cut);
         mKeyCut.setOnClickListener(clickListener);
-        mMenu = (Button) findViewById(R.id.btn_cut_menu);
-        mMenu.setOnClickListener(clickListener);
+        mBtnMenu = (Button) findViewById(R.id.btn_frm_menu);
+        mBtnMenu.setOnClickListener(clickListener);
         //获得Window 装饰View
         mDecorView = getWindow().getDecorView();
         mDecodeName = (TextView) findViewById(R.id.tv_step_title);
@@ -433,7 +441,19 @@ public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnC
         mHint.setText("<- Tap mKey on the left to switch.");
         mTvKeyBlanksContent=(TextView)findViewById(R.id.tv_key_blanks_content);
         //获得步骤文本
-      mTvStep = (TextView) findViewById(R.id.tv_text);
+      mTvStep = (TextView) findViewById(R.id.tv_title);
+        //注册一个ViewTreeObserver的监听回调
+        ViewTreeObserver vto =mBtnMenu.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener(){
+            @Override
+            public void onGlobalLayout() {
+                width =mBtnMenu.getWidth();
+                linearLayout.measure(0,0);
+                height =linearLayout.getMeasuredHeight();
+                mBtnMenu.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+            }
+        });
+
     }
 
 
@@ -449,37 +469,32 @@ public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnC
                 case R.id.btnInput://改变齿深
                     InputMainActivity.startInputMainActivity(mContext,
                             languageMap,
-                            mKey.getAllToothDepthName(),
-                            ki.getDepth(),
-                            ki.getDepth_name());
+                            mKey.getToothCode(),
+                            ki
+                            );
                     break;
                 case R.id.btnCode://代码查齿
-                    intent = new Intent(mContext, CodeCheckToothActivity.class);
-                    intent.putExtra("title", title);
-                    startActivity(intent);
+                    CodeFindToothActivity.startItselfActivity(mContext,mTvStep.getText().toString());
                     break;
                 case R.id.btn_decode://检查钥匙的形状，齿深，齿位。读齿
-                    ki.setKeyToothCode(keyToothDepthNameToString());
-                    DecodeActivity.startDecodeActivity(mContext,ki,languageMap,stepText,startFlag);
+                    DecodeKeyActivity.startDecodeActivity(mContext,ki,languageMap,stepText,startFlag);
                     break;
                 case R.id.btnInCode://齿号查钥匙的代码编号
-                    intent = new Intent(mContext,ToothCheckCodeActivity.class);
-                    intent.putExtra("title", title);
-                    startActivity(intent);
+                    ToothFindCodeActivity.startItselfActivity(mContext,mTvStep.getText().toString());
                     break;
                 case R.id.btnLackTooth: //缺齿查询
-                    intent = new Intent(mContext, LackToothActivity.class);
+                    intent = new Intent(mContext, LackToothFindActivity.class);
                     startActivity(intent);
                     break;
                 case R.id.btn_cut:   //切割钥匙
                     CutKeyActivity.startCutKeyActivity(mContext,ki,languageMap,stepText,startFlag);
                     break;
-                case R.id.btn_cut_menu:  //打开窗口菜单
+                case R.id.btn_frm_menu:  //打开窗口菜单
                     if (isShowMenu == 1) {
                         mMenuWindow.dismiss();
                         isShowMenu = 0;
                     } else {
-                        mMenuWindow.showAtLocation(rootView, Gravity.BOTTOM, 100, 0);
+                        mMenuWindow.showAsDropDown(mBtnMenu,width+1,-height,Gravity.BOTTOM);
                         isShowMenu = 1;
                     }
                     break;
@@ -507,23 +522,23 @@ public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnC
                      startActivity(intent);
                      break;
                  case R.id.btn_favorite:  //收藏夹功能
-                     MessageTipsActivity.startMessageTipsActivity(mContext,MessageTipsActivity.COLLECT_TIPS,ki,stepText,startFlag);
+                     MessageTipsActivity.
+                             startMessageTipsActivity(mContext,MessageTipsActivity.COLLECT_TIPS,ki);
                      break;
                  case R.id.btn_calibration:   //跳转到校准界面
                      intent = new Intent(mContext, FrmMaintenanceActivity.class);
                      startActivity(intent);
                      break;
                  case R.id.btn_measure: // 校准切割刀的高度
-                     intent = new Intent(mContext, MeasureToolActivity.class);
-                     intent.putExtra("Flags", 2);
-                     startActivity(intent);
+                     ProbeAndCutterMeasurementActivity.
+                             startItselfActivity(FrmKeyCutMainActivity.this,ProbeAndCutterMeasurementActivity.FlAG_CUTTER_MEASUREMENT);
                      break;
                  case R.id.btn_move:
                      serialDriver.write(Instruction.FIXTURE_MOVE.getBytes(), Instruction.FIXTURE_MOVE.length());
                      break;
                  case R.id.btn_save:
                      break;
-                 case R.id.btn_stop:
+                 case R.id.btn_stop_operate:
                      serialDriver.write(Instruction.STOP_OPERATE.getBytes(), Instruction.STOP_OPERATE.length());
                      mMenuWindow.dismiss();
                      isShowMenu = 0;
@@ -532,69 +547,65 @@ public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnC
         }
     };
 
-    /**
-     * 把钥匙齿的深度名转为字符串
-     * @return
-     */
-    private  String keyToothDepthNameToString(){
-        String str="";
-      List<String[]> list = mKey.getAllToothDepthName();
-        for (int i = 0; i <list.size(); i++) {
-            String[] toothDepthName =list.get(i);
-            str+= TextUtils.join(",",toothDepthName);
-            str+=",";
-        }
-        return str;
-
-    }
     //默认线程
-    @Subscribe(threadMode = ThreadMode.POSTING)
+    @Subscribe(threadMode = ThreadMode.POSTING,priority=1)
     public void onMessageEventPost(MessageEvent event) {
-            if(event.resultCode==MessageEvent.CHANGE_KEY_TOOTH_CODE){  // 读齿完毕数据
+            if(event.resultCode==MessageEvent.CHANGE_KEY_TOOTH_CODE){  // 改变钥匙的齿代码
+                Log.d(TAG, "onMessageEventPost: "+event.message);
                 ki.setKeyToothCode(event.message);
-                mKey.setToothDepthName(event.message);
+                mKey.setToothCode(event.message);
             }else if(event.resultCode==MessageEvent.MEASURE_TOOL_FINISH){  //测量工具完成，恢复按钮
-                mMeasure.setClickable(false);
-                mMeasure.setTextColor(Color.parseColor("#BFBFBF"));
             }else if(event.resultCode==MessageEvent.CONFIRM_COLLECT_KEY){  //确定收藏钥匙
 
+            }else if(event.resultCode==MessageEvent.CLAMP_STATE_INDEX){
+                ki.setClampStateIndex(event.ClampStateIndex);
             }
+        // 取消
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Log.d(TAG, "onActivityResult: ");
+        if(requestCode==1&&resultCode== ConstantValue.START_MEASURE_CUTTER){
+            mMeasure.setClickable(false);
+            mMeasure.setTextColor(Color.parseColor("#BFBFBF"));
+        }
     }
 
     /**
-     * 根据选择的齿的数量,重新设置齿顶宽
+     * 根据选择的齿的数量,重新设置Space And SpaceWidth
      *
      * @param amount
      */
-    private void setSpaceWidth(int amount) {
+    private void resetSpaceAndSpaceWidth(int amount) {
         String[] spaceWidthGroup = ki.getSpace_width().split(";");
+        String[] spacesGroup=ki.getSpace().split(";");
         String spaceWidth = "";
-        for (int i = 0; i < spaceWidthGroup.length; i++) {
-            String[] toothWidth = spaceWidthGroup[i].split(",");
+        String space="";
+        for (int i = 0; i < spacesGroup.length; i++) {
+            String[] newStrSpaces=spacesGroup[i].split(",");
+            String[] newStrSpacesWidth = spaceWidthGroup[i].split(",");
             for (int j = 0; j < amount; j++) {
                 if(j==(amount-1)){   //  一组的最后一个 不加，
-                    spaceWidth +=toothWidth[j];
+                    space+=newStrSpaces[j];
+                    spaceWidth += newStrSpacesWidth[j];
                 }else {
-                    spaceWidth += (toothWidth[j] + ",");
+                    space+=(newStrSpaces[j]+",");
+                    spaceWidth += (newStrSpacesWidth[j] + ",");
                 }
             }
-
+            space+=";";
             spaceWidth += ";";
         }
-        Log.d("齿宽", "setSpaceWidth: "+spaceWidth);
         ki.setSpace_width(spaceWidth);
+        ki.setSpace(space);
     }
 
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        CacheActivityUtils.finishSingleActivity(this);
         EventBusUtils.unregister(this);
         if (isShowMenu == 1) {
             isShowMenu = 0;
@@ -621,17 +632,15 @@ public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnC
                 tv.setGravity(Gravity.CENTER);
                 tv.setOnClickListener(new View.OnClickListener() {
                     @Override
-                    public void onClick(View v) {
+                        public void onClick(View v) {
                         TextView tv1 = (TextView) v;
-                        Log.d("onClick", "onClick: " + Integer.parseInt(tv1.getText().toString()));
                         int amount = Integer.parseInt(tv1.getText().toString());
-                        if (amount < mKey.getKeyToothAmount()) {
+                        if (amount < mKey.getToothAmount()) {
                             //设置齿的数量
-                            mKey.setKeyToothAmount(amount);
-                            //获得齿距
-                            ki.setSpace(mKey.getSpace());
-                            //设置齿顶宽
-                            setSpaceWidth(amount);
+                            mKey.setToothAmount(amount);
+                            //设置齿和齿宽
+                            resetSpaceAndSpaceWidth(amount);
+                            Log.d(TAG, "onClick: "+ki.getSpace());
                         }
                         mHint.setVisibility(View.INVISIBLE);
                         mSelectKeySpaceWindow.dismiss();
@@ -642,12 +651,12 @@ public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnC
                         mToothFindCode.setClickable(true);
                         mLackToothFind.setClickable(true);
                         mKeyCut.setClickable(true);
-                        mMenu.setClickable(true);
+                        mBtnMenu.setClickable(true);
                     }
                 });
                 LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                 layoutParams.setMargins(6, 14, 6, 6);
-                mSpaceGroup.addView(tv, layoutParams);
+                mVariableCount.addView(tv, layoutParams);  //添加可变的数量
             }
             mHint.setVisibility(View.VISIBLE);
             mSelectKeySpaceWindow.showAtLocation(rootView, Gravity.CENTER, 0, 0);
@@ -657,7 +666,8 @@ public class FrmKeyCutMainActivity extends AppCompatActivity implements View.OnC
             mToothFindCode.setClickable(false);
             mLackToothFind.setClickable(false);
             mKeyCut.setClickable(false);
-            mMenu.setClickable(false);
+            mBtnMenu.setClickable(false);
+            ki.setVariableSpace(true);
             isShowKeySpaceSelectWindow = false;
         }
     }

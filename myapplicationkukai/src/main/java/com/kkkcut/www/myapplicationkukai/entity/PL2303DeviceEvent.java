@@ -6,7 +6,6 @@ package com.kkkcut.www.myapplicationkukai.entity;
 
 public class PL2303DeviceEvent {
     private   boolean  open;
-
     public  PL2303DeviceEvent(boolean open){
            this.open=open;
     }

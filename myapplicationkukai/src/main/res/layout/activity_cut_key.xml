@@ -132,7 +132,7 @@
                     android:layout_height="wrap_content">
 
                     <Button
-                        android:id="@+id/btn_first_cut"
+                        android:id="@+id/btn_cut_first_face"
                         android:layout_width="wrap_content"
                         android:layout_height="54dp"
                         android:background="@drawable/btntopdisabledimage_frmkeycut_docutres"
@@ -142,10 +142,11 @@
                         android:visibility="invisible" />
 
                     <Button
-                        android:id="@+id/btn_second_cut"
+
+                        android:id="@+id/btn_cut_second_face"
                         android:layout_width="wrap_content"
                         android:layout_height="54dp"
-                        android:layout_below="@+id/btn_first_cut"
+                        android:layout_below="@+id/btn_cut_first_face"
                         android:layout_marginTop="15dp"
                         android:background="@drawable/btnbottomimage_frmkeycut_docutres"
                         android:gravity="right|bottom"
@@ -159,7 +160,7 @@
                         android:layout_height="wrap_content"
                         android:layout_gravity="right"
                         android:layout_marginLeft="20dp"
-                        android:layout_toRightOf="@+id/btn_first_cut"
+                        android:layout_toRightOf="@+id/btn_cut_first_face"
                         android:background="@drawable/btn1passcutimage_frmkeycut_docutres"
                         android:gravity="center|bottom"
                         android:text="1 Pass Cut"
@@ -196,11 +197,10 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="97px"
+                android:layout_marginLeft="97dp"
                 android:orientation="vertical">
-
                 <TextView
-                    android:id="@+id/tv_hint1"
+                    android:id="@+id/tv_hint"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="20dp"
@@ -220,7 +220,7 @@
                     android:visibility="invisible" />
 
                 <TextView
-                    android:id="@+id/tv_hint2"
+                    android:id="@+id/tv_guide_hint"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="* Tap the image to change stop guide."
@@ -267,7 +267,7 @@
         </LinearLayout>
 
         <Button
-            android:id="@+id/btn_cut_menu"
+            android:id="@+id/btn_frm_menu"
             android:layout_width="135px"
             android:layout_height="95px"
             android:layout_alignParentBottom="true"

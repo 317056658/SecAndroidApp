@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.kkkcut.www.myapplicationkukai.publicActivity.DecodeActivity">
+    tools:context="com.kkkcut.www.myapplicationkukai.publicActivity.DecodeKeyActivity">
     <RelativeLayout
         android:background="#16A4FA"
         android:layout_width="match_parent"
@@ -127,12 +127,10 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:padding="3dp">
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-
             <TextView
                 android:id="@+id/tv_clamp_hint"
                 android:layout_width="300dp"

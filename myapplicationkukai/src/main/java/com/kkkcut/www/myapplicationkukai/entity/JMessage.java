@@ -12,8 +12,6 @@ public class JMessage {
     private String content;
     private String time;
     private String id;
-
-
     public JMessage(String id, String title, String introduce, int state, int type, String content, String time) {
         this.id=id;
         this.title = title;
@@ -23,8 +21,6 @@ public class JMessage {
         this.content = content;
         this.time = time;
     }
-
-
 
 
     public String getId() {

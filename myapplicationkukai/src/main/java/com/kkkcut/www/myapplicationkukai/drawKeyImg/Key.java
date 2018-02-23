@@ -35,16 +35,40 @@ public abstract class Key extends View  {
     public abstract void setDrawPatternSize(int width,int height);
 
     /**
-     *  设置绘制的深度和深度名是否显示
+     *  设置绘制的深度图案和齿代码
      * @param isDraw
      */
-    public abstract void setShowDrawDepthAndDepthName(boolean isDraw);
-    public abstract void setToothDepthName(String depthName);
+    public abstract void setDrawDepthPatternAndToothCode(boolean isDraw);
+
+    /**
+     * 设置齿码
+     * @param toothCode
+     */
+    public abstract void setToothCode(String toothCode);
     public abstract void redrawKey();
-    public abstract void setKeyToothAmount(int toothAmount);
-    public abstract String getSpace();
-    public abstract  int getKeyToothAmount();
-    public abstract ArrayList<String[]> getAllToothDepthName();
+
+    /**
+     *  设置齿的数量
+     * @param toothAmount
+     */
+    public abstract void setToothAmount(int toothAmount);
+
+    /**
+     *   获得齿的数量
+     * @return
+     */
+    public abstract  int getToothAmount();
+
+    /**
+     * 获得齿代码
+     * @return
+     */
+    public abstract ArrayList<String[]> getToothCode();
+
+    /**
+     *  设置是否显示箭头
+     * @param isShowArrows
+     */
     public abstract void setShowArrows(boolean isShowArrows);
 
     /**
@@ -56,6 +80,32 @@ public abstract class Key extends View  {
     public abstract String  getCutOrder(int cutDepth,int locatingSlot,String assistClamp,String cutterDiameter,int speed, int ZDepth,int detectionMode);
 
     public void setNeededDrawAttribute(KeyInfo p){
+
+    }
+
+    /**
+     * 给凹点钥匙用的
+     * @param width
+     * @param height
+     */
+    public void setOnlyDrawSidePatternSize(int width, int height){
+
+    }
+
+    /**
+     * 设置绘制的齿宽
+     * @param width
+     */
+    public void setDrawToothWidth(int width){
+
+    }
+
+    /**
+     *   只是给凹点钥匙用的方法
+     * @param bigCircleRadius
+     * @param smallCircleRadius
+     */
+    public void setDrawBigCircleAndInnerCircleSize(int bigCircleRadius, int smallCircleRadius){
 
     }
 
@@ -84,5 +134,10 @@ public abstract class Key extends View  {
     @Override
     protected void onFocusChanged(boolean gainFocus, int direction, @Nullable Rect previouslyFocusedRect) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect);
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
     }
 }

@@ -67,7 +67,7 @@ public class KeyBaseInfoActivity extends AppCompatActivity implements View.OnCli
         }
         TextView mTvWidth = (TextView) findViewById(R.id.tv_width);
         TextView mTvThick = (TextView) findViewById(R.id.tv_thick);
-        Button mBtnCloseActivity = (Button)findViewById(R.id.btn_close);
+        Button mBtnCloseActivity = (Button)findViewById(R.id.btn_close_activity);
         mBtnCloseActivity.setOnClickListener(this);
         //设置钥匙信息的宽度
         mTvWidth.setText(ki.getWidth()+"");
@@ -248,7 +248,7 @@ public class KeyBaseInfoActivity extends AppCompatActivity implements View.OnCli
     @Override
     public void onClick(View v) {
         switch (v.getId()){
-            case R.id.btn_close:  //关闭活动
+            case R.id.btn_close_activity:  //关闭活动
                 this.finish();
                 break;
         }

@@ -1,6 +1,7 @@
 package com.kkkcut.www.myapplicationkukai.utils;
 
 import android.content.Context;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -27,6 +28,7 @@ public class DatabaseFileUtils {
         addDatabaseFile("SEC1.db");
         //添加语言数据库文件到databases下面
         addDatabaseFile("LanguageFile.db");
+        addDatabaseFile("code.db");
     }
 
     /**
@@ -36,6 +38,7 @@ public class DatabaseFileUtils {
      */
       public void addDatabaseFile(String database)
     {
+
         String pathFile = "data/data/com.kkkcut.www.myapplicationkukai/databases/"+database;//数据库存储路径；
         String pathMdkir= "data/data/com.kkkcut.www.myapplicationkukai/databases/";//数据库存储文件夹；
         File path = new File(pathFile);
@@ -43,6 +46,7 @@ public class DatabaseFileUtils {
         //判断文件是否已经生成，如果存在就return；
         if(path.exists())
         {
+            Log.d("文件已存在", "addDatabaseFile: ");
             return ;
         }
         else
@@ -50,6 +54,7 @@ public class DatabaseFileUtils {
             File path1 = new File(pathMdkir);  //创建一个路径
             if(!path1.exists()){  //如果不在存就创建一个路径
                path1.mkdirs();
+                Log.d("不存在文件", "addDatabaseFile: ");
             }else {
             }
         }
@@ -63,8 +68,8 @@ public class DatabaseFileUtils {
             while((len = bis.read(b)) != -1)
             {
                 bos.write(b, 0, len);
-                bos.flush();
             }
+            bos.flush();
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

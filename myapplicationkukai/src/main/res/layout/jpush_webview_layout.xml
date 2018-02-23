@@ -36,7 +36,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="7dp"
             android:layout_marginRight="5dp"
-            android:layout_toRightOf="@id/imgView"
+            android:layout_toRightOf="@+id/imgView"
             android:clickable="false"
             android:text=" "
             android:textSize="20sp"

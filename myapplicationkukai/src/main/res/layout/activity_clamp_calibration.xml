@@ -75,7 +75,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
-                            android:text="After distance test,please press corresponding button for calibration\naccording to the used clamp."
+                            android:text="After distance test,please press corresponding button for calibration\naccording to the used clampType."
                             android:textColor="#FD150C" />
 
                     </LinearLayout>
@@ -298,7 +298,7 @@
                 android:layout_height="wrap_content" />
 
             <Button
-                android:id="@+id/btn_stop"
+                android:id="@+id/btn_stop_operate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="80dp"
@@ -309,7 +309,7 @@
 
         </LinearLayout>
         <Button
-            android:id="@+id/btn_close"
+            android:id="@+id/btn_close_activity"
             android:gravity="bottom|center"
             android:textAllCaps="false"
             android:text="Close"

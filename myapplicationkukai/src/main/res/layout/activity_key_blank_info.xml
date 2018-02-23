@@ -210,7 +210,7 @@
                     android:layout_height="50dp" />
                   <TextView
                       android:id="@+id/tv_desc"
-                      android:text="1aaa"
+
                       android:layout_width="match_parent"
                       android:layout_height="match_parent"
                       android:background="@drawable/edit_shape"
@@ -247,7 +247,7 @@
              </ExpandableListView>
         </LinearLayout>
         <Button
-            android:id="@+id/btn_close"
+            android:id="@+id/btn_close_activity"
             android:gravity="center|bottom"
             android:text="Close"
             android:textAllCaps="false"

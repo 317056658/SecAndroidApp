@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_setup"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.kkkcut.www.myapplicationkukai.setup.FrmMaintenanceActivity">
     <RelativeLayout
         android:id="@+id/rl1"
@@ -31,111 +32,108 @@
             android:background="@drawable/frmmaintenance_aboutimage"
             />
     </RelativeLayout>
-
-    <GridLayout
-        android:layout_below="@+id/rl1"
-        android:layout_marginTop="20dp"
-        android:layout_gravity="left|center"
-        android:rowCount="2"
-        android:columnCount="2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-        <LinearLayout
-            android:id="@+id/ll_01"
-            android:background="#FDDE81"
-            android:orientation="vertical"
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <GridLayout
+            android:layout_below="@+id/rl1"
+            android:layout_marginTop="20dp"
+            android:rowCount="2"
+            android:columnCount="2"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            >
-
-            <TextView
-                android:textStyle="bold"
-                android:textColor="#010103"
-                android:textSize="18sp"
-                android:padding="5dp"
-                android:layout_gravity="center"
-                android:text="Clamp Calibration"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            <ImageView
-                android:background="@drawable/picturebox2image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <Button
-                android:id="@+id/btnCalibDetachableClamp"
-                android:layout_marginTop="10dp"
-                android:layout_gravity="center"
-                android:textAllCaps="false"
-                android:gravity="bottom|right"
-                android:paddingRight="5dp"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:id="@+id/ll_clamp_calibration"
+                android:background="#FDDE81"
+                android:orientation="vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/first_next_image_switching"
-                android:text="First Next"
-                android:layout_marginBottom="10dp"
-                />
-        </LinearLayout>
-        <LinearLayout
-
-            android:layout_marginLeft="10dp"
-            android:background="#FDDE81"
-            android:orientation="vertical"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            >
-
-            <TextView
-                android:textStyle="bold"
-                android:textColor="#010103"
-                android:textSize="18sp"
-                android:padding="5dp"
-                android:layout_gravity="center"
-                android:text="Tool Length Measurement"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            <ImageView
-                android:background="@drawable/picturebox1image"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-
-            <LinearLayout
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
+                >
+                <TextView
+                    android:textStyle="bold"
+                    android:textColor="#010103"
+                    android:textSize="18sp"
+                    android:padding="5dp"
+                    android:layout_gravity="center"
+                    android:text="Clamp Calibration"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <ImageView
+                    android:background="@drawable/picturebox2image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
                 <Button
-                    android:id="@+id/btn_start_decoder_measure"
-                    android:layout_marginRight="30dp"
+                    android:id="@+id/btnCalibDetachableClamp"
+                    android:layout_marginTop="10dp"
+                    android:layout_gravity="center"
                     android:textAllCaps="false"
+                    android:gravity="bottom|right"
+                    android:paddingRight="5dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/decoder_image_switching"
-                    android:text="Decoder"
-                    />
-                <Button
-                    android:textAllCaps="false"
-                    android:id="@+id/btn_start_cutter_measure"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/cutter_image_switching"
-                    android:text="Cutter"
+                    android:background="@drawable/first_next_image_switching"
+                    android:text="First Next"
+                    android:layout_marginBottom="10dp"
                     />
             </LinearLayout>
-        </LinearLayout>
-        <LinearLayout
-            android:id="@+id/ll_02"
-            android:layout_marginTop="10dp"
-            android:padding="10dp"
-            android:layout_gravity = "fill"
-            android:background="#FDDE81"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_columnSpan="2"
-            android:orientation="vertical"
-            >
+            <LinearLayout
+                android:layout_marginLeft="10dp"
+                android:background="#FDDE81"
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                >
+                <TextView
+                    android:textStyle="bold"
+                    android:textColor="#010103"
+                    android:textSize="18sp"
+                    android:padding="5dp"
+                    android:layout_gravity="center"
+                    android:text="Tool Length Measurement"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <ImageView
+                    android:background="@drawable/picturebox1image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+
+                <LinearLayout
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+
+                    <Button
+                        android:id="@+id/btn_open_decoder_measure"
+                        android:layout_marginRight="30dp"
+                        android:textAllCaps="false"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/decoder_image_switching"
+                        android:text="Decoder"
+                        />
+                    <Button
+                        android:textAllCaps="false"
+                        android:id="@+id/btn_open_cutter_measure"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/cutter_image_switching"
+                        android:text="Cutter"
+                        />
+                </LinearLayout>
+            </LinearLayout>
+            <LinearLayout
+                android:id="@+id/linear_layout"
+                android:layout_marginTop="10dp"
+                android:padding="10dp"
+                android:layout_gravity = "fill"
+                android:background="#FDDE81"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_columnSpan="2"
+                android:orientation="vertical"
+                >
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
@@ -150,7 +148,7 @@
                     <Button
                         android:id="@+id/searth_switch"
                         android:layout_marginLeft="31dp"
-                        android:text="Password"
+                        android:text="Reset"
                         android:gravity="bottom|center"
                         android:textAllCaps="false"
                         android:background="@drawable/reset_image_switching"
@@ -179,38 +177,31 @@
                         android:layout_width="58dp"
                         android:layout_height="wrap_content" />
                 </LinearLayout>
-        </LinearLayout>
-    </GridLayout>
-    <Button
-        android:id="@+id/btn_stop"
-        android:text="Stop"
-        android:textAllCaps="false"
-        android:visibility="invisible"
-        android:gravity="bottom|center"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/close_img_switching"
-        android:layout_alignParentRight="true"
-        android:layout_centerInParent="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <Button
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
-        android:id="@+id/btn_close"
-        android:gravity="bottom|center"
-        android:textAllCaps="false"
-        android:text="Close"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="2dp"
-        android:background="@drawable/close_img_switching"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
-    <View
-        android:clickable="false"
-        android:id="@+id/view_bg"
-        android:background="#00000000"
-        android:visibility="gone"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-</RelativeLayout>
+            </LinearLayout>
+        </GridLayout>
+        <Button
+            android:id="@+id/btn_stop_operate"
+            android:text="Stop"
+            android:textAllCaps="false"
+            android:visibility="invisible"
+            android:gravity="bottom|center"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/close_img_switching"
+            android:layout_gravity="right|bottom"
+            android:layout_marginBottom="100dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:layout_gravity="right|bottom"
+            android:id="@+id/btn_close_activity"
+            android:gravity="bottom|center"
+            android:textAllCaps="false"
+            android:text="Close"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/close_img_switching"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+    </FrameLayout>
+</LinearLayout>

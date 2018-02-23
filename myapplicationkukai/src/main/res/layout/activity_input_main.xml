@@ -39,12 +39,9 @@
             <!--android:scrollbarStyle="insideInset"-->
             <HorizontalScrollView
                 android:id="@+id/integer_hs"
-                android:fadingEdgeLength="30dp"
-                android:requiresFadingEdge="horizontal"
                 android:layout_width="400dp"
                 android:layout_height="wrap_content"
                 android:background="@drawable/edit_shape"
-                android:fadingEdge="horizontal"
                 >
                 <LinearLayout
                     android:id="@+id/ll_storage_integer"
@@ -103,7 +100,7 @@
                     android:textStyle="bold" />
 
                 <Button
-                    android:id="@+id/btn_decimal2"
+                    android:id="@+id/btn_2"
                     android:layout_width="73px"
                     android:layout_height="80px"
                     android:layout_marginLeft="6px"
@@ -114,7 +111,7 @@
                     android:textStyle="bold" />
 
                 <Button
-                    android:id="@+id/btn_decimal3"
+                    android:id="@+id/btn_3"
                     android:layout_width="73px"
                     android:layout_height="80px"
                     android:layout_marginLeft="6px"
@@ -126,7 +123,7 @@
 
                 <Button
 
-                    android:id="@+id/btn_decimal4"
+                    android:id="@+id/btn_4"
                     android:layout_width="73px"
                     android:layout_height="80px"
                     android:layout_marginLeft="6px"
@@ -138,7 +135,7 @@
 
                 <Button
 
-                    android:id="@+id/btn_decimal5"
+                    android:id="@+id/btn_5"
                     android:layout_width="73px"
                     android:layout_height="80px"
                     android:layout_marginLeft="6px"
@@ -150,7 +147,7 @@
 
                 <Button
 
-                    android:id="@+id/btn_decimal6"
+                    android:id="@+id/btn_6"
                     android:layout_width="73px"
                     android:layout_height="80px"
                     android:layout_marginTop="6px"
@@ -162,7 +159,7 @@
 
                 <Button
 
-                    android:id="@+id/btn_decimal7"
+                    android:id="@+id/btn_7"
                     android:layout_width="73px"
                     android:layout_height="80px"
                     android:layout_marginLeft="6px"
@@ -174,7 +171,7 @@
                     android:textStyle="bold" />
 
                 <Button
-                    android:id="@+id/btn_decimal8"
+                    android:id="@+id/btn_8"
                     android:layout_width="73px"
                     android:layout_height="80px"
                     android:layout_marginLeft="6px"
@@ -186,7 +183,7 @@
                     android:textStyle="bold" />
 
                 <Button
-                    android:id="@+id/btn_decimal9"
+                    android:id="@+id/btn_9"
                     android:layout_width="73px"
                     android:layout_height="80px"
                     android:layout_marginLeft="6px"
@@ -198,7 +195,7 @@
                     android:textStyle="bold" />
 
                 <Button
-                    android:id="@+id/btn_decimal0"
+                    android:id="@+id/btn_0"
                     android:layout_width="73px"
                     android:layout_height="80px"
                     android:layout_marginLeft="6px"

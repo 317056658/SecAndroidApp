@@ -4,16 +4,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.kkkcut.www.myapplicationkukai.DataCollect.KeyInformationBoxroomActivity;
 import com.kkkcut.www.myapplicationkukai.R;
-import com.kkkcut.www.myapplicationkukai.dao.SQLiteCollectAndCutHistoryDao;
+import com.kkkcut.www.myapplicationkukai.dao.SaveDataDaoManager;
+import com.kkkcut.www.myapplicationkukai.entity.ConstantValue;
 import com.kkkcut.www.myapplicationkukai.entity.KeyInfo;
+import com.kkkcut.www.myapplicationkukai.saveData.KeyInformationBoxroomActivity;
 import com.kkkcut.www.myapplicationkukai.search.FrmKeySearchActivity;
 import com.kkkcut.www.myapplicationkukai.utils.Tools;
 
@@ -38,18 +40,22 @@ public class MessageTipsActivity extends AppCompatActivity implements View.OnCli
     public static final int UNFOUND_KEY_TIPS = 6;//  没有找到钥匙
     public  static  final int COLLECT_SUCCEED=7; //收藏成功
     public  static  final  int  COLLECT_FAILURE=8;// 收藏失败
+    public  static  final  int  CUT_NO_DETECTION=100;  //切割不检测
+    public  static  final int NOT_FIND_TOOTH_CODE=201;  //没有找到齿代码
     private boolean isCollect;
     private Intent intent;
-    private KeyInfo ki=null;
+    private KeyInfo ki;
     private String stepText;
     private int startFlag;
-
+    private SaveDataDaoManager saveDataDaoManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_message_hint);
         getIntentData();
         initViews();
+        //获得单例
+        saveDataDaoManager=SaveDataDaoManager.getInstance();
     }
 
     /**
@@ -58,17 +64,35 @@ public class MessageTipsActivity extends AppCompatActivity implements View.OnCli
      * @param context
      * @param msgTips
      */
-    public static void startMessageTipsActivity(Context context, int msgTips, KeyInfo ki,String step,int startFlag) {
+    public static void startMessageTipsActivity(Context context, int msgTips, KeyInfo ki) {
         Intent intent = new Intent(context, MessageTipsActivity.class);
         intent.putExtra("msgTips", msgTips);
         intent.putExtra("keyInfo",ki);
-        intent.putExtra("step",step);
-        intent.putExtra("flag",startFlag);
         context.startActivity(intent);
     }
-    public  static  void  startMessageTipsActivity(Context context,int msgTips){
+
+    /**
+     * 这方法启动 是带请求码的
+     * 这个有请求码的
+     * @param context
+     * @param msgTips
+     */
+    public  static  void startMessageTipsActivityForResult(Context context, int msgTips){
         Intent intent=new Intent(context,MessageTipsActivity.class);
         intent.putExtra("msgTips", msgTips);
+        FragmentActivity   fragmentActivity   =(FragmentActivity)context;
+        fragmentActivity.startActivityForResult(intent,1);
+    }
+
+    /**
+     * 正常的
+     * @param context
+     * @param msgTips
+     */
+    public  static  void startItselfActivity(Context context, int msgTips,int startFlag){
+        Intent intent=new Intent(context,MessageTipsActivity.class);
+        intent.putExtra("msgTips", msgTips);
+        intent.putExtra("startFlag",startFlag);
         context.startActivity(intent);
     }
 
@@ -81,8 +105,7 @@ public class MessageTipsActivity extends AppCompatActivity implements View.OnCli
         name = intent.getStringExtra("name");
         intentFlag = intent.getIntExtra("IntentFlag", -1);
         ki=intent.getParcelableExtra("keyInfo");
-        stepText  =intent.getStringExtra("step");
-        startFlag=intent.getIntExtra("flag",-10);
+        startFlag=intent.getIntExtra("startFlag",-10);
     }
 
     /**
@@ -116,6 +139,7 @@ public class MessageTipsActivity extends AppCompatActivity implements View.OnCli
                 mContent.setText("Do you want to save\nchanges?  [mm->Inch]");
                 //显示yes no 按钮
                 mYesNo.setVisibility(View.VISIBLE);
+
                 mBackDataIntent = new Intent();
                 break;
             case KEY_INFO_UNFOUND_TIPS:    //2 表示没有找到这个钥匙的id
@@ -132,9 +156,13 @@ public class MessageTipsActivity extends AppCompatActivity implements View.OnCli
                 break;
             case KEY_SPECIAL_DESCRIPTION_TIPS:
                 String desc = ki.getDesc();
-                int index = desc.indexOf("(");
-                StringBuilder stringBuilder = new StringBuilder(desc);
-                mContent.setText(stringBuilder.insert(index, "\n").toString().trim());
+                if(desc.contains("(")){
+                    int index = desc.indexOf("(");
+                    StringBuilder stringBuilder = new StringBuilder(desc);
+                    mContent.setText(stringBuilder.insert(index, "\n").toString().trim());
+                }else {
+                    mContent.setText(desc);
+                }
                 mOk.setVisibility(View.VISIBLE);
                 break;
             case UNFOUND_KEY_TIPS:   //6代表钥匙胚搜索数据 没有找到
@@ -142,16 +170,24 @@ public class MessageTipsActivity extends AppCompatActivity implements View.OnCli
                 timer.start();  //启动倒计时
                 break;
             case COLLECT_TIPS:   //收藏提示
-                mContent.setText("Do you want to add the\ncurrent key to favorite list?");
+                mContent.setText("Do you want to add the\ncurrent key to favorite mList?");
                 mYesNo.setVisibility(View.VISIBLE);
                 isCollect = true;
                 break;
             case COLLECT_SUCCEED:
-                mContent.setText("The current key was added\nto favorite list.");
+                mContent.setText("The current key was added\nto favorite mList.");
                 mOk.setVisibility(View.VISIBLE);
                 break;
             case  COLLECT_FAILURE:  //收藏失败
-                mContent.setText("The favorite list Most collections fifty data");
+                mContent.setText("The favorite mList Most collections fifty data");
+                mOk.setVisibility(View.VISIBLE);
+                break;
+            case CUT_NO_DETECTION:
+                mContent.setText("Was the cutter length\nmeasured correctly? if not,\nkey blank,clamp and cutter\ncan be hurt.");
+                mYesNo.setVisibility(View.VISIBLE);
+                break;
+            case NOT_FIND_TOOTH_CODE:
+                mContent.setText("The code you entered is not\nin this series.");
                 mOk.setVisibility(View.VISIBLE);
                 break;
         }
@@ -174,42 +210,48 @@ public class MessageTipsActivity extends AppCompatActivity implements View.OnCli
         switch (v.getId()) {
             case R.id.btn_yes:
                 if (isCollect) {  //是收藏
-                    SQLiteCollectAndCutHistoryDao sqLiteCollectAndCutHistoryDao=
-                            SQLiteCollectAndCutHistoryDao.getInstance(getApplication());
-                   int  dataQuantity=sqLiteCollectAndCutHistoryDao.getTableDataNum(SQLiteCollectAndCutHistoryDao.TABLE_FAVORITE);
+                    int  dataQuantity= saveDataDaoManager.getTableDataNum(SaveDataDaoManager.TABLE_FAVORITE);
                     if(dataQuantity< KeyInformationBoxroomActivity.FAVORITE_DATA_MAX){
-                        sqLiteCollectAndCutHistoryDao.insertDataToFavorite(stepText,ki,startFlag);
-                        startMessageTipsActivity(this,MessageTipsActivity.COLLECT_SUCCEED);
+                        //插入保存的数据
+                        saveDataDaoManager.insertDataToFavorite(ki);
+                        startMessageTipsActivityForResult(this,MessageTipsActivity.COLLECT_SUCCEED);
                         this.finish();
                     }else {
-                        startMessageTipsActivity(this,MessageTipsActivity.COLLECT_FAILURE);
+                        //删除第一条数据
+                        saveDataDaoManager.deleteTableFirstData(SaveDataDaoManager.TABLE_FAVORITE);
+                        saveDataDaoManager.insertDataToFavorite(ki);
                         this.finish();
                     }
-                } else {
-                    mBackDataIntent.putExtra("data", name);
-                    setResult(1, mBackDataIntent);
+                } else if(msgTips==CUT_NO_DETECTION) {
+                    setResult(CUT_NO_DETECTION);
+                    finish();
+                }   else {
+                    setResult(ConstantValue.YSE_SWITCHOVER_LENGTH_UNIT);
                     finish();
                 }
+
                 break;
             case R.id.btn_no:
                 if(isCollect){
                     finish();
-                }else {
-                    mBackDataIntent.putExtra("data", name);
-                    setResult(2, mBackDataIntent);
+                }else if(msgTips==CUT_NO_DETECTION){
                     finish();
+                } else {
+                    setResult(ConstantValue.NO_SWITCHOVER_LENGTH_UNIT);
                 }
+
                 break;
             case R.id.btn_close_window:
                 if (msgTips == 3) {
-                    if (intentFlag == 1) {  //等于1 代表是数据库搜索ID界面过来的
-                        Intent intent = new Intent(this, FrmKeySearchActivity.class);
-                        intent.setFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);  //加上这句话 避免界面重新创建
-                        startActivity(intent);
-                    }
+//                    if (startFlag == 1) {  //等于1 代表是数据库搜索ID界面过来的
+//                        Intent intent = new Intent(this, FrmKeySearchActivity.class);
+//                        intent.setFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);  //加上这句话 避免界面重新创建
+//                        startActivity(intent);
+//                    }
+                    finish();
                 } else if (msgTips == 4) {
-                    if (intentFlag == 1) {  //等于1 代表是数据库搜索ID界面过来的
+                    if (startFlag == 1) {  //等于1 代表是数据库搜索ID界面过来的
                         Intent intent = new Intent(this, FrmKeySearchActivity.class);
                         intent.setFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
                         intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);  //加上这句话 避免界面重新创建
