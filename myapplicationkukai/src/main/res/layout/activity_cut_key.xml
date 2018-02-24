@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.kkkcut.www.myapplicationkukai.publicActivity.CutKeyActivity">
+    tools:context="com.kkkcut.www.myapplicationkukai.activity.CutKeyActivity">
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

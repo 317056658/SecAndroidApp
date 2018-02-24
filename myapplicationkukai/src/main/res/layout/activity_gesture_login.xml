@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#FFFFFF"
-    tools:context="com.kkkcut.www.myapplicationkukai.publicActivity.GestureLoginActivity">
+    tools:context="com.kkkcut.www.myapplicationkukai.activity.GestureLoginActivity">
     <TextView
         android:id="@+id/tv_hint_message"
         android:layout_width="wrap_content"

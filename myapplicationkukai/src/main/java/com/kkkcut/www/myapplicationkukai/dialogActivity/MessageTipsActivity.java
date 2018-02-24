@@ -15,8 +15,8 @@ import com.kkkcut.www.myapplicationkukai.R;
 import com.kkkcut.www.myapplicationkukai.dao.SaveDataDaoManager;
 import com.kkkcut.www.myapplicationkukai.entity.ConstantValue;
 import com.kkkcut.www.myapplicationkukai.entity.KeyInfo;
-import com.kkkcut.www.myapplicationkukai.saveData.KeyInformationBoxroomActivity;
-import com.kkkcut.www.myapplicationkukai.search.FrmKeySearchActivity;
+import com.kkkcut.www.myapplicationkukai.activity.KeyInfoBoxroomActivity;
+import com.kkkcut.www.myapplicationkukai.activity.FrmKeySearchActivity;
 import com.kkkcut.www.myapplicationkukai.utils.Tools;
 
 /**
@@ -211,7 +211,7 @@ public class MessageTipsActivity extends AppCompatActivity implements View.OnCli
             case R.id.btn_yes:
                 if (isCollect) {  //是收藏
                     int  dataQuantity= saveDataDaoManager.getTableDataNum(SaveDataDaoManager.TABLE_FAVORITE);
-                    if(dataQuantity< KeyInformationBoxroomActivity.FAVORITE_DATA_MAX){
+                    if(dataQuantity< KeyInfoBoxroomActivity.FAVORITE_DATA_MAX){
                         //插入保存的数据
                         saveDataDaoManager.insertDataToFavorite(ki);
                         startMessageTipsActivityForResult(this,MessageTipsActivity.COLLECT_SUCCEED);

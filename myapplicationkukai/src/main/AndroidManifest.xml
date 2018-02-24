@@ -65,7 +65,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".publicActivity.WelcomeActivity"
+            android:name=".activity.WelcomeActivity"
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -80,29 +80,29 @@
                 android:resource="@xml/device_filter" />
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".activity.MainActivity"
             android:launchMode="singleTop"
             android:screenOrientation="landscape" />
-        <activity android:name=".keyDataSelect.KeyCategorySelectActivity" />
+        <activity android:name=".activity.KeyCategorySelectActivity" />
         <activity
-            android:name=".publicKeyCut.FrmKeyCutMainActivity"
+            android:name=".activity.FrmKeyCutMainActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".setup.FrmMaintenanceActivity"
+            android:name=".activity.setup.FrmMaintenanceActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".setup.FrmAboutActivity"
+            android:name=".activity.setup.FrmAboutActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".setup.ClampCalibrationActivity"
+            android:name=".activity.setup.ClampCalibrationActivity"
             android:screenOrientation="landscape" />
         <!-- 隐藏系统的输入框键盘  android:windowSoftInputMode="stateHidden -->
         <activity
-            android:name=".search.FrmKeySearchActivity"
+            android:name=".activity.FrmKeySearchActivity"
             android:screenOrientation="landscape"
             android:windowSoftInputMode="stateHidden" />
         <activity
-            android:name=".saveData.KeyInformationBoxroomActivity"
+            android:name=".activity.KeyInfoBoxroomActivity"
             android:screenOrientation="landscape" />
         <!-- Required SDK 核心功能 -->
         <!-- 可配置android:process参数将PushService放在其他进程中 -->
@@ -175,7 +175,7 @@
         <receiver android:name="cn.jpush.android.service.AlarmReceiver" />
         <!-- User defined. 用户自定义的广播接收器 -->
         <receiver
-            android:name=".publicClass.JPushReceiver.MyReceiver"
+            android:name=".broadcastReceiver.JPushReceiver"
             android:enabled="true">
             <intent-filter>
 
@@ -208,13 +208,13 @@
             android:value="a142ee9a7da989872683142c" />
 
         <activity
-            android:name=".publicClass.JPushReceiver.TextActivity"
+            android:name=".activity.TextActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".Main2Activity"
+            android:name=".activity.Main2Activity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".Jpush.msgActivity"
+            android:name=".activity.PushMsgActivity"
             android:screenOrientation="landscape" />
         <!--
  ATTENTION: This was auto-generated to add Google Play services to your project for
@@ -225,22 +225,22 @@
             android:value="@integer/google_play_services_version" />
 
         <activity
-            android:name=".MenuModule.KeyBaseInfoActivity"
+            android:name=".activity.KeyBaseInfoActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".publicActivity.CodeFindToothActivity"
+            android:name=".activity.CodeFindToothActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".publicActivity.ToothFindCodeActivity"
+            android:name=".activity.ToothFindCodeActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".publicActivity.InputMainActivity"
+            android:name=".activity.InputMainActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".publicActivity.LackToothFindActivity"
+            android:name=".activity.LackToothFindActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".publicActivity.DecodeKeyActivity"
+            android:name=".activity.DecodeKeyActivity"
             android:screenOrientation="landscape" />
         <activity
             android:name=".dialogActivity.MessageTipsActivity"
@@ -271,13 +271,13 @@
             android:screenOrientation="landscape"
             android:theme="@style/dialog" />
         <activity
-            android:name=".publicActivity.CutKeyActivity"
+            android:name=".activity.CutKeyActivity"
             android:screenOrientation="landscape" />
         <activity
-            android:name=".publicActivity.LanguageChoiceActivity"
+            android:name=".activity.LanguageChoiceActivity"
             android:screenOrientation="landscape" />
-        <activity android:name=".publicActivity.CreateGestureActivity" />
-        <activity android:name=".publicActivity.GestureLoginActivity" />
+        <activity android:name=".activity.CreateGestureActivity" />
+        <activity android:name=".activity.GestureLoginActivity" />
         <!-- 更新apk的服务 -->
         <service android:name="com.kkkcut.www.myapplicationkukai.service.AppDownloadService" />
 

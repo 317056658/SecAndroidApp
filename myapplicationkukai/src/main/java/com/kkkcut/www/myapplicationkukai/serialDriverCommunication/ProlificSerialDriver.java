@@ -116,7 +116,6 @@ public class ProlificSerialDriver {
         @Override
         public void onReceive(Context context, Intent intent) {
                  String  action   =intent.getAction();
-            Log.d("设备分离？", "onReceive: "+action);
             if(action.equals(ACTION_DEVICE_PERMISSION)){
                 synchronized(this){
                     UsbDevice device = intent.getParcelableExtra(UsbManager.EXTRA_DEVICE);
@@ -236,7 +235,6 @@ public class ProlificSerialDriver {
      * @return
      */
     public int write(byte[] buf, int wlength) {
-
         int offset = 0;
         int actual_length = 0;
         byte[] write_buf = new byte[4096];
@@ -440,7 +438,7 @@ public class ProlificSerialDriver {
         mHandler=null;
         context=null;
         if(context==null){
-            Log.d("线程结束", "read: ");
+            Log.d("线程结束", "read");
         }
     }
     /**
@@ -452,8 +450,6 @@ public class ProlificSerialDriver {
             if (connection == null) {
                 return;
             }
-
-            Log.d("关闭连接", "close: ");
             connection.releaseInterface(this.usbDevice.getInterface(0));
             connection.close();
         } catch (Exception e) {

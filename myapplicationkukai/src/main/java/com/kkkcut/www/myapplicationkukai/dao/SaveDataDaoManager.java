@@ -6,7 +6,7 @@ import android.util.Log;
 
 import com.kkkcut.www.myapplicationkukai.application.MyApplication;
 import com.kkkcut.www.myapplicationkukai.entity.KeyInfo;
-import com.kkkcut.www.myapplicationkukai.saveData.KeyInformationBoxroomActivity;
+import com.kkkcut.www.myapplicationkukai.activity.KeyInfoBoxroomActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -222,7 +222,7 @@ public class SaveDataDaoManager {
     public static void saveDataToCutHistory(KeyInfo ki){
         if(mInstanceHolder!=null){
             int dataCount=mInstanceHolder.getTableDataNum(SaveDataDaoManager.TABLE_CUT_HISTORY);
-            if(dataCount< KeyInformationBoxroomActivity.CUT_HISTORY_DATA_MAX){
+            if(dataCount< KeyInfoBoxroomActivity.CUT_HISTORY_DATA_MAX){
                 mInstanceHolder.insertDataToCutHistory(ki);
             }else {
                 // 删除第一条 在插入

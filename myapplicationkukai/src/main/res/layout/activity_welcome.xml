@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.kkkcut.www.myapplicationkukai.publicActivity.WelcomeActivity">
+    tools:context="com.kkkcut.www.myapplicationkukai.activity.WelcomeActivity">
    <ImageView
        android:layout_width="match_parent"
        android:layout_height="match_parent"

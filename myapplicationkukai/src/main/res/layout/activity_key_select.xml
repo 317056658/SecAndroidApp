@@ -52,7 +52,7 @@
 
     </RelativeLayout>
 
-    <com.kkkcut.www.myapplicationkukai.keyDataSelect.ClearEditText
+    <com.kkkcut.www.myapplicationkukai.view.ClearEditText
         android:id="@+id/filter_edit"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
@@ -109,7 +109,7 @@
                 android:textSize="30dp"
                 android:visibility="invisible" />
 
-            <com.kkkcut.www.myapplicationkukai.keyDataSelect.SideBar
+            <com.kkkcut.www.myapplicationkukai.view.SideBar
                 android:layout_alignParentRight="true"
                 android:id="@+id/sidebar"
                 android:layout_width="30dp"

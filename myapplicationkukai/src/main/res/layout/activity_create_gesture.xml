@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#FFFFFF"
-    tools:context="com.kkkcut.www.myapplicationkukai.publicActivity.CreateGestureActivity">
+    tools:context="com.kkkcut.www.myapplicationkukai.activity.CreateGestureActivity">
     <RelativeLayout
         android:background="#16A4FA"
         android:padding="1dp"

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="#E7E7E7"
     android:orientation="vertical"
-    tools:context="com.kkkcut.www.myapplicationkukai.Jpush.msgActivity">
+    tools:context="com.kkkcut.www.myapplicationkukai.activity.PushMsgActivity">
     <RelativeLayout
         android:background="#16A4FA"
         android:layout_width="match_parent"

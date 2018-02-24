@@ -5,6 +5,7 @@ import android.support.annotation.RequiresApi;
 
 /**
  * Created by Administrator on 2017/5/14.
+ * 安卓系统版本判断工具类
  */
 
 public class VersionUtils {

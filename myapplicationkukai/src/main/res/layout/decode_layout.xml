@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.kkkcut.www.myapplicationkukai.publicActivity.DecodeKeyActivity">
+    tools:context="com.kkkcut.www.myapplicationkukai.activity.DecodeKeyActivity">
     <RelativeLayout
         android:background="#16A4FA"
         android:layout_width="match_parent"
